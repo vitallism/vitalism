@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche Gamifiée – Bluejeanism</title>
+<style>
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+body {
+  margin: 0;
+  padding: 40px 20px;
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "Courier New", "Lucida Console", monospace;
+  min-height: 100vh;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.error-header {
+  max-width: 900px;
+  margin: 0 auto 30px auto;
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  border-bottom: 2px solid #FFFFFF;
+  padding-bottom: 15px;
+}
+
+.error-code {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.fiche {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 3px solid #FFFFFF;
+  border-style: outset;
+  padding: 25px;
+  box-sizing: border-box;
+  background-color: #0000AA;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1),
+              4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.system-info {
+  font-size: 0.85em;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #FFFFFF;
+  background-color: rgba(0, 0, 100, 0.5);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #FFFFFF;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border: 3px solid #FFFFFF;
+  background-color: #000088;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+  box-shadow: 0 0 15px #FFFFFF;
+  background-image: url('calli.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+}
+
+.info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.name {
+  font-size: 1.6em;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+}
+
+.socials {
+  margin: 15px 0;
+}
+
+.socials a {
+  background-color: #C0C0C0;
+  color: #000000;
+  text-decoration: none;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  padding: 5px 15px;
+  font-size: 0.9em;
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  box-shadow: 1px 1px 0 #000000;
+  font-family: "MS Sans Serif", "Lucida Console", monospace;
+}
+
+.socials a:active {
+  border-color: #000000 #FFFFFF #FFFFFF #000000;
+  box-shadow: inset 1px 1px 0 #000000;
+}
+
+.bio {
+  margin-top: 15px;
+  font-size: 0.95em;
+  line-height: 1.6em;
+  padding: 10px;
+  border-left: 3px solid #FFFFFF;
+  background-color: rgba(0, 0, 100, 0.3);
+}
+
+.stats-container {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #FFFFFF;
+  padding: 15px;
+  background-color: rgba(0, 0, 80, 0.5);
+  min-width: 280px;
+}
+
+.radar-container {
+  width: 100%;
+  height: 100%;
+  max-width: 250px;
+  max-height: 250px;
+  overflow: hidden;
+}
+
+.radar-label {
+  font-size: 11px;
+  fill: #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+}
+
+.radar-point {
+  fill: #FFFFFF;
+  filter: drop-shadow(0 0 3px #FFFFFF);
+}
+
+.category {
+  margin-top: 20px;
+  padding: 15px;
+  border: 2px solid #FFFFFF;
+  background-color: rgba(0, 0, 100, 0.3);
+}
+
+.category-title {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #FFFFFF;
+  padding-bottom: 5px;
+}
+
+.category-content {
+  font-size: 0.95em;
+  line-height: 1.8em;
+  padding-left: 15px;
+  font-family: "Courier New", monospace;
+}
+
+.cursor {
+  display: inline-block;
+  width: 10px;
+  height: 15px;
+  background-color: #FFFFFF;
+  animation: blink 1s infinite;
+  margin-left: 5px;
+}
+
+.footer-error {
+  max-width: 900px;
+  margin: 30px auto 0 auto;
+  text-align: center;
+  font-size: 0.85em;
+  padding-top: 20px;
+  border-top: 2px solid #FFFFFF;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stats-container {
+    width: 100%;
+  }
+  
+  .error-code {
+    font-size: 1.5em;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="error-header">
+  <div class="error-code">*** STOP: 0x0000BLUE (0xBLUEJEAN, 0x00000001)</div>
+  <div>PROFIL_SYSTEM_DATA</div>
+</div>
+
+<div class="fiche">
+  <div class="system-info">
+    *** Adresse: 0xBF7C2A84 base à 0xBF7C0000, DateStamp 4a5bc600 - profil.sys
+  </div>
+
+  <div class="header">
+    <div class="avatar"></div>
+    <div class="info">
+      <p class="name">&gt; Calliclès<span class="cursor"></span></p>
+      <div class="socials">
+        <a href="https://x.com/visitor_xyz" target="_blank" title="Twitter">[Twitter]</a>
+        <a href="https://www.callicles96.com/" target="_blank" title="Substack">[Substack]</a>
+        <a href="#" title="Blog">[Amazon]</a>
+      </div>
+      <div class="bio">
+        &gt; STATUS: ACTIF<br>
+        &gt; Explorateur des idées, philosophe et observateur du monde.<br>
+        &gt; Passionné par l'intersection entre technologie et humanité.
+      </div>
+    </div>
+    <div class="stats-container">
+      <svg class="radar-container" viewBox="-40 -40 260 260" id="radar-svg"></svg>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-title">*** Relations</div>
+    <div class="category-content">
+      [0x01] Contacts principaux : réseau actif de penseurs et créateurs<br>
+      [0x02] Collaborations : projets interdisciplinaires en cours<br>
+      [0x03] Statut réseau : CONNECTÉ
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-title">*** Projets</div>
+    <div class="category-content">
+      [0x01] Projet 1 : Recherche sur l'éthique numérique<br>
+      [0x02] Projet 2 : Développement d'outils open source<br>
+      [0x03] Progression : 75% COMPLÉTÉ
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-title">*** Notes / Inspirations</div>
+    <div class="category-content">
+      [0x01] Observations personnelles sur la société contemporaine<br>
+      [0x02] Inspirations littéraires : philosophie existentialiste et cyberpunk<br>
+      [0x03] Références : Foucault, Gibson, Le Guin<br>
+      [0x04] Index de réflexion : ÉLEVÉ
+    </div>
+  </div>
+</div>
+
+<div class="footer-error">
+  *** If this is the first time you have seen this screen, restart your computer.<br>
+  *** If this screen appears again, follow these steps: contact the Anône for more information.
+</div>
+
+<script>
+const branches = [
+  {name: "Raisonnement", value: 85},
+  {name: "Éthique", value: 25},
+  {name: "Logique", value: 90},
+  {name: "Esthétique", value: 86},
+  {name: "Métaphysique", value: 54},
+  {name: "Sociologie", value: 75}
+];
+
+function drawRadar(){
+  const svg = document.getElementById("radar-svg");
+  svg.innerHTML = "";
+
+  const cX = 90, cY = 90;
+  const maxR = 70;
+  const levels = 4;
+
+  for(let i = 1; i <= levels; i++){
+    const r = (maxR / levels) * i;
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", cX);
+    circle.setAttribute("cy", cY);
+    circle.setAttribute("r", r);
+    circle.setAttribute("stroke", "#FFFFFF");
+    circle.setAttribute("stroke-width", "1");
+    circle.setAttribute("fill", "none");
+    circle.setAttribute("opacity", "0.4");
+    svg.appendChild(circle);
+  }
+
+  const total = branches.length;
+  const pts = [];
+
+  branches.forEach((b, i) => {
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    
+    const lineEnd = maxR;
+    const lx2 = cX + lineEnd * Math.cos(angle);
+    const ly2 = cY + lineEnd * Math.sin(angle);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", cX);
+    line.setAttribute("y1", cY);
+    line.setAttribute("x2", lx2);
+    line.setAttribute("y2", ly2);
+    line.setAttribute("stroke", "#FFFFFF");
+    line.setAttribute("stroke-width", "1");
+    line.setAttribute("opacity", "0.5");
+    svg.appendChild(line);
+
+    const rad = maxR * (b.value / 100);
+    const x = cX + rad * Math.cos(angle);
+    const y = cY + rad * Math.sin(angle);
+    pts.push([x, y]);
+
+    const lR = maxR + 25;
+    const lx = cX + lR * Math.cos(angle);
+    const ly = cY + lR * Math.sin(angle);
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", lx);
+    text.setAttribute("y", ly);
+    text.textContent = b.name.toUpperCase();
+    text.setAttribute("class", "radar-label");
+    
+    const cosA = Math.cos(angle);
+    if(cosA > 0.2) text.setAttribute("text-anchor", "start");
+    else if(cosA < -0.2) text.setAttribute("text-anchor", "end");
+    else text.setAttribute("text-anchor", "middle");
+    text.setAttribute("alignment-baseline", "middle");
+    svg.appendChild(text);
+  });
+
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  poly.setAttribute("points", pts.map(p => p.join(",")).join(" "));
+  poly.setAttribute("fill", "rgba(255, 255, 255, 0.4)");
+  poly.setAttribute("stroke", "#FFFFFF");
+  poly.setAttribute("stroke-width", "2.5");
+  svg.appendChild(poly);
+
+  pts.forEach(([x, y]) => {
+    const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    pt.setAttribute("cx", x);
+    pt.setAttribute("cy", y);
+    pt.setAttribute("r", 4);
+    pt.setAttribute("class", "radar-point");
+    svg.appendChild(pt);
+  });
+}
+
+drawRadar();
+</script>
+
+</body>
+</html>
