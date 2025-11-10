@@ -249,6 +249,7 @@ function showAllPopups(){
     yesBtn.onclick = () => {
       document.body.removeChild(popup);
       if(msgObj.action === "repertoire.html") window.location.href = "repertoire.html";
+	  else if(msgObj.action === "chat.html") window.location.href = "chat.html";
       else if(msgObj.action === "alert") alert("Ce site ne propose pas de menu principal, c'est con ! ¯\_(ツ)_/¯ ");
     };
 
