@@ -49,7 +49,6 @@
     padding: 10px 25px;
     font-family: "Lucida Console", monospace;
     font-size: 1.1em;
-    font-weight: normal;
     color: #000000;
     cursor: pointer;
   }
@@ -102,7 +101,6 @@
     border-right: 2px solid #808080;
     padding: 5px 10px;
     font-family: "Lucida Console", monospace;
-    font-weight: normal;
     cursor: pointer;
     color: #000000;
   }
@@ -151,11 +149,9 @@ function playClick() {
   clicSound.play();
 }
 
-// Mettre à jour zoom et texte du bouton droite
 function updateStage() {
   const scaleMap = [0.05, 0.4, 1, 1];
   const textMap = ["Redpill ?", "REDPILL ???", "Tellement de retour", "Repertoire"];
-
   const index = Math.min(stage - 1, scaleMap.length - 1);
   image.style.transform = `scale(${scaleMap[index]})`;
   rightButton.textContent = textMap[index];
@@ -180,18 +176,14 @@ rightButton.onclick = function() {
   playClick();
   stage++;
   if(stage === 1) image.style.display = "block";
-
-  // Pop-ups multiples uniquement pour "Tellement de retour"
   if(stage === 4){
     showAllPopups();
     return;
   }
-
   if(stage >= 4){
     window.location.href = "repertoire.html";
     return;
   }
-
   updateStage();
 }
 
@@ -224,7 +216,6 @@ function showAllPopups(){
     popup.className = "popup";
     popup.style.display = "block";
 
-    // Position aléatoire
     const left = Math.floor(Math.random() * (w - 320));
     const top = Math.floor(Math.random() * (h - 120));
     popup.style.left = left + "px";
@@ -249,8 +240,8 @@ function showAllPopups(){
     yesBtn.onclick = () => {
       document.body.removeChild(popup);
       if(msgObj.action === "repertoire.html") window.location.href = "repertoire.html";
-	  else if(msgObj.action === "chat.html") window.location.href = "chat.html";
-      else if(msgObj.action === "alert") alert("Ce site ne propose pas de menu principal, c'est con ! ¯\_(ツ)_/¯ ");
+      else if(msgObj.action === "chat.html") window.location.href = "chat.html"; // ✅ correction ici
+      else if(msgObj.action === "alert") alert("Ce site ne propose pas de menu principal, c'est con ! ¯\\_(ツ)_/¯ ");
     };
 
     const noBtn = document.createElement("button");
@@ -271,7 +262,6 @@ function showAllPopups(){
   });
 }
 
-// Déplacer les pop-ups
 function makeDraggable(elmnt) {
   const header = elmnt.querySelector(".popupTitle");
   let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
