@@ -413,7 +413,7 @@ const popupMessages = [
   { text: "Tu veux un tuyau ?", action: "tuyau.html", icon: "🔧" },
   { text: "Voulez-vous rejoindre le chat ?", action: "chat.html", icon: "💬" },
   { text: "Voulez-vous consulter le codex ?", action: "codex.html", icon: "📖" },
-  { text: "Voulez-vous ouvrir l'index ?", action: "index.html", icon: "📚" },
+  { text: "Voulez-vous ouvrir l'index ?", action: "borne.html", icon: "📚" },
   { text: "Voulez-vous surfer sur Yetscape ?", action: "yetscape.html", icon: "🌐" },
   { text: "Voulez-vous lire les archives ?", action: null, icon: "📦" },
   { text: "Voulez-vous écrire à l'Anône ?", action: "anone.html", icon: "✉️" },
@@ -489,8 +489,8 @@ function showAllPopups(){
           window.location.href = "tuyau.html";
 		} else if(msgObj.action === "vie.html") {
           window.location.href = "vie.html";
-        } else if(msgObj.action === "index.html") {
-          window.location.href = "index.html";
+        } else if(msgObj.action === "borne.html") {
+          window.location.href = "borne.html";
         } else if(msgObj.action === "yetscape.html") {
           window.location.href = "yetscape.html";
         } else if(msgObj.action === "alert") {
