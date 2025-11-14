@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TUYΔU_5X3</title>
+<style>
+@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
+@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
+@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
+
+* { cursor: none !important; margin:0; padding:0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000000;
+  animation: flicker 0.15s infinite;
+}
+
+body::before {
+  content: '';
+  position:fixed;
+  top:0; left:0; width:100%; height:2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events:none; z-index:1000;
+}
+
+body::after {
+  content:'';
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  pointer-events:none; z-index:999;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index:1;
+}
+
+.info {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  padding:4px 10px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  font-size:11px;
+  color:#000000;
+  font-weight:bold;
+  box-shadow:1px 1px 0 #000000;
+  font-family: "Courier New", monospace;
+  z-index:1001;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  border:2px solid #FFFFFF;
+  padding:4px 12px;
+  z-index:1001;
+}
+
+.logo span {
+  background-color:#FFFFFF;
+  color:#000000;
+  padding:0 4px;
+  font-weight:bold;
+  font-size:14px;
+  font-family: "Courier New", monospace;
+}
+
+.custom-cursor { 
+  position: fixed; 
+  width:16px; 
+  height:16px; 
+  background-color:#FFFFFF; 
+  pointer-events:none; 
+  z-index:10000; 
+  mix-blend-mode:difference; 
+  display:none; 
+}
+
+body:hover .custom-cursor { display:block; }
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+<canvas id="pipesCanvas"></canvas>
+<div class="logo"><span>:faunism</span></div>
+<div class="info">3D PIPES</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+const canvas = document.getElementById('pipesCanvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+// Couleurs inspirées Windows 95
+const PIPE_COLORS = [
+  {main: '#FF0000', shade: '#AA0000', light: '#FF6666'},
+  {main: '#00FF00', shade: '#00AA00', light: '#66FF66'},
+  {main: '#0000FF', shade: '#0000AA', light: '#6666FF'},
+  {main: '#FFFF00', shade: '#AAAA00', light: '#FFFF66'},
+  {main: '#FF00FF', shade: '#AA00AA', light: '#FF66FF'},
+  {main: '#00FFFF', shade: '#00AAAA', light: '#66FFFF'},
+  {main: '#FFFFFF', shade: '#AAAAAA', light: '#FFFFFF'}
+];
+
+const GRID_SIZE = 20;
+const PIPE_RADIUS = 8;
+const JOINT_RADIUS = 12;
+const MAX_PIPES = 5;
+
+let pipes = [];
+
+// Directions possibles en 3D
+const DIRECTIONS = [
+  {x: 1, y: 0, z: 0},   // droite
+  {x: -1, y: 0, z: 0},  // gauche
+  {x: 0, y: 1, z: 0},   // haut
+  {x: 0, y: -1, z: 0},  // bas
+  {x: 0, y: 0, z: 1},   // avant
+  {x: 0, y: 0, z: -1}   // arrière
+];
+
+class Pipe3D {
+  constructor() {
+    // Position de départ aléatoire dans l'espace 3D
+    this.x = Math.floor(Math.random() * 30 - 15) * GRID_SIZE;
+    this.y = Math.floor(Math.random() * 20 - 10) * GRID_SIZE;
+    this.z = Math.floor(Math.random() * 20 - 10) * GRID_SIZE;
+    
+    this.color = PIPE_COLORS[Math.floor(Math.random() * PIPE_COLORS.length)];
+    this.dir = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+    this.segments = [];
+    this.length = 0;
+    this.maxLength = Math.floor(Math.random() * 30) + 20;
+  }
+  
+  project(x, y, z) {
+    // Projection perspective simple
+    const scale = 600 / (600 + z);
+    return {
+      x: W/2 + x * scale,
+      y: H/2 + y * scale,
+      scale: scale
+    };
+  }
+  
+  drawSegment(x1, y1, z1, x2, y2, z2) {
+    const p1 = this.project(x1, y1, z1);
+    const p2 = this.project(x2, y2, z2);
+    
+    // Calculer la profondeur moyenne pour l'ombrage
+    const depth = (z1 + z2) / 2;
+    const brightness = Math.max(0.3, Math.min(1, (depth + 300) / 600));
+    
+    // Dessiner le tuyau avec dégradé pour effet 3D
+    const gradient = ctx.createLinearGradient(p1.x - 10, p1.y - 10, p1.x + 10, p1.y + 10);
+    gradient.addColorStop(0, this.lightenColor(this.color.main, brightness * 1.3));
+    gradient.addColorStop(0.5, this.adjustBrightness(this.color.main, brightness));
+    gradient.addColorStop(1, this.adjustBrightness(this.color.shade, brightness * 0.7));
+    
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = PIPE_RADIUS * 2 * (p1.scale + p2.scale) / 2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+  }
+  
+  drawJoint(x, y, z) {
+    const p = this.project(x, y, z);
+    const depth = z;
+    const brightness = Math.max(0.3, Math.min(1, (depth + 300) / 600));
+    
+    // Joint sphérique avec effet 3D
+    const gradient = ctx.createRadialGradient(
+      p.x - 5 * p.scale, p.y - 5 * p.scale, 0,
+      p.x, p.y, JOINT_RADIUS * p.scale
+    );
+    gradient.addColorStop(0, this.lightenColor(this.color.light, brightness * 1.5));
+    gradient.addColorStop(0.4, this.adjustBrightness(this.color.main, brightness));
+    gradient.addColorStop(1, this.adjustBrightness(this.color.shade, brightness * 0.6));
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, JOINT_RADIUS * p.scale, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Contour pour plus de définition
+    ctx.strokeStyle = this.adjustBrightness(this.color.shade, brightness * 0.5);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  
+  adjustBrightness(color, factor) {
+    const hex = color.replace('#', '');
+    const r = Math.floor(parseInt(hex.substr(0, 2), 16) * factor);
+    const g = Math.floor(parseInt(hex.substr(2, 2), 16) * factor);
+    const b = Math.floor(parseInt(hex.substr(4, 2), 16) * factor);
+    return `rgb(${r},${g},${b})`;
+  }
+  
+  lightenColor(color, factor) {
+    const hex = color.replace('#', '');
+    const r = Math.min(255, Math.floor(parseInt(hex.substr(0, 2), 16) * factor));
+    const g = Math.min(255, Math.floor(parseInt(hex.substr(2, 2), 16) * factor));
+    const b = Math.min(255, Math.floor(parseInt(hex.substr(4, 2), 16) * factor));
+    return `rgb(${r},${g},${b})`;
+  }
+  
+  step() {
+    if (this.length >= this.maxLength) {
+      return false;
+    }
+    
+    const oldX = this.x;
+    const oldY = this.y;
+    const oldZ = this.z;
+    
+    // Avancer dans la direction actuelle
+    this.x += this.dir.x * GRID_SIZE;
+    this.y += this.dir.y * GRID_SIZE;
+    this.z += this.dir.z * GRID_SIZE;
+    
+    // Dessiner le segment
+    this.drawSegment(oldX, oldY, oldZ, this.x, this.y, this.z);
+    
+    // Parfois changer de direction (virage à 90°)
+    if (Math.random() < 0.2) {
+      // Choisir une nouvelle direction perpendiculaire
+      const possibleDirs = DIRECTIONS.filter(d => {
+        return (d.x !== this.dir.x || d.y !== this.dir.y || d.z !== this.dir.z) &&
+               (d.x !== -this.dir.x || d.y !== -this.dir.y || d.z !== -this.dir.z);
+      });
+      this.dir = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
+      
+      // Dessiner le joint au virage
+      this.drawJoint(this.x, this.y, this.z);
+    }
+    
+    this.length++;
+    
+    // Limites de l'espace
+    if (Math.abs(this.x) > 400 || Math.abs(this.y) > 300 || Math.abs(this.z) > 300) {
+      return false;
+    }
+    
+    return true;
+  }
+}
+
+function loop() {
+  // Ajouter de nouveaux tuyaux
+  if (pipes.length < MAX_PIPES && Math.random() < 0.03) {
+    pipes.push(new Pipe3D());
+  }
+  
+  // Effet de fondu pour les traces
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+  ctx.fillRect(0, 0, W, H);
+  
+  // Mettre à jour et dessiner tous les tuyaux
+  pipes = pipes.filter(pipe => pipe.step());
+  
+  requestAnimationFrame(loop);
+}
+
+// Démarrer avec quelques tuyaux
+for (let i = 0; i < 3; i++) {
+  pipes.push(new Pipe3D());
+}
+
+loop();
+</script>
+</body>
+</html>

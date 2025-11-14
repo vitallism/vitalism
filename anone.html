@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>//AN0NE_01</title>
+<style>
+@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
+@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
+@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
+@keyframes errorBlink { 0%,50%{opacity:1;} 51%,100%{opacity:0;} }
+
+* { cursor: none !important; box-sizing: border-box; }
+
+body {
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-size:14px;
+  margin:0;
+  padding:40px;
+  min-height:100vh;
+  animation: flicker 0.15s infinite;
+  text-shadow:0 0 2px rgba(255,255,255,0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position:fixed;
+  top:0; left:0; width:100%; height:2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events:none; z-index:1000;
+}
+
+body::after {
+  content:'';
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  pointer-events:none; z-index:999;
+}
+
+.content { 
+  position: relative; 
+  z-index:1; 
+  max-width:800px; 
+  margin:0 auto;
+}
+
+.logo { 
+  border:2px solid #FFFFFF; 
+  display:inline-block; 
+  padding:4px 16px; 
+  margin-bottom:20px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.logo:hover {
+  background:#FFFFFF;
+}
+
+.logo:hover span {
+  color:#0000AA;
+}
+
+.logo span { 
+  background-color:#FFFFFF; 
+  color:#0000AA; 
+  padding:0 4px; 
+  font-weight:bold;
+  font-size:18px;
+}
+
+.terminal-boot {
+  margin-bottom:30px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.boot-line {
+  color:#AAAAAA;
+  margin:3px 0;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+
+.status-bar {
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:6px 12px;
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:#000000;
+  box-shadow:2px 2px 0 #000000;
+}
+
+.status-section {
+  border-left:2px solid #808080;
+  border-top:2px solid #808080;
+  border-right:2px solid #FFFFFF;
+  border-bottom:2px solid #FFFFFF;
+  padding:2px 8px;
+}
+
+.custom-cursor { 
+  position: fixed; 
+  width:16px; 
+  height:16px; 
+  background-color:#FFFFFF; 
+  pointer-events:none; 
+  z-index:10000; 
+  mix-blend-mode:difference; 
+  display:none; 
+}
+
+body:hover .custom-cursor { display:block; }
+
+#typingArea {
+  min-height:calc(100vh - 350px);
+  outline:none;
+  font-size:16px;
+  line-height:1.8;
+  padding:20px 0;
+  color:#FFFFFF;
+  word-wrap:break-word;
+  white-space:pre-wrap;
+  caret-color:transparent;
+  position:relative;
+}
+
+#typingArea:focus::after {
+  content:'█';
+  color:#FFFFFF;
+  animation:blink 1s infinite;
+  position:absolute;
+  margin-left:2px;
+}
+
+#typingArea:empty:before {
+  content:'';
+  color:#555599;
+  font-size:14px;
+}
+
+#typingArea::selection {
+  background:rgba(255,255,255,0.3);
+}
+
+#submitBtn {
+  position:fixed;
+  bottom:80px;
+  right:40px;
+  padding:12px 24px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #000000;
+  border-right:2px solid #000000;
+  font-family:"Courier New", monospace;
+  font-weight:bold;
+  font-size:13px;
+  cursor:pointer;
+  color:#000000;
+  transition:opacity 0.5s;
+  box-shadow:4px 4px 0 #000000;
+}
+
+#submitBtn:hover {
+  background:#DFDFDF;
+}
+
+#submitBtn:active {
+  border-top:2px solid #000000;
+  border-left:2px solid #000000;
+  border-bottom:2px solid #FFFFFF;
+  border-right:2px solid #FFFFFF;
+}
+
+#statusIndicator {
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  padding:4px 10px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  font-size:11px;
+  color:#000000;
+  font-weight:bold;
+  box-shadow:1px 1px 0 #000000;
+}
+
+@media (max-width:768px){
+  body { padding:20px; }
+  .content { max-width:100%; }
+  #submitBtn {
+    right:20px;
+    bottom:100px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+
+<div class="content">
+  <a href="index.html" style="text-decoration:none;">
+    <div class="logo"><span>:faunism</span></div>
+  </a>
+
+  <div class="terminal-boot">
+    <div class="boot-line">FAUNISM CONTACT SYSTEM v2.1</div>
+    <div class="boot-line">Copyright (C) 1995-20// Vitalism Corp.</div>
+    <div class="boot-line" style="margin-top:10px;">Loading ANONE.COLLECTIVE protocol...</div>
+    <div class="boot-line">Initializing encryption layer................ [OK]</div>
+    <div class="boot-line">Mounting anonymous routing table............. [OK]</div>
+    <div class="boot-line">Connecting to network nodes.................. [OK]</div>
+    <div class="boot-line">Loading cryptographic modules................ [OK]</div>
+    <div class="boot-line" style="margin-top:10px;">ANONE_POOL[12] nodes detected</div>
+    <div class="boot-line">System ready. Begin transmission.</div>
+    <div class="boot-line" style="margin-top:10px; color:#00FF00;">C:\VITALISM\CONTACT&gt;<span class="cursor-blink">_</span></div>
+  </div>
+
+  <div id="typingArea" contenteditable="true" spellcheck="false"></div>
+  
+  <div id="submitBtn" style="opacity:0;">submit your feedback</div>
+
+  <div id="statusIndicator">LISTENING</div>
+</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+const anones = [
+  "hephaistos@vitalism.net",
+  "athena@vitalism.net",
+  "gaia@vitalism.net",
+  "promethee@vitalism.net",
+  "iris@vitalism.net",
+  "eros@vitalism.net",
+  "chronos@vitalism.net",
+  "nyx@vitalism.net",
+  "hephaestus@vitalism.net",
+  "demeter@vitalism.net",
+  "pan@vitalism.net",
+  "selene@vitalism.net"
+];
+
+const typingArea = document.getElementById('typingArea');
+const submitBtn = document.getElementById('submitBtn');
+const statusIndicator = document.getElementById('statusIndicator');
+
+let originalText = '';
+let charCount = 0;
+
+const cryptChars = '░▒▓█▀▄═║╔╗╚╝╠╣╦╩╬┌┐└┘├┤┬┴┼─│¤§¶†‡°¢£¥ƒα';
+
+function encryptChar(char, index) {
+  if (char === '\n' || char === ' ') return char;
+  const intensity = Math.min(charCount / 100, 1);
+  if (Math.random() < intensity) {
+    return cryptChars[Math.floor(Math.random() * cryptChars.length)];
+  }
+  return char;
+}
+
+function encryptText(text) {
+  return text.split('').map((char, i) => encryptChar(char, i)).join('');
+}
+
+let typingTimeout;
+typingArea.addEventListener('input', function(e) {
+  clearTimeout(typingTimeout);
+  
+  originalText = typingArea.textContent;
+  charCount = originalText.length;
+  
+  statusIndicator.textContent = charCount > 0 ? 'ENCODING' : 'LISTENING';
+  
+  if (charCount > 10) {
+    submitBtn.style.opacity = '1';
+  } else {
+    submitBtn.style.opacity = '0';
+  }
+  
+  typingTimeout = setTimeout(() => {
+    if (charCount > 0) {
+      const encrypted = encryptText(originalText);
+      const cursorPos = saveCaretPosition(typingArea);
+      typingArea.textContent = encrypted;
+      restoreCaretPosition(typingArea, cursorPos);
+      statusIndicator.textContent = 'ENCRYPTED';
+    }
+  }, 800);
+});
+
+typingArea.addEventListener('mouseup', function() {
+  const selection = window.getSelection();
+  if (selection.toString().length > 0) {
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    
+    let startOffset = 0;
+    let endOffset = 0;
+    const textContent = typingArea.textContent;
+    
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(typingArea);
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+    startOffset = preCaretRange.toString().length;
+    endOffset = startOffset + selectedText.length;
+    
+    const decrypted = originalText.substring(startOffset, endOffset);
+    
+    if (decrypted !== selectedText) {
+      range.deleteContents();
+      range.insertNode(document.createTextNode(decrypted));
+      
+      setTimeout(() => {
+        const encrypted = encryptText(originalText);
+        typingArea.textContent = encrypted;
+      }, 2000);
+    }
+  }
+});
+
+submitBtn.addEventListener('click', function() {
+  if (charCount < 10) return;
+  
+  submitBtn.style.opacity = '0.5';
+  submitBtn.style.pointerEvents = 'none';
+  statusIndicator.textContent = 'TRANSMITTING';
+  
+  const chosen = anones[Math.floor(Math.random() * anones.length)];
+  const hash = Math.random().toString(16).substring(2, 10).toUpperCase();
+  
+  setTimeout(() => {
+    statusIndicator.textContent = 'TX_SUCCESS';
+    console.log(`→ 0x${hash} | ${chosen} | ${originalText.substring(0, 100)}...`);
+    
+    typingArea.textContent = `TX_SUCCESS | HASH: 0x${hash}\nDEST: ANONE_POOL[HIDDEN]\nPAYLOAD: ${charCount} BYTES\n\nCONNECTION_TERMINATED`;
+    
+    setTimeout(() => {
+      typingArea.textContent = '';
+      originalText = '';
+      charCount = 0;
+      submitBtn.style.opacity = '0';
+      submitBtn.style.pointerEvents = 'auto';
+      statusIndicator.textContent = 'LISTENING';
+    }, 5000);
+  }, 2000);
+});
+
+function saveCaretPosition(element) {
+  const selection = window.getSelection();
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    return preCaretRange.toString().length;
+  }
+  return 0;
+}
+
+function restoreCaretPosition(element, position) {
+  const range = document.createRange();
+  const selection = window.getSelection();
+  
+  let currentPos = 0;
+  let found = false;
+  
+  function traverse(node) {
+    if (found) return;
+    
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nextPos = currentPos + node.length;
+      if (position <= nextPos) {
+        range.setStart(node, position - currentPos);
+        range.setEnd(node, position - currentPos);
+        found = true;
+        return;
+      }
+      currentPos = nextPos;
+    } else {
+      for (let i = 0; i < node.childNodes.length; i++) {
+        traverse(node.childNodes[i]);
+        if (found) return;
+      }
+    }
+  }
+  
+  traverse(element);
+  
+  if (found) {
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+}
+
+// Hide boot sequence after loading
+setTimeout(() => {
+  const bootDiv = document.querySelector('.terminal-boot');
+  bootDiv.style.transition = 'opacity 0.5s';
+  bootDiv.style.opacity = '0';
+  
+  setTimeout(() => {
+    bootDiv.innerHTML = '<div class="boot-line" style="color:#00FF00;">SYSTEM_READY</div>';
+    bootDiv.style.opacity = '1';
+  }, 500);
+}, 3000);
+
+typingArea.focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CL@SS_Σ500</title>
+<style>
+@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
+@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
+@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
+@keyframes arrowFlicker { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+
+* { cursor: none !important; box-sizing: border-box; }
+
+body {
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-size:16px;
+  margin:0;
+  padding:40px 20px;
+  min-height:100vh;
+  animation: flicker 0.15s infinite;
+  text-shadow:0 0 2px rgba(255,255,255,0.5);
+  position: relative;
+  overflow-y: auto;
+}
+
+body::before {
+  content: '';
+  position:fixed;
+  top:0; left:0; width:100%; height:2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events:none; z-index:1000;
+}
+
+body::after {
+  content:'';
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  pointer-events:none; z-index:999;
+}
+
+.content { 
+  position: relative; 
+  z-index:1; 
+  max-width:1400px; 
+  margin:0 auto; 
+}
+
+.logo {
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 16px;
+  margin-bottom: 30px;
+  font-family: "Courier New", monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logo:hover {
+  background: #FFFFFF;
+}
+
+.logo:hover span {
+  color: #0000AA;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Tooltip */
+.tooltip {
+  position: fixed;
+  background-color: #FFFFE1;
+  color: #000000;
+  padding: 5px 10px;
+  border: 2px solid #000000;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 10000;
+  display: none;
+  font-family: "Courier New", monospace;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+/* Section principale avec onglets */
+.tabs-container {
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  margin-bottom: 30px;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+.tabs-header {
+  display: flex;
+  gap: 0;
+  background: #808080;
+  border-bottom: 2px solid #000000;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 15px 20px;
+  background: #C0C0C0;
+  border: none;
+  border-right: 2px solid #000000;
+  color: #000000;
+  font-weight: bold;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background: #DFDFDF;
+}
+
+.tab-btn.active {
+  background: #C0C0C0;
+  color: #000000;
+  border-bottom: 2px solid #C0C0C0;
+  margin-bottom: -2px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-right: 2px solid #808080;
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Contrôles période */
+.period-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  font-size: 14px;
+  color: #000000;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.period-btn {
+  padding: 10px 24px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  background: #E0E0E0;
+  color: #000000;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.period-btn:hover {
+  background: #F0F0F0;
+  transform: translateY(-1px);
+}
+
+.period-btn.active {
+  background: #C0C0C0;
+  color: #000000;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  box-shadow: inset 1px 1px 2px #000000;
+}
+
+/* Podium TOP 3 - Version compacte */
+.podium-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.podium-card {
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 2px 2px 0 #000000;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.podium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 #000000;
+}
+
+.podium-card.rank-1 {
+  background: #FFD700;
+}
+
+.podium-card.rank-2 {
+  background: #E8E8E8;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  box-shadow: inset 0 0 10px rgba(192, 192, 192, 0.5), 2px 2px 0 #000000;
+}
+
+.podium-card.rank-3 {
+  background: #CD7F32;
+}
+
+.podium-rank {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.podium-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
+.podium-score {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.podium-stats {
+  font-size: 10px;
+  color: #000000;
+  line-height: 1.4;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #808080;
+}
+
+.podium-view-btn {
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  background: #000080;
+  color: #FFFFFF;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.podium-view-btn:hover {
+  background: #0000FF;
+}
+
+/* Table simplifiée et épurée */
+.ranking-table-container {
+  background: #FFFFFF;
+  padding: 2px;
+  margin-bottom: 30px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: #FFFFFF;
+  border: none;
+}
+
+th, td { 
+  border: 1px solid #C0C0C0;
+  padding: 12px;
+  text-align: center;
+  color: #000000;
+  background: #FFFFFF;
+}
+
+th { 
+  background: #000080;
+  color: #FFFFFF;
+  font-weight: bold;
+  user-select: none;
+  cursor: pointer;
+  text-shadow: none;
+  border: 1px solid #000080;
+}
+
+th:hover { 
+  background: #0000FF;
+}
+
+th.sorted { 
+  background: #FFFF00;
+  color: #000000;
+}
+
+th.sorted .arrow { 
+  display: inline-block;
+  margin-left: 5px;
+  color: #FF0000;
+}
+
+tr:nth-child(even) td { 
+  background-color: #F0F0F0;
+}
+
+tr:nth-child(odd) td { 
+  background-color: #FFFFFF;
+}
+
+tr:hover td { 
+  background-color: #FFFFCC !important;
+}
+
+/* Liens contributeurs */
+.contributor-cell {
+  position: relative;
+}
+
+a.contributor-link {
+  color: #000080;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+  border-bottom: 2px dotted #000080;
+}
+
+a.contributor-link:hover {
+  color: #0000FF;
+  border-bottom-color: #0000FF;
+}
+
+/* Badges simplifiés */
+.badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.badge {
+  background: #FFD700;
+  color: #000000;
+  padding: 4px 8px;
+  font-size: 10px;
+  border: 1px solid #000000;
+  font-weight: bold;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.badge.silver {
+  background: #C0C0C0;
+}
+
+.badge.bronze {
+  background: #CD7F32;
+  color: #FFFFFF;
+}
+
+/* Score bar modernisée */
+.score-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.score-bar { 
+  height: 20px; 
+  background: linear-gradient(90deg, #4CAF50, #45a049);
+  display: inline-block; 
+  border: 1px solid #000000;
+  min-width: 2px;
+  transition: width 0.5s ease-out;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+/* Bouton Voir */
+.view-btn {
+  padding: 6px 16px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  background: #C0C0C0;
+  color: #000000;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.view-btn:hover {
+  background: #000080;
+  color: #FFFFFF;
+}
+
+/* Rank badge */
+.rank-number {
+  font-weight: bold;
+  font-size: 16px;
+  color: #000000;
+}
+
+.rank-1 { color: #FFD700; }
+.rank-2 { color: #C0C0C0; }
+.rank-3 { color: #CD7F32; }
+
+/* Statistiques globales */
+.stats-section {
+  margin-top: 40px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background: #C0C0C0;
+  border-top: 3px solid #FFFFFF;
+  border-left: 3px solid #FFFFFF;
+  border-bottom: 3px solid #000000;
+  border-right: 3px solid #000000;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+.stat-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #000080;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #000000;
+  font-weight: bold;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 60px;
+  padding: 30px;
+  background: #C0C0C0;
+  border-top: 3px solid #FFFFFF;
+  border-left: 3px solid #FFFFFF;
+  border-bottom: 3px solid #000000;
+  border-right: 3px solid #000000;
+  color: #000000;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+.footer-title {
+  color: #FF0000;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.footer-info {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #000000;
+}
+
+.blink-cursor { 
+  display: inline-block; 
+  width: 10px; 
+  height: 16px; 
+  background-color: #000000; 
+  animation: blink 1s infinite; 
+  margin-left: 5px; 
+  vertical-align: middle; 
+}
+
+.custom-cursor { 
+  position: fixed; 
+  width: 16px; 
+  height: 16px; 
+  background-color: #FFFFFF; 
+  pointer-events: none; 
+  z-index: 10000; 
+  mix-blend-mode: difference; 
+  display: none; 
+}
+
+body:hover .custom-cursor { display: block; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  body { padding: 20px 10px; }
+  .podium-section { 
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .tabs-header { flex-direction: column; }
+  .tab-btn { border-right: none; border-bottom: 1px solid #000000; }
+  .period-controls { flex-direction: column; align-items: stretch; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 4px; }
+}
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<div class="content">
+  <a href="index.html" style="text-decoration:none;">
+    <div class="logo"><span>:faunism</span></div>
+  </a>
+
+  <div style="font-size:13px; color:#AAAAAA; margin-bottom:25px; font-family: 'Courier New', monospace;">
+    A fatal exception 0xVIT has occurred at 0028:C00NTRIB in VXD BLUEJEANISM(01)<br>
+    Press any key to view rankings_
+  </div>
+
+  <div class="tabs-container">
+    <div class="tabs-header">
+      <button class="tab-btn active" onclick="switchTab('current')">📊 CLASSEMENT ACTUEL</button>
+      <button class="tab-btn" onclick="switchTab('history')">📅 HISTORIQUE</button>
+      <button class="tab-btn" onclick="switchTab('stats')">📈 STATISTIQUES</button>
+    </div>
+
+    <!-- TAB 1: Classement actuel -->
+    <div id="tab-current" class="tab-content active">
+      <div class="period-controls">
+        <span class="control-label">PÉRIODE:</span>
+        <button class="period-btn" onclick="changePeriod('week')">SEMAINE</button>
+        <button class="period-btn" onclick="changePeriod('month')">MOIS</button>
+        <button class="period-btn active" onclick="changePeriod('year')">ANNÉE</button>
+      </div>
+
+      <!-- Podium TOP 3 -->
+      <div id="podiumSection" class="podium-section"></div>
+
+      <!-- Tableau complet -->
+      <div class="ranking-table-container">
+        <table id="rankingTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)" style="width:80px;">RANG</th>
+              <th onclick="sortTable(1)">NOM</th>
+              <th onclick="sortTable(2)" class="icon-header" title="Livres">📚</th>
+              <th onclick="sortTable(3)" class="icon-header" title="Articles">✍️</th>
+              <th onclick="sortTable(4)" class="icon-header" title="Vidéos">🎥</th>
+              <th onclick="sortTable(5)" class="icon-header" title="Retweets">🔄</th>
+              <th onclick="sortTable(6)" class="icon-header" title="Likes">💚</th>
+              <th onclick="sortTable(7)">SCORE</th>
+              <th>BADGES</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: Historique -->
+    <div id="tab-history" class="tab-content">
+      <div class="period-controls">
+        <span class="control-label">ANNÉE:</span>
+        <button class="period-btn active" onclick="showYearLeaderboard('y2023')">2023</button>
+        <button class="period-btn" onclick="showYearLeaderboard('y2024')">2024</button>
+        <button class="period-btn" onclick="showYearLeaderboard('y2025')">2025</button>
+      </div>
+
+      <div class="ranking-table-container">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th style="width:80px;">RANG</th>
+              <th>NOM</th>
+              <th class="icon-header" title="Livres">📚</th>
+              <th class="icon-header" title="Articles">✍️</th>
+              <th class="icon-header" title="Vidéos">🎥</th>
+              <th class="icon-header" title="Retweets">🔄</th>
+              <th class="icon-header" title="Likes">💚</th>
+              <th>SCORE</th>
+              <th>BADGES</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: Statistiques -->
+    <div id="tab-stats" class="tab-content">
+      <div class="stats-section">
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-title">*** SYSTEM STATUS: RANKING COMPLETE ***</div>
+    <div class="footer-info">
+      Total contributeurs actifs: <span id="totalContributors">20</span><span class="blink-cursor"></span><br>
+      Dernière mise à jour: <span id="lastUpdate">2025-11-13</span><br>
+      run:vitalism//v2.1 | Processus: VITALISM.SYS
+    </div>
+  </div>
+</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+// Tooltip
+const tooltip = document.getElementById('tooltip');
+
+// Données des contributeurs (noms réels du repertoire.html)
+const contributors = [
+  {name:'Callicles', file:'Callicles.html', week:{books:1,articles:5,videos:2,retweets:10,likes:50}, month:{books:2,articles:15,videos:5,retweets:50,likes:200}, year:{books:5,articles:50,videos:20,retweets:200,likes:1000}, y2023:{books:4,articles:45,videos:18,retweets:180,likes:900}, y2024:{books:6,articles:55,videos:22,retweets:220,likes:1100}, y2025:{books:5,articles:50,videos:20,retweets:200,likes:1000}},
+  {name:'Raffaello Bellino', file:'Raffaello.html', week:{books:0,articles:4,videos:1,retweets:8,likes:40}, month:{books:1,articles:12,videos:3,retweets:40,likes:180}, year:{books:4,articles:45,videos:18,retweets:180,likes:950}, y2023:{books:3,articles:40,videos:16,retweets:160,likes:850}, y2024:{books:5,articles:48,videos:20,retweets:200,likes:1000}, y2025:{books:4,articles:45,videos:18,retweets:180,likes:950}},
+  {name:'Venehon', file:'Venehon.html', week:{books:0,articles:3,videos:0,retweets:5,likes:20}, month:{books:1,articles:10,videos:2,retweets:35,likes:150}, year:{books:3,articles:40,videos:15,retweets:150,likes:800}, y2023:{books:2,articles:35,videos:12,retweets:130,likes:700}, y2024:{books:4,articles:42,videos:17,retweets:170,likes:900}, y2025:{books:3,articles:40,videos:15,retweets:150,likes:800}},
+  {name:'Caverne', file:'caverne.html', week:{books:1,articles:6,videos:1,retweets:12,likes:60}, month:{books:2,articles:16,videos:4,retweets:55,likes:220}, year:{books:5,articles:55,videos:22,retweets:220,likes:1050}, y2023:{books:4,articles:50,videos:20,retweets:200,likes:950}, y2024:{books:6,articles:60,videos:25,retweets:250,likes:1150}, y2025:{books:5,articles:55,videos:22,retweets:220,likes:1050}},
+  {name:'Aphoom Zah', file:'aphoom.html', week:{books:1,articles:5,videos:2,retweets:9,likes:45}, month:{books:2,articles:14,videos:5,retweets:45,likes:200}, year:{books:5,articles:52,videos:20,retweets:210,likes:1000}, y2023:{books:4,articles:48,videos:18,retweets:190,likes:900}, y2024:{books:6,articles:56,videos:23,retweets:230,likes:1100}, y2025:{books:5,articles:52,videos:20,retweets:210,likes:1000}},
+  {name:'J.J Heydon', file:'heydon.html', week:{books:0,articles:4,videos:1,retweets:6,likes:30}, month:{books:1,articles:13,videos:3,retweets:40,likes:190}, year:{books:3,articles:42,videos:18,retweets:180,likes:900}, y2023:{books:3,articles:38,videos:16,retweets:160,likes:800}, y2024:{books:4,articles:46,videos:20,retweets:200,likes:1000}, y2025:{books:3,articles:42,videos:18,retweets:180,likes:900}},
+  {name:'Lia Von Finnak', file:'lia.html', week:{books:0,articles:3,videos:1,retweets:7,likes:35}, month:{books:1,articles:12,videos:2,retweets:38,likes:170}, year:{books:3,articles:40,videos:16,retweets:160,likes:850}, y2023:{books:2,articles:36,videos:14,retweets:140,likes:750}, y2024:{books:4,articles:44,videos:18,retweets:180,likes:950}, y2025:{books:3,articles:40,videos:16,retweets:160,likes:850}},
+  {name:'Odin', file:'odin.html', week:{books:1,articles:4,videos:2,retweets:10,likes:55}, month:{books:2,articles:14,videos:4,retweets:50,likes:210}, year:{books:4,articles:45,videos:20,retweets:200,likes:980}, y2023:{books:3,articles:42,videos:18,retweets:180,likes:880}, y2024:{books:5,articles:48,videos:22,retweets:220,likes:1080}, y2025:{books:4,articles:45,videos:20,retweets:200,likes:980}},
+  {name:'Picarssiette', file:'picarsiette.html', week:{books:0,articles:2,videos:1,retweets:5,likes:25}, month:{books:1,articles:10,videos:2,retweets:35,likes:140}, year:{books:3,articles:38,videos:15,retweets:160,likes:820}, y2023:{books:2,articles:34,videos:13,retweets:140,likes:720}, y2024:{books:4,articles:42,videos:17,retweets:180,likes:920}, y2025:{books:3,articles:38,videos:15,retweets:160,likes:820}},
+  {name:'Raffello Bellino', file:'raffaelo.html', week:{books:1,articles:5,videos:1,retweets:12,likes:60}, month:{books:2,articles:15,videos:4,retweets:55,likes:220}, year:{books:5,articles:50,videos:20,retweets:200,likes:1000}, y2023:{books:4,articles:46,videos:18,retweets:180,likes:900}, y2024:{books:6,articles:54,videos:22,retweets:220,likes:1100}, y2025:{books:5,articles:50,videos:20,retweets:200,likes:1000}},
+  {name:'Tancrède Bastié', file:'tancrede.html', week:{books:0,articles:3,videos:1,retweets:8,likes:35}, month:{books:1,articles:12,videos:3,retweets:40,likes:180}, year:{books:3,articles:42,videos:15,retweets:180,likes:900}, y2023:{books:3,articles:38,videos:13,retweets:160,likes:800}, y2024:{books:4,articles:46,videos:17,retweets:200,likes:1000}, y2025:{books:3,articles:42,videos:15,retweets:180,likes:900}},
+  {name:'Sytry', file:'sytry.html', week:{books:0,articles:2,videos:0,retweets:4,likes:20}, month:{books:1,articles:10,videos:1,retweets:30,likes:150}, year:{books:3,articles:38,videos:12,retweets:150,likes:800}, y2023:{books:2,articles:34,videos:10,retweets:130,likes:700}, y2024:{books:4,articles:42,videos:14,retweets:170,likes:900}, y2025:{books:3,articles:38,videos:12,retweets:150,likes:800}},
+  {name:'Tuyau', file:'tuyau.html', week:{books:1,articles:4,videos:2,retweets:10,likes:55}, month:{books:2,articles:14,videos:5,retweets:50,likes:210}, year:{books:4,articles:45,videos:20,retweets:200,likes:980}, y2023:{books:3,articles:42,videos:18,retweets:180,likes:880}, y2024:{books:5,articles:48,videos:22,retweets:220,likes:1080}, y2025:{books:4,articles:45,videos:20,retweets:200,likes:980}},
+  {name:'Vie', file:'vie.html', week:{books:1,articles:5,videos:1,retweets:12,likes:60}, month:{books:2,articles:15,videos:4,retweets:55,likes:220}, year:{books:5,articles:50,videos:20,retweets:200,likes:1000}, y2023:{books:4,articles:46,videos:18,retweets:180,likes:900}, y2024:{books:6,articles:54,videos:22,retweets:220,likes:1100}, y2025:{books:5,articles:50,videos:20,retweets:200,likes:1000}},
+  {name:'Yetscape', file:'yetscape.html', week:{books:0,articles:3,videos:1,retweets:8,likes:40}, month:{books:1,articles:12,videos:3,retweets:45,likes:180}, year:{books:3,articles:42,videos:15,retweets:180,likes:900}, y2023:{books:3,articles:38,videos:13,retweets:160,likes:800}, y2024:{books:4,articles:46,videos:17,retweets:200,likes:1000}, y2025:{books:3,articles:42,videos:15,retweets:180,likes:900}}
+];
+
+let currentPeriod = 'year';
+let currentYear = 'y2023';
+let currentData = [];
+
+// Calcul du score
+function calculateScore(data) {
+  return (data.books * 10) + (data.articles * 5) + (data.videos * 8) + (data.retweets * 0.5) + (data.likes * 0.1);
+}
+
+// Calcul des badges
+function getBadges(contributor, rank, score) {
+  const badges = [];
+  const data = contributor[currentPeriod];
+  
+  if(rank === 1) badges.push({text:'🥇 TOP 1', type:'gold', tooltip:'Classé 1er'});
+  else if(rank === 2) badges.push({text:'🥈 TOP 2', type:'silver', tooltip:'Classé 2ème'});
+  else if(rank === 3) badges.push({text:'🥉 TOP 3', type:'bronze', tooltip:'Classé 3ème'});
+  
+  if(data.books >= 5) badges.push({text:'📚 AUTEUR', type:'gold', tooltip:'Plus de 5 livres publiés'});
+  if(data.videos >= 20) badges.push({text:'🎥 CRÉATEUR', type:'gold', tooltip:'Plus de 20 vidéos créées'});
+  if(data.articles >= 50) badges.push({text:'✍️ ÉCRIVAIN', type:'silver', tooltip:'Plus de 50 articles écrits'});
+  
+  return badges;
+}
+
+// Switch tabs
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tabName).classList.add('active');
+}
+
+// Changement de période
+function changePeriod(period) {
+  currentPeriod = period;
+  
+  document.querySelectorAll('#tab-current .period-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  generatePodium();
+  generateTable();
+  generateStats();
+}
+
+// Génération du podium
+function generatePodium() {
+  currentData = contributors.map(c => {
+    const p = c[currentPeriod];
+    return {
+      name: c.name,
+      file: c.file,
+      books: p.books,
+      articles: p.articles,
+      videos: p.videos,
+      retweets: p.retweets,
+      likes: p.likes,
+      score: calculateScore(p),
+      contributor: c
+    };
+  });
+  
+  currentData.sort((a,b) => b.score - a.score);
+  
+  const podiumSection = document.getElementById('podiumSection');
+  const top3 = currentData.slice(0, 3);
+  
+  podiumSection.innerHTML = top3.map((c, idx) => `
+    <div class="podium-card rank-${idx + 1}">
+      <div class="podium-rank">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</div>
+      <div class="podium-name">${c.name}</div>
+      <div class="podium-score">${c.score.toFixed(1)} pts</div>
+      <div class="podium-stats">
+        📚 ${c.books} Livres | ✍️ ${c.articles} Articles<br>
+        🎥 ${c.videos} Vidéos | 🔄 ${c.retweets} RT | 💚 ${c.likes} Likes
+      </div>
+      <a href="${c.file}" class="podium-view-btn">VOIR PROFIL</a>
+    </div>
+  `).join('');
+}
+
+// Génération du tableau
+function generateTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  
+  const maxScore = Math.max(...currentData.map(d => d.score));
+  
+  currentData.forEach((c, index) => {
+    if(index < 3) return; // Skip TOP 3 (dans le podium)
+    
+    const barWidthPx = maxScore > 0 ? (c.score / maxScore * 100) : 0;
+    const badges = getBadges(c.contributor, index + 1, c.score);
+    const badgesHtml = badges.map(b => `<span class="badge ${b.type}" title="${b.tooltip}">${b.text}</span>`).join('');
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rank-number">${index + 1}</span></td>
+      <td class="contributor-cell">
+        <a href="${c.file}" class="contributor-link">${c.name}</a>
+      </td>
+      <td title="Livres">${c.books}</td>
+      <td title="Articles">${c.articles}</td>
+      <td title="Vidéos">${c.videos}</td>
+      <td title="Retweets">${c.retweets}</td>
+      <td title="Likes">${c.likes}</td>
+      <td>
+        <div class="score-bar-container">
+          <div class="score-bar" style="width:${barWidthPx}px;"></div>
+          <strong>${c.score.toFixed(1)}</strong>
+        </div>
+      </td>
+      <td><div class="badges">${badgesHtml}</div></td>
+      <td><a href="${c.file}" class="view-btn">VOIR</a></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Génération historique
+function showYearLeaderboard(year) {
+  currentYear = year;
+  
+  document.querySelectorAll('#tab-history .period-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  const tbody = document.getElementById('historyBody');
+  tbody.innerHTML = '';
+  
+  const yearData = contributors.map(c => {
+    const p = c[year];
+    return {
+      name: c.name,
+      file: c.file,
+      books: p.books,
+      articles: p.articles,
+      videos: p.videos,
+      retweets: p.retweets,
+      likes: p.likes,
+      score: calculateScore(p),
+      contributor: c
+    };
+  });
+  
+  yearData.sort((a,b) => b.score - a.score);
+  
+  const maxScore = Math.max(...yearData.map(d => d.score));
+  
+  yearData.forEach((c, index) => {
+    const barWidthPx = maxScore > 0 ? (c.score / maxScore * 100) : 0;
+    const badges = getBadges(c.contributor, index + 1, c.score);
+    const badgesHtml = badges.map(b => `<span class="badge ${b.type}" title="${b.tooltip}">${b.text}</span>`).join('');
+    
+    let rankClass = index < 3 ? `rank-${index + 1}` : '';
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rank-number ${rankClass}">${index + 1}</span></td>
+      <td><a href="${c.file}" class="contributor-link">${c.name}</a></td>
+      <td title="Livres">${c.books}</td>
+      <td title="Articles">${c.articles}</td>
+      <td title="Vidéos">${c.videos}</td>
+      <td title="Retweets">${c.retweets}</td>
+      <td title="Likes">${c.likes}</td>
+      <td>
+        <div class="score-bar-container">
+          <div class="score-bar" style="width:${barWidthPx}px;"></div>
+          <strong>${c.score.toFixed(1)}</strong>
+        </div>
+      </td>
+      <td><div class="badges">${badgesHtml}</div></td>
+      <td><a href="${c.file}" class="view-btn">VOIR</a></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Génération des statistiques
+function generateStats() {
+  const statsGrid = document.getElementById('statsGrid');
+  let totals = {books:0, articles:0, videos:0, retweets:0, likes:0};
+  
+  contributors.forEach(c => {
+    const data = c[currentPeriod];
+    totals.books += data.books;
+    totals.articles += data.articles;
+    totals.videos += data.videos;
+    totals.retweets += data.retweets;
+    totals.likes += data.likes;
+  });
+  
+  statsGrid.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon">📚</div>
+      <div class="stat-value">${totals.books}</div>
+      <div class="stat-label">LIVRES PUBLIÉS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✍️</div>
+      <div class="stat-value">${totals.articles}</div>
+      <div class="stat-label">ARTICLES ÉCRITS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎥</div>
+      <div class="stat-value">${totals.videos}</div>
+      <div class="stat-label">VIDÉOS CRÉÉES</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔄</div>
+      <div class="stat-value">${totals.retweets}</div>
+      <div class="stat-label">RETWEETS TOTAUX</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💚</div>
+      <div class="stat-value">${totals.likes}</div>
+      <div class="stat-label">LIKES TOTAUX</div>
+    </div>
+  `;
+}
+
+// Tri du tableau
+function sortTable(colIndex) {
+  const table = document.getElementById("rankingTable");
+  const ths = table.querySelectorAll('th');
+  
+  ths.forEach(th => { 
+    th.classList.remove('sorted'); 
+    const arrow = th.querySelector('.arrow');
+    if(arrow) arrow.remove();
+  });
+  
+  const currentCol = table.getAttribute("data-sort-col");
+  const currentDir = table.getAttribute("data-sort-dir");
+  const ascending = currentCol == colIndex && currentDir == "asc" ? false : true;
+  
+  ths[colIndex].classList.add('sorted');
+  const arrow = document.createElement('span');
+  arrow.className = 'arrow';
+  arrow.textContent = ascending ? '▲' : '▼';
+  ths[colIndex].appendChild(arrow);
+  
+  let rows = Array.from(table.tBodies[0].rows);
+  rows.sort((a, b) => {
+    let valA, valB;
+    
+    if(colIndex === 1) {
+      valA = a.cells[colIndex].innerText.toLowerCase();
+      valB = b.cells[colIndex].innerText.toLowerCase();
+    } else if(colIndex === 7) {
+      valA = parseFloat(a.cells[colIndex].querySelector('strong').innerText);
+      valB = parseFloat(b.cells[colIndex].querySelector('strong').innerText);
+    } else if(colIndex <= 6) {
+      valA = parseInt(a.cells[colIndex].innerText) || 0;
+      valB = parseInt(b.cells[colIndex].innerText) || 0;
+    }
+    
+    if(ascending) {
+      return valA > valB ? 1 : -1;
+    } else {
+      return valA < valB ? 1 : -1;
+    }
+  });
+  
+  rows.forEach(r => table.tBodies[0].appendChild(r));
+  table.setAttribute("data-sort-col", colIndex);
+  table.setAttribute("data-sort-dir", ascending ? "asc" : "desc");
+}
+
+// Initialisation
+generatePodium();
+generateTable();
+generateStats();
+showYearLeaderboard('y2023');
+
+// Mise à jour du nombre total de contributeurs
+document.getElementById('totalContributors').textContent = contributors.length;
+</script>
+</body>
+</html>

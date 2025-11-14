@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FR0N_Σ4</title>
+<style>
+@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
+@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
+@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
+
+body {
+  margin:0;
+  padding:0;
+  background:#0000AA;
+  font-family:"Courier New", monospace;
+  overflow:hidden;
+  cursor:none;
+  animation: flicker 0.15s infinite;
+}
+
+body::before {
+  content: '';
+  position:fixed;
+  top:0; left:0; width:100%; height:2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events:none; z-index:1000;
+}
+
+body::after {
+  content:'';
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  pointer-events:none; z-index:999;
+}
+
+canvas {
+  display:block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.custom-cursor {
+  position:fixed;width:16px;height:16px;background:#FFFFFF;
+  pointer-events:none;z-index:10000;mix-blend-mode:difference;
+}
+
+.title-bar {
+  position:absolute;top:10px;left:10px;
+  width:300px;height:28px;background:#C0C0C0;color:#000;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 8px;box-sizing:border-box;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  font-weight:bold;z-index:1000;
+  box-shadow:2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.title-bar .buttons {
+  display:flex;
+  gap:2px;
+}
+
+.title-bar .buttons span {
+  width:20px;height:18px;background:#C0C0C0;color:black;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  text-align:center;cursor:pointer;
+  font-weight:bold;
+  line-height:14px;
+}
+
+.title-bar .buttons span:active {
+  border-top:2px solid #808080;
+  border-left:2px solid #808080;
+  border-bottom:2px solid #FFFFFF;
+  border-right:2px solid #FFFFFF;
+}
+
+.error-panel {
+  position:absolute;top:50px;left:10px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:12px;
+  width:300px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  z-index:1000;
+}
+
+.error-title {
+  background:#000080;
+  color:#FFFFFF;
+  padding:4px 8px;
+  margin:-12px -12px 10px -12px;
+  font-weight:bold;
+  font-size:12px;
+}
+
+.error-content {
+  color:#000000;
+  font-size:11px;
+  line-height:1.6;
+}
+
+.controls-panel {
+  position:absolute;bottom:10px;left:10px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:12px;
+  width:280px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  z-index:1000;
+}
+
+.controls-title {
+  background:#000080;
+  color:#FFFFFF;
+  padding:4px 8px;
+  margin:-12px -12px 10px -12px;
+  font-weight:bold;
+  font-size:12px;
+}
+
+.control-group {
+  margin-bottom:10px;
+  color:#000000;
+  font-size:11px;
+}
+
+.control-label {
+  display:block;
+  margin-bottom:4px;
+  font-weight:bold;
+}
+
+.btn-win95 {
+  padding:6px 12px;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  background:#C0C0C0;
+  color:#000000;
+  font-weight:bold;
+  cursor:pointer;
+  font-family:"Courier New", monospace;
+  font-size:11px;
+  margin-right:5px;
+}
+
+.btn-win95:active {
+  border-top:2px solid #808080;
+  border-left:2px solid #808080;
+  border-bottom:2px solid #FFFFFF;
+  border-right:2px solid #FFFFFF;
+}
+
+input[type="range"] {
+  width:100%;
+  margin:5px 0;
+}
+
+.stats-panel {
+  position:absolute;top:10px;right:10px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:12px;
+  width:300px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  z-index:1000;
+}
+
+.stats-title {
+  background:#000080;
+  color:#FFFFFF;
+  padding:4px 8px;
+  margin:-12px -12px 10px -12px;
+  font-weight:bold;
+  font-size:12px;
+}
+
+.stats-content {
+  color:#000000;
+  font-size:11px;
+  line-height:1.8;
+}
+
+.team-bar {
+  height:20px;
+  background:#808080;
+  border-top:2px solid #000000;
+  border-left:2px solid #000000;
+  border-bottom:2px solid #FFFFFF;
+  border-right:2px solid #FFFFFF;
+  margin:8px 0;
+  display:flex;
+  overflow:hidden;
+}
+
+.team-a-bar {
+  height:100%;
+  background:#FF0000;
+  transition:width 0.3s;
+}
+
+.team-b-bar {
+  height:100%;
+  background:#0000FF;
+  transition:width 0.3s;
+}
+
+.victory-screen {
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background:#C0C0C0;
+  border-top:4px solid #FFFFFF;
+  border-left:4px solid #FFFFFF;
+  border-bottom:4px solid #808080;
+  border-right:4px solid #808080;
+  padding:30px;
+  box-shadow:5px 5px 0 rgba(0,0,0,0.7);
+  z-index:2000;
+  display:none;
+  text-align:center;
+}
+
+.victory-title {
+  background:#000080;
+  color:#FFFFFF;
+  padding:8px 16px;
+  margin:-30px -30px 20px -30px;
+  font-weight:bold;
+  font-size:16px;
+}
+
+.victory-content {
+  color:#000000;
+  font-size:24px;
+  font-weight:bold;
+  margin:20px 0;
+}
+
+.color-indicator {
+  display:inline-block;
+  width:20px;
+  height:20px;
+  border:2px solid #000000;
+  vertical-align:middle;
+  margin:0 5px;
+}
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+
+<div class="title-bar">
+  WAR.EXE - System Error
+  <div class="buttons">
+    <span onclick="resetWar()">↻</span>
+    <span onclick="closeWindow()">X</span>
+  </div>
+</div>
+
+<div class="error-panel">
+  <div class="error-title">⚠ System Warning</div>
+  <div class="error-content">
+    TERRITORIAL_CONFLICT_DETECTED<br><br>
+    Technical information:<br>
+    *** STOP: 0x000000C5 (0xW4RF4R3, 0x00000000, 0x00000000)<br><br>
+    Two armies detected. System unstable.
+  </div>
+</div>
+
+<div class="controls-panel">
+  <div class="controls-title">⚙ Contrôles</div>
+  
+  <div class="control-group">
+    <button class="btn-win95" onclick="togglePlay()" id="playBtn">Pause</button>
+    <button class="btn-win95" onclick="resetWar()">Reset</button>
+  </div>
+  
+  <div class="control-group">
+    <label class="control-label">Vitesse: <span id="speedDisplay">1</span>x</label>
+    <input type="range" min="1" max="10" value="1" oninput="updateSpeed(this.value)">
+  </div>
+  
+  <div class="control-group">
+    <label class="control-label">Zoom: <span id="zoomDisplay">1.0</span>x</label>
+    <input type="range" id="zoomRange" min="0.2" max="5" step="0.1" value="1" oninput="updateZoom(this.value)">
+  </div>
+  
+  <div class="control-group">
+    <button class="btn-win95" onclick="zoomIn()">+</button>
+    <button class="btn-win95" onclick="zoomOut()">-</button>
+  </div>
+</div>
+
+<div class="stats-panel">
+  <div class="stats-title">📊 Statistiques</div>
+  <div class="stats-content">
+    <strong id="teamAName">Équipe A</strong>
+    <span class="color-indicator" id="colorA"></span>
+    <span id="teamAHex">#FF0000</span><br>
+    Pixels: <span id="countA">0</span><br><br>
+    
+    <strong id="teamBName">Équipe B</strong>
+    <span class="color-indicator" id="colorB"></span>
+    <span id="teamBHex">#0000FF</span><br>
+    Pixels: <span id="countB">0</span><br><br>
+    
+    <div class="team-bar">
+      <div class="team-a-bar" id="barA" style="width:50%"></div>
+      <div class="team-b-bar" id="barB" style="width:50%"></div>
+    </div>
+    
+    Défenses A: <span id="defA">0</span><br>
+    Défenses B: <span id="defB">0</span><br>
+    Tours: <span id="turns">0</span>
+  </div>
+</div>
+
+<div class="victory-screen" id="victoryScreen">
+  <div class="victory-title">🏆 VICTOIRE</div>
+  <div class="victory-content" id="victoryText"></div>
+  <button class="btn-win95" onclick="document.getElementById('victoryScreen').style.display='none'; resetWar();">Nouvelle Partie</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+const gridW = 300;
+const gridH = 150;
+const pixelSizeX = W/gridW;
+const pixelSizeY = H/gridH;
+
+// Zoom
+let scale = 1;
+let offsetX = 0, offsetY = 0;
+
+// Couleurs et noms
+const colorNames = [
+  ["Rouge",[255,0,0]],["Vert",[0,255,0]],["Bleu",[0,0,255]],
+  ["Jaune",[255,255,0]],["Cyan",[0,255,255]],["Magenta",[255,0,255]],
+  ["Orange",[255,165,0]],["Violet",[128,0,128]],["Rose",[255,192,203]],
+  ["Turquoise",[64,224,208]],["Lime",[50,205,50]],["Corail",[255,127,80]]
+];
+
+function pickRandomColor(){ 
+  const idx=Math.floor(Math.random()*colorNames.length);
+  const [name,rgb]=colorNames[idx]; 
+  const hex="#" + ((1<<24)+(rgb[0]<<16)+(rgb[1]<<8)+rgb[2]).toString(16).slice(1).toUpperCase();
+  return {name, rgb, hex}; 
+}
+
+let colorAData, colorBData, nameA, colA, hexA, nameB, colB, hexB;
+
+function initColors() {
+  colorAData = pickRandomColor();
+  colorBData = pickRandomColor();
+  // S'assurer que les couleurs sont différentes
+  while(colorAData.name === colorBData.name) {
+    colorBData = pickRandomColor();
+  }
+  nameA = colorAData.name;
+  colA = colorAData.rgb;
+  hexA = colorAData.hex;
+  nameB = colorBData.name;
+  colB = colorBData.rgb;
+  hexB = colorBData.hex;
+  
+  // Mettre à jour l'interface
+  document.getElementById('teamAName').textContent = nameA;
+  document.getElementById('teamBName').textContent = nameB;
+  document.getElementById('teamAHex').textContent = hexA;
+  document.getElementById('teamBHex').textContent = hexB;
+  document.getElementById('colorA').style.backgroundColor = hexA;
+  document.getElementById('colorB').style.backgroundColor = hexB;
+}
+
+// Pixels et infrastructures
+let pixels = new Uint8Array(gridW*gridH);
+let defenseMap = new Float32Array(gridW*gridH);
+let blips = [];
+let turnCount = 0;
+
+function initPixels(){
+  pixels = new Uint8Array(gridW*gridH);
+  defenseMap = new Float32Array(gridW*gridH);
+  blips = [];
+  turnCount = 0;
+  
+  for(let y=0;y<gridH;y++){
+    for(let x=0;x<gridW;x++){
+      pixels[y*gridW+x] = x<gridW/2?1:2;
+    }
+  }
+  
+  // Lignes de défense initiales
+  for(let y=0;y<gridH;y++){
+    defenseMap[y*gridW + Math.floor(gridW/4)] = 0.9;
+    defenseMap[y*gridW + Math.floor(3*gridW/4)] = 0.9;
+  }
+}
+
+// Contrôles
+let playing=true, speed=1;
+
+// Dessin
+function drawPixels(){
+  ctx.save();
+  ctx.setTransform(scale,0,0,scale,offsetX,offsetY);
+  ctx.clearRect(0,0,gridW*pixelSizeX, gridH*pixelSizeY);
+
+  for(let y=0;y<gridH;y++){
+    for(let x=0;x<gridW;x++){
+      const idx = y*gridW + x;
+      const team = pixels[idx];
+      let [r,g,b] = team===1 ? colA : team===2 ? colB : [0,0,170];
+      
+      // Assombrir les défenses
+      if(defenseMap[idx]>0){ 
+        r=Math.floor(r*0.5); 
+        g=Math.floor(g*0.5); 
+        b=Math.floor(b*0.5); 
+      }
+      
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(x*pixelSizeX, y*pixelSizeY, pixelSizeX, pixelSizeY);
+    }
+  }
+
+  // Blips d'attaque
+  for(let i=blips.length-1;i>=0;i--){
+    const b=blips[i];
+    ctx.fillStyle=`rgba(255,255,255,${b.life/5})`;
+    ctx.fillRect(b.x*pixelSizeX,b.y*pixelSizeY,pixelSizeX,pixelSizeY);
+    b.life--;
+    if(b.life<=0) blips.splice(i,1);
+  }
+
+  ctx.restore();
+}
+
+function computeDefense(idx){ return defenseMap[idx]||0; }
+
+function getFront(team){
+  let frontX = team===1 ? 0 : gridW-1;
+  for(let y=0;y<gridH;y++){
+    for(let x=0;x<gridW;x++){
+      const idx=y*gridW+x;
+      if(pixels[idx]===team){
+        if(team===1 && x>frontX) frontX=x;
+        if(team===2 && x<frontX) frontX=x;
+      }
+    }
+  }
+  return frontX;
+}
+
+function tryBuildDefense(x,y,team){
+  const idx=y*gridW+x;
+  if(pixels[idx]!==team || defenseMap[idx]>0) return;
+  const front = getFront(team);
+  const margin = 5;
+  if(team===1 && x<front-margin) return;
+  if(team===2 && x>front+margin) return;
+
+  let adjacent=false;
+  for(let dy=-1;dy<=1;dy++){
+    for(let dx=-1;dx<=1;dx++){
+      if(dx===0 && dy===0) continue;
+      const nx=x+dx, ny=y+dy;
+      if(nx>=0 && nx<gridW && ny>=0 && ny<gridH){
+        if(defenseMap[ny*gridW+nx]>0 && pixels[ny*gridW+nx]===team) adjacent=true;
+      }
+    }
+  }
+  if(!adjacent){
+    if(team===1 && x>=front-1) adjacent=true;
+    if(team===2 && x<=front+1) adjacent=true;
+  }
+  if(adjacent){defenseMap[idx]=0.9;}
+}
+
+// Paramètres de combat
+const attackBonus = 0.25;
+const isolationDecayChance = 0.9;
+
+function battleStep(){
+  const moves = 200;
+  for(let n=0;n<moves;n++){
+    const y=Math.floor(Math.random()*gridH);
+    const x=Math.floor(Math.random()*gridW);
+    const idx=y*gridW+x;
+    const team=pixels[idx];
+    let targets=[];
+    if(team===1) targets=[[-1,1],[0,1],[1,1]];
+    else if(team===2) targets=[[-1,-1],[0,-1],[1,-1]];
+
+    targets.forEach(([dy,dx])=>{
+      const nx=x+dx, ny=y+dy;
+      if(nx>=0 && nx<gridW && ny>=0 && ny<gridH){
+        const ni=ny*gridW+nx;
+        if(pixels[ni]!==team){
+          const successChance = attackBonus + (1 - computeDefense(ni));
+          if(Math.random() < successChance){
+            pixels[ni]=team;
+            blips.push({x:nx, y:ny, life:5});
+            if(defenseMap[ni]>0){ 
+              defenseMap[ni]-=0.5; 
+              if(defenseMap[ni]<0) defenseMap[ni]=0; 
+            }
+          }
+        }
+      }
+    });
+    if(Math.random()<0.2) tryBuildDefense(x,y,team);
+  }
+  detectAndPurgeIsolated();
+  turnCount++;
+}
+
+function detectAndPurgeIsolated(){
+  const visited = new Uint8Array(gridW*gridH);
+  for(let y=0;y<gridH;y++){
+    for(let x=0;x<gridW;x++){
+      const idx=y*gridW+x;
+      const team=pixels[idx];
+      if(team===0 || visited[idx]) continue;
+      let queue=[[x,y]];
+      let cluster=[], touchesBorder=false;
+      visited[idx]=1;
+
+      while(queue.length){
+        const [cx,cy]=queue.pop();
+        cluster.push([cx,cy]);
+        if(cx===0 || cy===0 || cx===gridW-1 || cy===gridH-1) touchesBorder=true;
+        for(let dy=-1;dy<=1;dy++){
+          for(let dx=-1;dx<=1;dx++){
+            if(Math.abs(dx)+Math.abs(dy)!==1) continue;
+            const nx=cx+dx, ny=cy+dy;
+            if(nx>=0 && nx<gridW && ny>=0 && ny<gridH){
+              const ni=ny*gridW+nx;
+              if(!visited[ni] && pixels[ni]===team){
+                visited[ni]=1;
+                queue.push([nx,ny]);
+              }
+            }
+          }
+        }
+      }
+
+      if(!touchesBorder && cluster.length<200){
+        for(const [cx,cy] of cluster){
+          if(Math.random()<isolationDecayChance){
+            pixels[cy*gridW+cx]=0;
+            defenseMap[cy*gridW+cx]=0;
+          }
+        }
+      }
+    }
+  }
+}
+
+function checkVictory(){
+  let countA=0, countB=0, defA=0, defB=0;
+  for(let i=0;i<pixels.length;i++){
+    if(pixels[i]===1) countA++;
+    if(pixels[i]===2) countB++;
+    if(defenseMap[i]>0 && pixels[i]===1) defA++;
+    if(defenseMap[i]>0 && pixels[i]===2) defB++;
+  }
+  
+  const total = countA + countB;
+  const percentA = total > 0 ? Math.floor(countA / total * 100) : 50;
+  const percentB = total > 0 ? Math.floor(countB / total * 100) : 50;
+  
+  document.getElementById('countA').textContent = countA;
+  document.getElementById('countB').textContent = countB;
+  document.getElementById('defA').textContent = defA;
+  document.getElementById('defB').textContent = defB;
+  document.getElementById('turns').textContent = turnCount;
+  
+  document.getElementById('barA').style.width = percentA + '%';
+  document.getElementById('barB').style.width = percentB + '%';
+  
+  // Victoire
+  if(countA===pixels.length || countB===pixels.length){
+    playing = false;
+    const winner = countA===pixels.length ? nameA : nameB;
+    const winnerHex = countA===pixels.length ? hexA : hexB;
+    document.getElementById('victoryText').innerHTML = 
+      `<span class="color-indicator" style="background:${winnerHex}"></span><br>` +
+      `${winner} remporte la victoire !<br><br>` +
+      `Tours: ${turnCount}`;
+    document.getElementById('victoryScreen').style.display = 'block';
+  }
+}
+
+function animate(){
+  if(playing){
+    for(let s=0;s<speed;s++){
+      battleStep();
+    }
+  }
+  drawPixels();
+  checkVictory();
+  requestAnimationFrame(animate);
+}
+
+function resetWar(){
+  initColors();
+  initPixels();
+  playing = true;
+  document.getElementById('playBtn').textContent = 'Pause';
+  document.getElementById('victoryScreen').style.display = 'none';
+}
+
+// Contrôles
+function togglePlay(){
+  playing=!playing; 
+  document.getElementById('playBtn').textContent=playing?'Pause':'Play';
+}
+
+function updateSpeed(v){
+  speed=parseInt(v); 
+  document.getElementById('speedDisplay').textContent=speed;
+}
+
+function updateZoom(v){
+  scale=parseFloat(v);
+  document.getElementById('zoomDisplay').textContent=scale.toFixed(1);
+}
+
+function zoomIn(){
+  scale=Math.min(scale*1.2,5); 
+  document.getElementById('zoomRange').value=scale;
+  document.getElementById('zoomDisplay').textContent=scale.toFixed(1);
+}
+
+function zoomOut(){
+  scale=Math.max(scale/1.2,0.2); 
+  document.getElementById('zoomRange').value=scale;
+  document.getElementById('zoomDisplay').textContent=scale.toFixed(1);
+}
+
+function closeWindow(){
+  if(confirm('Fermer WAR.EXE ?')){
+    window.close();
+  }
+}
+
+// Zoom avec la molette
+canvas.addEventListener('wheel', e=>{
+  e.preventDefault();
+  const mx=e.clientX,my=e.clientY;
+  const zoomFactor=e.deltaY<0?1.1:0.9;
+  const oldScale=scale;
+  scale=Math.min(Math.max(0.2,scale*zoomFactor),5);
+  offsetX=mx-(mx-offsetX)*(scale/oldScale);
+  offsetY=my-(my-offsetY)*(scale/oldScale);
+  document.getElementById('zoomRange').value=scale;
+  document.getElementById('zoomDisplay').textContent=scale.toFixed(1);
+});
+
+window.addEventListener('resize',()=>{
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+});
+
+// Initialisation
+initColors();
+initPixels();
+animate();
+</script>
+</body>
+</html>

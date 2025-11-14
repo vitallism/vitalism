@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YETYETYETYETYET</title>
+<style>
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.96; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+* {
+  cursor: none !important;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0000AA;
+  color: #FFFFFF;
+  overflow: hidden;
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+body.video-playing {
+  animation: none;
+}
+
+body.video-playing::before,
+body.video-playing::after {
+  display: none;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+body:not(.video-playing) {
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.fake-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .fake-cursor {
+  display: block;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 16px;
+  z-index: 10;
+  font-family: "Courier New", monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logo:hover {
+  background: #FFFFFF;
+}
+
+.logo:hover span {
+  color: #0000AA;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.netscape-window {
+  width: 850px;
+  max-width: 90vw;
+  height: 650px;
+  max-height: 90vh;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.title-bar {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+  padding: 3px 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.title-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.title-bar .buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.title-bar .buttons span {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  background: #C0C0C0;
+  color: black;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.title-bar .buttons span:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+}
+
+.menu-bar {
+  background: #C0C0C0;
+  padding: 2px 5px;
+  border-bottom: 2px solid #808080;
+  font-size: 12px;
+  position: relative;
+}
+
+.menu-bar span {
+  padding: 3px 10px;
+  display: inline-block;
+  position: relative;
+}
+
+.menu-bar span:hover {
+  background: #000080;
+  color: white;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  padding: 4px 20px;
+  display: block;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: #000080;
+  color: #FFFFFF;
+}
+
+.dropdown-separator {
+  height: 1px;
+  background: #808080;
+  margin: 2px 0;
+}
+
+.menu-item {
+  position: relative;
+  display: inline-block;
+}
+
+.menu-item:hover .dropdown {
+  display: block;
+}
+
+.toolbar {
+  background: #C0C0C0;
+  padding: 5px;
+  border-bottom: 2px solid #808080;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar-btn {
+  padding: 4px 8px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  background: #C0C0C0;
+  font-size: 20px;
+  line-height: 1;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-btn:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+}
+
+.toolbar-separator {
+  width: 2px;
+  height: 32px;
+  background: #808080;
+  margin: 0 3px;
+}
+
+.netscape-logo {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4169E1, #1E90FF);
+  border: 2px solid #000080;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 24px;
+  color: white;
+  margin-left: auto;
+}
+
+.netscape-logo.loading {
+  animation: spin 1s linear infinite;
+}
+
+.location-bar {
+  background: #C0C0C0;
+  padding: 5px;
+  border-bottom: 2px solid #808080;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.location-bar label {
+  font-weight: bold;
+  padding: 0 5px;
+}
+
+.location-bar input {
+  flex: 1;
+  padding: 3px 5px;
+  border: 2px solid;
+  border-color: #808080 #FFFFFF #FFFFFF #808080;
+  background: #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+}
+
+.page-content {
+  flex: 1;
+  background: #BFBFBF;
+  overflow: auto;
+  font-size: 13px;
+  color: #000000;
+}
+
+.page-content::-webkit-scrollbar {
+  width: 16px;
+  background-color: #C0C0C0;
+}
+
+.page-content::-webkit-scrollbar-track {
+  background-color: #808080;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background-color: #C0C0C0;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+}
+
+.web-page {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.web-page h1 {
+  font-size: 24px;
+  color: #000080;
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.web-page hr {
+  border: 0;
+  height: 2px;
+  background: #808080;
+  margin: 15px 0;
+}
+
+.search-form {
+  background: #E0E0E0;
+  padding: 15px;
+  border: 2px solid;
+  border-color: #808080 #FFFFFF #FFFFFF #808080;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.search-form input[type="text"] {
+  width: 60%;
+  padding: 4px;
+  border: 2px solid;
+  border-color: #808080 #FFFFFF #FFFFFF #808080;
+  font-size: 13px;
+}
+
+.search-form button {
+  padding: 4px 20px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  background: #C0C0C0;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.search-form button:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+}
+
+.search-stats {
+  font-size: 11px;
+  color: #666666;
+  margin-bottom: 10px;
+}
+
+.result {
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #D4D0C8;
+  border: 1px solid #808080;
+}
+
+.result-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.result-title a {
+  color: #0000EE;
+  text-decoration: underline;
+}
+
+.result-title a:visited {
+  color: #551A8B;
+}
+
+.result-title a:hover {
+  color: #FF0000;
+}
+
+.result-url {
+  font-size: 11px;
+  color: #008000;
+  font-family: "Courier New", monospace;
+  margin-bottom: 5px;
+}
+
+.result-snippet {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #000000;
+}
+
+.status-bar {
+  background: #C0C0C0;
+  padding: 3px 5px;
+  border-top: 2px solid #FFFFFF;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.visitor-counter {
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  background: #000000;
+  color: #00FF00;
+  font-family: "Courier New", monospace;
+  border: 2px solid #808080;
+}
+
+.fullscreen-video {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  z-index: 10000;
+}
+
+.fullscreen-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bsod-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0000AA;
+  z-index: 10001;
+  color: #FFFFFF;
+  font-family: "Courier New", monospace;
+  padding: 40px;
+  overflow: auto;
+  font-size: 16px;
+  line-height: 1.8;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.bsod-screen::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 10002;
+}
+
+.bsod-screen::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 10002;
+}
+
+.bsod-line {
+  margin-bottom: 30px;
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background-color: #FFFFFF;
+  margin-left: 2px;
+  animation: blink 0.8s infinite;
+}
+
+.fire-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  display: none;
+  background: #0000AA;
+  z-index: 10002;
+  padding: 40px;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.fire-overlay::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 10003;
+}
+
+.fire-overlay::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 10003;
+}
+
+.fire-text {
+  display: block;
+  color: #FFFFFF;
+  font-family: "Courier New", monospace;
+  margin: 2px 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .netscape-window {
+    width: 95vw;
+    height: 95vh;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="fake-cursor" id="fakeCursor"></div>
+<a href="index.html" style="text-decoration:none;">
+  <div class="logo"><span>:faunism</span></div>
+</a>
+
+<div class="netscape-window">
+  <div class="title-bar">
+    <div class="title-text">
+      <span>📄</span>
+      <span>YETSCAPE Navigator</span>
+    </div>
+    <div class="buttons">
+      <span onclick="minimizeWindow()">_</span>
+      <span onclick="maximizeWindow()">□</span>
+      <span onclick="closeWindow()">X</span>
+    </div>
+  </div>
+  
+  <div class="menu-bar">
+    <span class="menu-item">
+      <u>F</u>ile
+      <div class="dropdown">
+        <div class="dropdown-item">New Window</div>
+        <div class="dropdown-item">Open Location...</div>
+        <div class="dropdown-item">Open File...</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Save As...</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Print...</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item" onclick="closeWindow()">Exit</div>
+      </div>
+    </span>
+    <span class="menu-item">
+      <u>E</u>dit
+      <div class="dropdown">
+        <div class="dropdown-item">Cut</div>
+        <div class="dropdown-item">Copy</div>
+        <div class="dropdown-item">Paste</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Find in Page...</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Preferences...</div>
+      </div>
+    </span>
+    <span class="menu-item">
+      <u>V</u>iew
+      <div class="dropdown">
+        <div class="dropdown-item" onclick="performSearch()">Reload</div>
+        <div class="dropdown-item">Stop</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">View Source</div>
+        <div class="dropdown-item">Page Info</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Increase Font</div>
+        <div class="dropdown-item">Decrease Font</div>
+      </div>
+    </span>
+    <span class="menu-item">
+      <u>G</u>o
+      <div class="dropdown">
+        <div class="dropdown-item">Back</div>
+        <div class="dropdown-item">Forward</div>
+        <div class="dropdown-item">Home</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Search Internet</div>
+      </div>
+    </span>
+    <span class="menu-item">
+      <u>B</u>ookmarks
+      <div class="dropdown">
+        <div class="dropdown-item">Add Bookmark...</div>
+        <div class="dropdown-item">Edit Bookmarks...</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Vitalism Network</div>
+        <div class="dropdown-item">YETSCAPE Home</div>
+        <div class="dropdown-item">Codex</div>
+        <div class="dropdown-item">Chat</div>
+      </div>
+    </span>
+    <span class="menu-item">
+      <u>H</u>elp
+      <div class="dropdown">
+        <div class="dropdown-item">About YETSCAPE</div>
+        <div class="dropdown-item">Help Contents</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item">Check for Updates</div>
+        <div class="dropdown-item">Release Notes</div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item" onclick="launchMentel()">Mentel - KLondike 5-4385</div>
+      </div>
+    </span>
+  </div>
+  
+  <div class="toolbar">
+    <button class="toolbar-btn" title="Back">◄</button>
+    <button class="toolbar-btn" title="Forward">►</button>
+    <button class="toolbar-btn" title="Home">🏠</button>
+    <button class="toolbar-btn" onclick="performSearch()" title="Reload">⟳</button>
+    <div class="toolbar-separator"></div>
+    <button class="toolbar-btn" title="Print">🖨</button>
+    <button class="toolbar-btn" title="Find">🔍</button>
+    <button class="toolbar-btn" title="Stop">⛔</button>
+    <div class="netscape-logo" id="netscapeLogo">Y</div>
+  </div>
+  
+  <div class="location-bar">
+    <label>Location:</label>
+    <input type="text" id="locationBar" value="yetscape://vitalism.search" readonly>
+  </div>
+  
+  <div class="page-content">
+    <div class="web-page">
+      <h1>🔍 YETSCAPE Search Engine</h1>
+      <center><i>Your Gateway to the Vitalism Network</i></center>
+      <hr>
+      
+      <div class="search-form">
+        <input type="text" id="searchInput" placeholder="Enter search terms..." onkeypress="if(event.key==='Enter') performSearch()">
+        <button onclick="performSearch()">Search</button>
+        <button onclick="clearSearch()">Clear</button>
+      </div>
+      
+      <div class="search-stats" id="searchStats"></div>
+      <div id="results"></div>
+      
+      <hr>
+      <div class="visitor-counter">
+        👁 You are visitor #<span id="visitorCount">001337</span> 👁
+      </div>
+      <hr>
+      
+      <center>
+        <p style="font-size: 11px; color: #666;">
+          <b>YETSCAPE</b> - Powered by Vitalism Network<br>
+          Best viewed with YETSCAPE Navigator 1.0<br>
+          <a href="#" style="color: #0000EE;">Webmaster</a> | 
+          <a href="#" style="color: #0000EE;">Contact</a> | 
+          <a href="#" style="color: #0000EE;">About</a>
+        </p>
+      </center>
+    </div>
+  </div>
+  
+  <div class="status-bar">
+    <span id="statusText">Document: Done</span>
+    <span id="resultCount"></span>
+  </div>
+</div>
+
+<div class="fullscreen-video" id="videoScreen">
+  <video id="mentelVideo" src="mentel2.mp4"></video>
+</div>
+
+<div class="bsod-screen" id="bsodScreen">
+  <div id="bsodLines"></div>
+</div>
+
+<div class="fire-overlay" id="fireOverlay"></div>
+
+<script>
+const fakeCursor = document.getElementById('fakeCursor');
+document.addEventListener('mousemove', (e) => {
+  fakeCursor.style.left = e.clientX + 'px';
+  fakeCursor.style.top = e.clientY + 'px';
+});
+
+const siteData = [
+  {type:'page', title:'Introduction to Vitalism', url:'intro.html', snippet:'Discover the vitalist philosophy and its fundamental principles.'},
+  {type:'page', title:'Vitalist Manifesto', url:'manifesto.html', snippet:'The founding text of the contemporary vitalist movement.'},
+  {type:'page', title:'Anon Directory', url:'repertoire.html', snippet:'Complete list of contributors and thinkers in the network.'},
+  {type:'anon', title:'Calliclès', url:'Callicles.html', snippet:'Philosopher and theorist, specialist in digital ethics.'},
+  {type:'anon', title:'Aegipan', url:'aegipan.html', snippet:'Active contributor, expert in metaphysics.'},
+  {type:'anon', title:'Echidna', url:'echidna.html', snippet:'Cultural analyst and trend observer.'},
+  {type:'page', title:'YETSCAPE Search', url:'yetscape.html', snippet:'The internal search engine of the Vitalism network.'},
+  {type:'page', title:'Codex', url:'codex.html', snippet:'Encyclopedia of concepts and references from the movement.'},
+  {type:'page', title:'Dictionary', url:'dictionary.html', snippet:'Glossary of philosophical and technical terms.'},
+  {type:'anon', title:'Forseti', url:'forseti.html', snippet:'Nordic thinker, specialist in social justice.'},
+  {type:'anon', title:'Nüwa', url:'nuwa.html', snippet:'Asian contributor, expert in cosmology.'},
+  {type:'page', title:'Bluejeanism Chat', url:'chat.html', snippet:'Discussion forum and philosophical exchanges.'}
+];
+
+let isMinimized = false;
+let isMaximized = false;
+
+function performSearch(){
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const resultsDiv = document.getElementById('results');
+  const statsDiv = document.getElementById('searchStats');
+  const statusText = document.getElementById('statusText');
+  const resultCount = document.getElementById('resultCount');
+  const logo = document.getElementById('netscapeLogo');
+  
+  logo.classList.add('loading');
+  statusText.textContent = 'Searching...';
+  
+  setTimeout(() => {
+    logo.classList.remove('loading');
+    resultsDiv.innerHTML = '';
+    
+    let filtered = siteData.filter(item => {
+      if(!query) return true;
+      return item.title.toLowerCase().includes(query) || 
+             (item.snippet && item.snippet.toLowerCase().includes(query));
+    });
+    
+    const time = (Math.random() * 0.5 + 0.1).toFixed(2);
+    statsDiv.innerHTML = '<b>Search Results:</b> Found ' + filtered.length + ' matches in ' + time + ' seconds';
+    resultCount.textContent = filtered.length + ' results';
+    statusText.textContent = 'Document: Done';
+    
+    if(filtered.length === 0){
+      resultsDiv.innerHTML = '<div class="result"><p><b>No results found.</b></p></div>';
+      return;
+    }
+    
+    filtered.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'result';
+      
+      const icon = item.type === 'anon' ? '👤' : '📄';
+      div.innerHTML = '<div class="result-title">' + icon + ' <a href="' + item.url + '">' + (index + 1) + '. ' + item.title + '</a></div>' +
+        '<div class="result-url">yetscape://vitalism/' + item.url + '</div>' +
+        '<div class="result-snippet">' + item.snippet + '</div>';
+      
+      resultsDiv.appendChild(div);
+    });
+    
+    const counter = document.getElementById('visitorCount');
+    counter.textContent = String(parseInt(counter.textContent) + 1).padStart(6, '0');
+  }, 500);
+}
+
+function clearSearch(){
+  document.getElementById('searchInput').value = '';
+  performSearch();
+}
+
+function minimizeWindow(){
+  const w = document.querySelector('.netscape-window');
+  if(!isMinimized){
+    w.style.height = '30px';
+    isMinimized = true;
+  } else {
+    w.style.height = '650px';
+    isMinimized = false;
+  }
+}
+
+function maximizeWindow(){
+  const w = document.querySelector('.netscape-window');
+  if(!isMaximized){
+    w.style.width = '98vw';
+    w.style.height = '96vh';
+    isMaximized = true;
+  } else {
+    w.style.width = '850px';
+    w.style.height = '650px';
+    isMaximized = false;
+  }
+}
+
+function closeWindow(){
+  if(confirm('Are you sure you want to close YETSCAPE Navigator?')){
+    document.querySelector('.netscape-window').style.display = 'none';
+  }
+}
+
+function launchMentel(){
+  const videoScreen = document.getElementById('videoScreen');
+  const video = document.getElementById('mentelVideo');
+  const bsodScreen = document.getElementById('bsodScreen');
+  
+  document.body.classList.add('video-playing');
+  videoScreen.style.display = 'block';
+  video.play();
+  
+  video.onended = function() {
+    videoScreen.style.display = 'none';
+    document.body.classList.remove('video-playing');
+    bsodScreen.style.display = 'block';
+    startBSODSequence();
+  };
+}
+
+function typeWriter(element, text, speed, callback) {
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor-blink';
+  element.appendChild(cursor);
+  
+  function type() {
+    if (i < text.length) {
+      element.insertBefore(document.createTextNode(text.charAt(i)), cursor);
+      i++;
+      setTimeout(type, speed);
+    } else {
+      cursor.remove();
+      if (callback) callback();
+    }
+  }
+  type();
+}
+
+function startBSODSequence() {
+  const bsodLines = document.getElementById('bsodLines');
+  const messages = [
+    'are you ok ?',
+    'are you ok to live ?',
+    'then shutdown your computer',
+    'all will be ok',
+    'all will be great'
+  ];
+  
+  let currentLine = 0;
+  
+  function displayNextLine() {
+    if (currentLine < messages.length) {
+      const lineDiv = document.createElement('div');
+      lineDiv.className = 'bsod-line';
+      bsodLines.appendChild(lineDiv);
+      
+      typeWriter(lineDiv, messages[currentLine], 50, () => {
+        currentLine++;
+        setTimeout(displayNextLine, 1500);
+      });
+    } else {
+      setTimeout(startFirePhase, 2000);
+    }
+  }
+  
+  displayNextLine();
+}
+
+function startFirePhase() {
+  const bsodScreen = document.getElementById('bsodScreen');
+  const fireOverlay = document.getElementById('fireOverlay');
+  
+  bsodScreen.style.display = 'none';
+  fireOverlay.style.display = 'block';
+  
+  let count = 0;
+  let speed = 300;
+  const maxCount = 200;
+  
+  function addFireLine() {
+    if (count >= maxCount) {
+      setTimeout(() => {
+        window.location.href = 'about:blank';
+      }, 1000);
+      return;
+    }
+    
+    const fireDiv = document.createElement('div');
+    fireDiv.className = 'fire-text';
+    fireOverlay.appendChild(fireDiv);
+    
+    typeWriter(fireDiv, 'le feu que dieu m\'a donné pour brûler', 20, () => {
+      count++;
+      
+      // Accélération progressive
+      if (count > 20) speed = 200;
+      if (count > 50) speed = 100;
+      if (count > 80) speed = 50;
+      if (count > 120) speed = 20;
+      if (count > 160) speed = 5;
+      
+      setTimeout(addFireLine, speed);
+      
+      // Auto-scroll to bottom
+      fireOverlay.scrollTop = fireOverlay.scrollHeight;
+    });
+  }
+  
+  addFireLine();
+}
+
+performSearch();
+</script>
+
+</body>
+</html>

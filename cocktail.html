@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C0CΔ!_3</title>
+<style>
+@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
+@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
+@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
+
+body {
+  margin:0;
+  padding:0;
+  background:#0000AA;
+  font-family:"Courier New", monospace;
+  overflow:hidden;
+  cursor:none;
+  animation: flicker 0.15s infinite;
+}
+
+body::before {
+  content: '';
+  position:fixed;
+  top:0; left:0; width:100%; height:2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events:none; z-index:1000;
+}
+
+body::after {
+  content:'';
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  pointer-events:none; z-index:999;
+}
+
+canvas{display:block;}
+
+.title-bar{
+  position:absolute;top:10px;left:10px;
+  width:350px;height:28px;background:#C0C0C0;color:#000;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 8px;box-sizing:border-box;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  font-weight:bold;z-index:1000;
+  box-shadow:2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.title-bar .buttons{
+  display:flex;
+  gap:2px;
+}
+
+.title-bar .buttons span{
+  width:20px;height:18px;background:#C0C0C0;color:black;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  text-align:center;cursor:pointer;
+  font-weight:bold;
+  line-height:14px;
+}
+
+.title-bar .buttons span:active{
+  border-top:2px solid #808080;
+  border-left:2px solid #808080;
+  border-bottom:2px solid #FFFFFF;
+  border-right:2px solid #FFFFFF;
+}
+
+.info-panel{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:10px;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:10px;
+  width:280px;
+  box-shadow:2px 2px 0 rgba(0,0,0,0.5);
+  z-index:1000;
+  color:#000000;
+  font-size:11px;
+}
+
+.info-title{
+  background:#000080;
+  color:#FFFFFF;
+  padding:4px 8px;
+  margin:-10px -10px 8px -10px;
+  font-weight:bold;
+}
+
+.instructions{
+  position:absolute;
+  top:50px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:12px;
+  width:450px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  z-index:1000;
+}
+
+.instructions-title{
+  background:#000080;
+  color:#FFFFFF;
+  padding:4px 8px;
+  margin:-12px -12px 10px -12px;
+  font-weight:bold;
+  font-size:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.instructions-content{
+  color:#000000;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.custom-cursor{
+  position:fixed;width:16px;height:16px;background:#FFFFFF;
+  pointer-events:none;z-index:10000;mix-blend-mode:difference;
+}
+
+.tooltip{
+  position:fixed;
+  background:#C0C0C0;
+  border-top:2px solid #FFFFFF;
+  border-left:2px solid #FFFFFF;
+  border-bottom:2px solid #808080;
+  border-right:2px solid #808080;
+  padding:8px 12px;
+  max-width:250px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  z-index:10001;
+  color:#000000;
+  font-size:11px;
+  line-height:1.4;
+  pointer-events:none;
+  display:none;
+}
+
+.tooltip-title{
+  font-weight:bold;
+  color:#000080;
+  margin-bottom:4px;
+  font-size:12px;
+}
+
+.tooltip-desc{
+  color:#000000;
+}
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-title" id="tooltipTitle"></div>
+  <div class="tooltip-desc" id="tooltipDesc"></div>
+</div>
+
+<div class="title-bar">
+  COCKTAIL.EXE
+  <div class="buttons">
+    <span onclick="resetGlass()">R</span>
+    <span onclick="closeWindow()">X</span>
+  </div>
+</div>
+
+<div class="instructions">
+  <div class="instructions-title">
+    ℹ️ Instructions
+    <span style="cursor:pointer;" onclick="this.parentElement.parentElement.style.display='none'">✕</span>
+  </div>
+  <div class="instructions-content">
+    🍾 <strong>Saisir et incliner</strong> une bouteille au-dessus du verre pour verser<br>
+    🫒 <strong>Glisser une olive</strong> du bocal dans le verre = SPLASH !
+  </div>
+</div>
+
+<div class="info-panel">
+  <div class="info-title">📊 Stats</div>
+  <div id="stats">
+    Bouteille: Aucune<br>
+    Niveau: 0%<br>
+    Olives: 0
+  </div>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+window.addEventListener('resize',()=>{
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+});
+
+// Mélange de couleurs RGB
+function mixColors(color1, color2, ratio = 0.5) {
+  const c1 = hexToRgb(color1);
+  const c2 = hexToRgb(color2);
+  
+  const r = Math.floor(c1.r * (1-ratio) + c2.r * ratio);
+  const g = Math.floor(c1.g * (1-ratio) + c2.g * ratio);
+  const b = Math.floor(c1.b * (1-ratio) + c2.b * ratio);
+  
+  return `rgb(${r},${g},${b})`;
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : {r:0, g:0, b:0};
+}
+
+// Particule de filet de liquide
+class StreamParticle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.vx = 0;
+    this.vy = 3; // vitesse constante vers le bas
+    this.alpha = 1;
+    this.r = 4;
+  }
+  
+  update(glassY, glassLevel) {
+    this.vy += 0.1; // légère accélération
+    this.x += this.vx;
+    this.y += this.vy;
+    
+    // Collision avec le niveau du liquide
+    if(this.y >= glassY - glassLevel) {
+      this.settled = true;
+      return true;
+    }
+    return false;
+  }
+  
+  draw(ctx) {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// Particule de splash
+class SplashParticle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random()-0.5)*12;
+    this.vy = -Math.random()*10-5;
+    this.alpha = 1;
+    this.color = color;
+    this.r = 2+Math.random()*4;
+  }
+  
+  update() {
+    this.vy += 0.25;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha *= 0.93;
+    this.vx *= 0.96;
+  }
+  
+  draw(ctx) {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+const colors = [
+  "#FF0000","#00FF00","#0000FF","#FFFF00","#FF00FF","#00FFFF","#FFA500","#800080","#FFC0CB",
+  "#008000","#808000","#800000","#008080","#00FF7F","#FF1493","#4B0082","#FFD700","#00BFFF",
+  "#FF4500","#DC143C","#32CD32","#8B4513","#FFE4B5","#F0E68C","#E6E6FA"
+];
+
+const alcoholNames = [
+  "Absinthe", "Amaretto", "Aquavit", "Armagnac", "Arak",
+  "Baijiu", "Becherovka", "Bourbon", "Cachaça", "Calvados",
+  "Campari", "Chartreuse", "Cognac", "Cointreau", "Curaçao",
+  "Fernet", "Génépi", "Gin", "Grappa", "Jägermeister",
+  "Kirsch", "Limoncello", "Malibu", "Mezcal", "Midori",
+  "Ouzo", "Pastis", "Pisco", "Raki", "Rhum",
+  "Ricard", "Sake", "Sambuca", "Schnaps", "Soju",
+  "Tequila", "Tia Maria", "Triple Sec", "Vermouth", "Vodka",
+  "Whisky", "Xérès", "Advocaat", "Brennivín", "Slivovitz",
+  "Rakomelo", "Tuica", "Unicum", "Palinka", "Żubrówka"
+];
+
+// Descriptions des alcools
+const alcoholDescriptions = {
+  "Absinthe": "🇨🇭 Suisse/France - Spiritueux à base d'anis et d'absinthe. Très fort (45-75°), surnommé la fée verte.",
+  "Amaretto": "🇮🇹 Italie - Liqueur à base d'amandes amères et d'abricot. Douce et parfumée.",
+  "Aquavit": "🇸🇪 Scandinavie - Eau-de-vie parfumée au carvi et à l'aneth. Tradition nordique.",
+  "Armagnac": "🇫🇷 France - Eau-de-vie de vin de Gascogne. Plus rustique que le cognac, vieilli en fût.",
+  "Arak": "🇱🇧 Moyen-Orient - Spiritueux anisé. Se trouble avec l'eau, tradition levantine.",
+  "Baijiu": "🇨🇳 Chine - Alcool de sorgho ou riz. Très fort et parfumé, boisson nationale.",
+  "Becherovka": "🇨🇿 Tchéquie - Liqueur aux herbes. 20 plantes, goût amer-sucré unique.",
+  "Bourbon": "🇺🇸 États-Unis - Whisky à base de maïs. Vieilli en fût neuf, goût vanillé.",
+  "Cachaça": "🇧🇷 Brésil - Eau-de-vie de canne à sucre. Base de la caipirinha.",
+  "Calvados": "🇫🇷 France - Eau-de-vie de cidre normande. Pommes distillées, vieillissement en fût.",
+  "Campari": "🇮🇹 Italie - Apéritif amer. Herbes et écorces, couleur rouge intense.",
+  "Chartreuse": "🇫🇷 France - Liqueur de 130 plantes. Verte ou jaune, recette secrète monastique.",
+  "Cognac": "🇫🇷 France - Eau-de-vie de vin charentaise. Double distillation, vieillissement noble.",
+  "Cointreau": "🇫🇷 France - Triple sec à l'orange. Écorces douces et amères, cristallin.",
+  "Curaçao": "🇳🇱 Curaçao - Liqueur d'écorces d'orange amère. Bleu, orange ou incolore.",
+  "Fernet": "🇮🇹 Italie - Bitter aux herbes. Très amer, 40+ plantes, digestif puissant.",
+  "Génépi": "🇫🇷 France - Liqueur alpine d'artemisia. Plantes de montagne, tradition savoyarde.",
+  "Gin": "🇬🇧 Angleterre - Spiritueux aux baies de genièvre. Base de cocktails, botaniques variés.",
+  "Grappa": "🇮🇹 Italie - Eau-de-vie de marc de raisin. Forte et fruitée.",
+  "Jägermeister": "🇩🇪 Allemagne - Liqueur de 56 herbes. Digestif, goût complexe réglisse-anis.",
+  "Kirsch": "🇨🇭 Suisse - Eau-de-vie de cerises. Claire et fruitée, tradition alsacienne.",
+  "Limoncello": "🇮🇹 Italie - Liqueur de citron. Écorces macérées, douce et acidulée.",
+  "Malibu": "🇧🇧 Barbade - Rhum à la noix de coco. Doux et tropical, base de cocktails.",
+  "Mezcal": "🇲🇽 Mexique - Spiritueux d'agave. Fumé et complexe, cousin de la tequila.",
+  "Midori": "🇯🇵 Japon - Liqueur de melon. Vert fluo, douce et fruitée.",
+  "Ouzo": "🇬🇷 Grèce - Apéritif anisé. Se trouble à l'eau, tradition méditerranéenne.",
+  "Pastis": "🇫🇷 France - Apéritif anisé provençal. Réglisse et anis, symbole du sud.",
+  "Pisco": "🇵🇪 Pérou/Chili - Eau-de-vie de raisin. Base du Pisco Sour.",
+  "Raki": "🇹🇷 Turquie - Spiritueux anisé. Eau-de-vie de raisin, boisson nationale.",
+  "Rhum": "🌴 Caraïbes - Eau-de-vie de canne à sucre. Agricole ou industriel, îles tropicales.",
+  "Ricard": "🇫🇷 France - Pastis marseillais iconique. Anis étoilé, réglisse, symbole français.",
+  "Sake": "🇯🇵 Japon - Alcool de riz. Fermentation, servi chaud ou froid.",
+  "Sambuca": "🇮🇹 Italie - Liqueur anisée. Grains de café flambés, tradition romaine.",
+  "Schnaps": "🇦🇹 Autriche/Allemagne - Eau-de-vie de fruits. Poire, prune, framboise.",
+  "Soju": "🇰🇷 Corée du Sud - Alcool de riz ou patate. Léger (15-25°), boisson nationale.",
+  "Tequila": "🇲🇽 Mexique - Spiritueux d'agave bleue. Reposado, añejo ou blanco.",
+  "Tia Maria": "🇯🇲 Jamaïque - Liqueur de café. Rhum et vanille, douce et corsée.",
+  "Triple Sec": "🇫🇷 France - Liqueur d'orange claire. Base de cocktails, Cointreau célèbre.",
+  "Vermouth": "🇮🇹 Italie - Vin aromatisé aux herbes. Rouge ou blanc, apéritif ou cocktail.",
+  "Vodka": "🇷🇺 Russie/Pologne - Spiritueux neutre de céréales. Base cocktails pure.",
+  "Whisky": "🏴󐁧󐁢󐁳󐁣󐁴󐁿 Écosse - Eau-de-vie de céréales maltées. Écossais, irlandais, américain.",
+  "Xérès": "🇪🇸 Espagne - Vin fortifié andalou. Sec ou doux, élevage en solera.",
+  "Advocaat": "🇳🇱 Pays-Bas - Liqueur d'œufs. Crémeuse, jaune, tradition hollandaise.",
+  "Brennivín": "🇮🇸 Islande - Eau-de-vie de pomme de terre. Carvi, surnommée la mort noire.",
+  "Slivovitz": "🇷🇸 Balkans - Eau-de-vie de prune. Forte et fruitée, tradition slave.",
+  "Rakomelo": "🇬🇷 Grèce - Digestif crétois de raki et miel. Épices, servi chaud.",
+  "Tuica": "🇷🇴 Roumanie - Eau-de-vie de prune. Forte (40-60°), tradition villageoise.",
+  "Unicum": "🇭🇺 Hongrie - Bitter aux herbes. 40+ plantes, digestif légendaire.",
+  "Palinka": "🇭🇺 Hongrie - Eau-de-vie de fruits. Forte et pure, tradition nationale.",
+  "Żubrówka": "🇵🇱 Pologne - Vodka à l'herbe de bison. Brin d'herbe, goût unique."
+};
+
+// Formes de bouteilles variées
+const bottleShapes = [
+  'tall',      // haute et fine
+  'square',    // carrée
+  'round',     // ronde
+  'vintage',   // style ancien
+  'wide'       // large et courte
+];
+
+// Créer les bouteilles avec formes variées - ÉTAGÈRES SUR LES CÔTÉS
+const bottles = [];
+
+// Étagère GAUCHE (25 bouteilles)
+const leftShelfY = [100, 220, 340, 460, 580];
+const leftShelfX = 30;
+for(let i=0; i<25; i++){
+  const shelfIndex = Math.floor(i / 5);
+  const posInShelf = i % 5;
+  
+  bottles.push({
+    name: alcoholNames[i],
+    x: leftShelfX + posInShelf * 60,
+    y: leftShelfY[shelfIndex],
+    homeX: leftShelfX + posInShelf * 60,
+    homeY: leftShelfY[shelfIndex],
+    w: 22 + Math.random() * 10,
+    h: 80 + Math.random() * 30,
+    color: colors[i % colors.length],
+    shape: bottleShapes[Math.floor(Math.random() * bottleShapes.length)],
+    isDragging: false,
+    angle: 0
+  });
+}
+
+// Étagère DROITE (25 bouteilles)
+const rightShelfY = [100, 220, 340, 460, 580];
+const rightShelfX = W - 330;
+for(let i=25; i<50; i++){
+  const shelfIndex = Math.floor((i-25) / 5);
+  const posInShelf = (i-25) % 5;
+  
+  bottles.push({
+    name: alcoholNames[i] || "Alcool "+(i+1),
+    x: rightShelfX + posInShelf * 60,
+    y: rightShelfY[shelfIndex],
+    homeX: rightShelfX + posInShelf * 60,
+    homeY: rightShelfY[shelfIndex],
+    w: 22 + Math.random() * 10,
+    h: 80 + Math.random() * 30,
+    color: colors[i % colors.length],
+    shape: bottleShapes[Math.floor(Math.random() * bottleShapes.length)],
+    isDragging: false,
+    angle: 0
+  });
+}
+
+// Verre AU CENTRE (bien dégagé)
+const glass = {
+  x: W/2,
+  y: H/2 + 100,
+  w: 120,
+  h: 200,
+  particles: [],
+  level: 0,
+  oliveCount: 0,
+  currentColor: null,
+  colorHistory: []
+};
+
+// Bocal d'olives À DROITE du verre
+const oliveJar = {
+  x: W/2 + 200,
+  y: H/2 + 50,
+  w: 130,
+  h: 190,
+  olives: []
+};
+
+// Créer 30 olives
+for(let i=0; i<30; i++){
+  oliveJar.olives.push({
+    x: oliveJar.x + 20 + Math.random() * 80,
+    y: oliveJar.y + 40 + Math.random() * 120,
+    r: 8,
+    inJar: true
+  });
+}
+
+let draggingBottle = null;
+let draggingOlive = null;
+let splashParticles = [];
+let mouseX = 0, mouseY = 0;
+let pouringParticles = [];
+let hoveredBottle = null;
+
+const tooltip = document.getElementById('tooltip');
+const tooltipTitle = document.getElementById('tooltipTitle');
+const tooltipDesc = document.getElementById('tooltipDesc');
+
+// Fonction pour vérifier le survol d'une bouteille
+function checkBottleHover(mx, my) {
+  hoveredBottle = null;
+  
+  // Ne pas afficher la tooltip si on est en train de drag quelque chose
+  if(draggingBottle || draggingOlive) {
+    tooltip.style.display = 'none';
+    return;
+  }
+  
+  // Vérifier chaque bouteille
+  for(let b of bottles) {
+    if(mx > b.x && mx < b.x + b.w && my > b.y && my < b.y + b.h) {
+      hoveredBottle = b;
+      
+      // Afficher la tooltip
+      tooltipTitle.textContent = b.name;
+      tooltipDesc.textContent = alcoholDescriptions[b.name] || "Spiritueux alcoolisé.";
+      
+      tooltip.style.display = 'block';
+      tooltip.style.left = (mx + 20) + 'px';
+      tooltip.style.top = (my + 20) + 'px';
+      
+      return;
+    }
+  }
+  
+  // Aucune bouteille survolée
+  tooltip.style.display = 'none';
+}
+
+// Interactions
+canvas.addEventListener('mousedown',(e)=>{
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  
+  // Prendre une bouteille
+  bottles.forEach(b=>{
+    if(mouseX > b.x && mouseX < b.x+b.w && 
+       mouseY > b.y && mouseY < b.y+b.h && !draggingBottle){
+      draggingBottle = b;
+      b.isDragging = true;
+      b.offsetX = mouseX - b.x;
+      b.offsetY = mouseY - b.y;
+    }
+  });
+  
+  // Prendre une olive
+  if(!draggingBottle){
+    oliveJar.olives.forEach(o=>{
+      if(o.inJar){
+        const dx = mouseX - o.x;
+        const dy = mouseY - o.y;
+        if(Math.sqrt(dx*dx + dy*dy) < o.r + 5){
+          draggingOlive = o;
+          o.inJar = false;
+        }
+      }
+    });
+  }
+});
+
+canvas.addEventListener('mousemove',(e)=>{
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  
+  // Vérifier le survol des bouteilles pour la tooltip
+  checkBottleHover(mouseX, mouseY);
+  
+  if(draggingBottle){
+    draggingBottle.x = mouseX - draggingBottle.offsetX;
+    draggingBottle.y = mouseY - draggingBottle.offsetY;
+    
+    // Angle d'inclinaison
+    const dx = mouseX - draggingBottle.x - draggingBottle.w/2;
+    const dy = mouseY - draggingBottle.y;
+    draggingBottle.angle = Math.atan2(dy, dx);
+    
+    // Vérifier si on verse (goulot au-dessus du verre + incliné)
+    const bottleNeckX = draggingBottle.x + draggingBottle.w/2;
+    const bottleNeckY = draggingBottle.y;
+    
+    const isAboveGlass = bottleNeckX > glass.x - glass.w/2 && 
+                         bottleNeckX < glass.x + glass.w/2 &&
+                         bottleNeckY < glass.y;
+    
+    const isTilted = Math.abs(draggingBottle.angle) > Math.PI/4; // >45°
+    
+    if(isAboveGlass && isTilted){
+      // Créer un FILET continu de liquide
+      pouringParticles.push(new StreamParticle(
+        bottleNeckX,
+        bottleNeckY + draggingBottle.h,
+        draggingBottle.color
+      ));
+      
+      // Ajouter la couleur à l'historique
+      if(!glass.colorHistory.includes(draggingBottle.color)){
+        glass.colorHistory.push(draggingBottle.color);
+      }
+    }
+  }
+  
+  if(draggingOlive){
+    draggingOlive.x = mouseX;
+    draggingOlive.y = mouseY;
+  }
+});
+
+canvas.addEventListener('mouseup',(e)=>{
+  if(draggingBottle){
+    draggingBottle.isDragging = false;
+    draggingBottle.x = draggingBottle.homeX;
+    draggingBottle.y = draggingBottle.homeY;
+    draggingBottle.angle = 0;
+    draggingBottle = null;
+  }
+  
+  if(draggingOlive){
+    const g = glass;
+    if(draggingOlive.x > g.x - g.w/2 && 
+       draggingOlive.x < g.x + g.w/2 && 
+       draggingOlive.y > g.y - g.h/2 && 
+       draggingOlive.y < g.y + g.h/2){
+      
+      // SPLASH!
+      const splashY = g.y + g.h/2 - glass.level;
+      createSplash(draggingOlive.x, splashY, '#32CD32');
+      
+      draggingOlive.x = g.x + (Math.random()-0.5)*60;
+      draggingOlive.y = g.y + g.h/2 - 12;
+      draggingOlive.inGlass = true;
+      glass.oliveCount++;
+    } else {
+      draggingOlive.x = oliveJar.x + 20 + Math.random() * 80;
+      draggingOlive.y = oliveJar.y + 40 + Math.random() * 120;
+      draggingOlive.inJar = true;
+    }
+    draggingOlive = null;
+  }
+});
+
+function createSplash(x, y, color){
+  for(let i=0; i<50; i++){
+    splashParticles.push(new SplashParticle(x, y, color));
+  }
+}
+
+function resetGlass(){
+  glass.particles = [];
+  glass.level = 0;
+  glass.oliveCount = 0;
+  glass.currentColor = null;
+  glass.colorHistory = [];
+  pouringParticles = [];
+  oliveJar.olives.forEach(o => {
+    if(o.inGlass){
+      o.x = oliveJar.x + 20 + Math.random() * 80;
+      o.y = oliveJar.y + 40 + Math.random() * 120;
+      o.inJar = true;
+      o.inGlass = false;
+    }
+  });
+  splashParticles = [];
+}
+
+function drawShelves(){
+  ctx.fillStyle = '#8B4513';
+  
+  // ÉTAGÈRES GAUCHE
+  const leftShelfY = [100, 220, 340, 460, 580];
+  leftShelfY.forEach(y => {
+    ctx.fillRect(20, y + 110, 320, 12);
+    ctx.strokeStyle = '#654321';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20, y + 110, 320, 12);
+    
+    // Supports
+    ctx.fillRect(20, y + 110, 10, 8);
+    ctx.fillRect(330, y + 110, 10, 8);
+  });
+  
+  // ÉTAGÈRES DROITE
+  const rightShelfY = [100, 220, 340, 460, 580];
+  rightShelfY.forEach(y => {
+    ctx.fillRect(W - 340, y + 110, 320, 12);
+    ctx.strokeStyle = '#654321';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(W - 340, y + 110, 320, 12);
+    
+    // Supports
+    ctx.fillRect(W - 340, y + 110, 10, 8);
+    ctx.fillRect(W - 30, y + 110, 10, 8);
+  });
+}
+
+function drawBottle(b){
+  ctx.save();
+  
+  if(b.isDragging){
+    ctx.translate(b.x + b.w/2, b.y + b.h/2);
+    ctx.rotate(b.angle);
+    ctx.translate(-b.w/2, -b.h/2);
+  } else {
+    ctx.translate(b.x, b.y);
+  }
+  
+  // Dessiner selon la forme - AVEC TRANSPARENCE POUR VOIR LE VERRE
+  ctx.fillStyle = b.color;
+  
+  // IMPORTANT: remplissage à 70% pour laisser voir le verre en haut
+  const fillRatio = 0.7;
+  
+  switch(b.shape){
+    case 'tall':
+      // Haute et fine - remplissage partiel
+      const tallFillH = b.h * fillRatio;
+      ctx.fillRect(0, b.h - tallFillH, b.w, tallFillH);
+      
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = b.isDragging ? '#FFFF00' : 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = b.isDragging ? 3 : 2;
+      ctx.strokeRect(0, 0, b.w, b.h);
+      
+      // Partie verre vide en haut
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect(0, 0, b.w, b.h - tallFillH);
+      
+      // Goulot
+      ctx.fillStyle = '#333';
+      ctx.fillRect(b.w*0.2, -8, b.w*0.6, 8);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeRect(b.w*0.2, -8, b.w*0.6, 8);
+      break;
+      
+    case 'square':
+      // Carrée - remplissage partiel
+      const sq = Math.min(b.w, b.h*0.7);
+      const sqFillH = sq * fillRatio;
+      ctx.fillRect((b.w-sq)/2, b.h-sqFillH, sq, sqFillH);
+      
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = b.isDragging ? '#FFFF00' : 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = b.isDragging ? 3 : 2;
+      ctx.strokeRect((b.w-sq)/2, b.h-sq, sq, sq);
+      
+      // Partie vide
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect((b.w-sq)/2, b.h-sq, sq, sq-sqFillH);
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(b.w*0.3, -6, b.w*0.4, 6);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeRect(b.w*0.3, -6, b.w*0.4, 6);
+      break;
+      
+    case 'round':
+      // Ronde - remplissage partiel bas
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, b.h*(1-fillRatio), b.w, b.h*fillRatio);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.ellipse(b.w/2, b.h/2, b.w/2, b.h/2, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+      
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.ellipse(b.w/2, b.h/2, b.w/2, b.h/2, 0, 0, Math.PI*2);
+      ctx.strokeStyle = b.isDragging ? '#FFFF00' : 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = b.isDragging ? 3 : 2;
+      ctx.stroke();
+      
+      // Partie vide transparente
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, b.w, b.h*(1-fillRatio));
+      ctx.clip();
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.beginPath();
+      ctx.ellipse(b.w/2, b.h/2, b.w/2, b.h/2, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(b.w*0.3, -7, b.w*0.4, 7);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeRect(b.w*0.3, -7, b.w*0.4, 7);
+      break;
+      
+    case 'vintage':
+      // Style ancien - remplissage partiel
+      ctx.beginPath();
+      const vFillStart = b.h * (1-fillRatio);
+      ctx.moveTo(0, b.h);
+      ctx.lineTo(0, Math.max(vFillStart, b.h*0.3));
+      if(vFillStart < b.h*0.3){
+        const ratio = (b.h*0.3 - vFillStart) / (b.h*0.3);
+        const w1 = b.w*0.3 + (b.w*0.7 - b.w*0.3)*ratio;
+        const w2 = b.w*0.7 - (b.w*0.7 - b.w*0.3)*ratio;
+        ctx.lineTo(w1, vFillStart);
+        ctx.lineTo(w2, vFillStart);
+      } else {
+        ctx.lineTo(b.w*0.3, b.h*0.3);
+        ctx.lineTo(b.w*0.7, b.h*0.3);
+      }
+      ctx.lineTo(b.w, Math.max(vFillStart, b.h*0.3));
+      ctx.lineTo(b.w, b.h);
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, b.h);
+      ctx.lineTo(0, b.h*0.3);
+      ctx.lineTo(b.w*0.3, b.h*0.1);
+      ctx.lineTo(b.w*0.7, b.h*0.1);
+      ctx.lineTo(b.w, b.h*0.3);
+      ctx.lineTo(b.w, b.h);
+      ctx.closePath();
+      ctx.strokeStyle = b.isDragging ? '#FFFF00' : 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = b.isDragging ? 3 : 2;
+      ctx.stroke();
+      
+      // Partie vide
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.beginPath();
+      ctx.moveTo(0, b.h*0.3);
+      ctx.lineTo(b.w*0.3, b.h*0.1);
+      ctx.lineTo(b.w*0.7, b.h*0.1);
+      ctx.lineTo(b.w, b.h*0.3);
+      ctx.lineTo(b.w, vFillStart);
+      ctx.lineTo(0, vFillStart);
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(b.w*0.35, -5, b.w*0.3, 5);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeRect(b.w*0.35, -5, b.w*0.3, 5);
+      break;
+      
+    case 'wide':
+      // Large et courte - remplissage partiel
+      const wFillH = b.h * 0.7 * fillRatio;
+      ctx.fillRect(0, b.h - wFillH, b.w, wFillH);
+      
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = b.isDragging ? '#FFFF00' : 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = b.isDragging ? 3 : 2;
+      ctx.strokeRect(0, b.h*0.3, b.w, b.h*0.7);
+      
+      // Partie vide
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect(0, b.h*0.3, b.w, b.h*0.7 - wFillH);
+      
+      ctx.fillStyle = '#333';
+      ctx.fillRect(b.w*0.25, b.h*0.2, b.w*0.5, b.h*0.1);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeRect(b.w*0.25, b.h*0.2, b.w*0.5, b.h*0.1);
+      break;
+  }
+  
+  ctx.globalAlpha = 1;
+  
+  // Étiquette plus visible
+  ctx.fillStyle = '#FFFFFF';
+  const labelY = b.h*0.4;
+  const labelH = b.h*0.35;
+  ctx.fillRect(2, labelY, b.w - 4, labelH);
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(2, labelY, b.w - 4, labelH);
+  
+  // Clip pour que le texte ne dépasse pas de l'étiquette
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(2, labelY, b.w - 4, labelH);
+  ctx.clip();
+  
+  // Nom BEAUCOUP PLUS LISIBLE
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 8px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Écrire le nom horizontalement
+  const textY = labelY + labelH/2;
+  const maxChars = Math.floor(b.w / 5); // Limiter selon largeur
+  ctx.fillText(b.name.substring(0, maxChars), b.w/2, textY);
+  
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawGlass(){
+  const g = glass;
+  
+  // Ombre
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(g.x - g.w/2 + 5, g.y + g.h/2 + 5, g.w, 12);
+  
+  // Calculer la couleur mélangée
+  if(glass.colorHistory.length > 0){
+    let mixedColor = glass.colorHistory[0];
+    for(let i=1; i<glass.colorHistory.length; i++){
+      mixedColor = mixColors(mixedColor, glass.colorHistory[i], 0.5);
+    }
+    glass.currentColor = mixedColor;
+  }
+  
+  // Niveau de liquide avec couleur mélangée
+  if(glass.level > 0){
+    const liquidHeight = Math.min(glass.level, g.h - 10);
+    ctx.fillStyle = glass.currentColor || 'rgba(120,80,200,0.7)';
+    ctx.globalAlpha = 0.8;
+    ctx.fillRect(g.x - g.w/2 + 5, g.y + g.h/2 - liquidHeight, g.w - 10, liquidHeight);
+    ctx.globalAlpha = 1;
+  }
+  
+  // Contour du verre (conique)
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(g.x - g.w/2, g.y - g.h/2);
+  ctx.lineTo(g.x - g.w/2 + 15, g.y + g.h/2);
+  ctx.lineTo(g.x + g.w/2 - 15, g.y + g.h/2);
+  ctx.lineTo(g.x + g.w/2, g.y - g.h/2);
+  ctx.closePath();
+  ctx.stroke();
+  
+  // Olives dans le verre
+  oliveJar.olives.forEach(o => {
+    if(o.inGlass){
+      ctx.fillStyle = '#32CD32';
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#228B22';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      ctx.fillStyle = '#FF0000';
+      ctx.beginPath();
+      ctx.arc(o.x - 2, o.y - 2, 2, 0, Math.PI*2);
+      ctx.fill();
+    }
+  });
+  
+  // Indicateur overflow
+  if(glass.level > glass.h){
+    ctx.fillStyle = '#FF0000';
+    ctx.font = '20px monospace';
+    ctx.fillText('OVERFLOW!', g.x - 50, g.y - g.h/2 - 25);
+  }
+}
+
+function drawOliveJar(){
+  const jar = oliveJar;
+  
+  ctx.fillStyle = 'rgba(200,200,255,0.3)';
+  ctx.fillRect(jar.x, jar.y, jar.w, jar.h);
+  
+  ctx.strokeStyle = '#FFF';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(jar.x, jar.y, jar.w, jar.h);
+  
+  // Couvercle
+  ctx.fillStyle = '#FFD700';
+  ctx.fillRect(jar.x - 5, jar.y - 15, jar.w + 10, 15);
+  ctx.strokeStyle = '#000';
+  ctx.strokeRect(jar.x - 5, jar.y - 15, jar.w + 10, 15);
+  
+  ctx.fillStyle = '#000';
+  ctx.font = '14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('OLIVES', jar.x + jar.w/2, jar.y - 25);
+  
+  jar.olives.forEach(o => {
+    if(o.inJar){
+      ctx.fillStyle = '#32CD32';
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#228B22';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      ctx.fillStyle = '#FF0000';
+      ctx.beginPath();
+      ctx.arc(o.x - 2, o.y - 2, 2, 0, Math.PI*2);
+      ctx.fill();
+    }
+  });
+  
+  // Olive en drag
+  if(draggingOlive && !draggingOlive.inJar && !draggingOlive.inGlass){
+    const o = draggingOlive;
+    ctx.fillStyle = '#32CD32';
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.r + 3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#FFFF00';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    ctx.fillStyle = '#FF0000';
+    ctx.beginPath();
+    ctx.arc(o.x - 2, o.y - 2, 3, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function updateStats(){
+  const bottleName = draggingBottle ? draggingBottle.name : 'Aucune';
+  const level = Math.min(Math.floor(glass.level / glass.h * 100), 100);
+  
+  document.getElementById('stats').innerHTML = `
+    Bouteille: ${bottleName}<br>
+    Niveau: ${level}%<br>
+    Olives: ${glass.oliveCount}<br>
+    Couleurs: ${glass.colorHistory.length}
+  `;
+}
+
+function animate(){
+  ctx.fillStyle = 'rgba(0,0,170,0.2)';
+  ctx.fillRect(0,0,W,H);
+  
+  drawShelves();
+  bottles.forEach(b => drawBottle(b));
+  drawGlass();
+  drawOliveJar();
+  
+  // Filet de liquide qui coule
+  pouringParticles.forEach((p,i)=>{
+    const settled = p.update(glass.y + glass.h/2, glass.level);
+    p.draw(ctx);
+    
+    if(settled){
+      pouringParticles.splice(i,1);
+      glass.level += 0.4;
+    }
+    
+    if(p.y > H + 100){
+      pouringParticles.splice(i,1);
+    }
+  });
+  
+  // Splash
+  splashParticles.forEach((p,i)=>{
+    p.update();
+    p.draw(ctx);
+    
+    if(p.alpha < 0.01){
+      splashParticles.splice(i,1);
+    }
+  });
+  
+  updateStats();
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+function closeWindow(){
+  if(confirm('Fermer COCKTAIL.EXE ?')){
+    window.close();
+  }
+}
+</script>
+</body>
+</html>

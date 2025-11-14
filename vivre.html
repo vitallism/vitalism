@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows Media Player</title>
+<style>
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.96; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+* {
+  cursor: none !important;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", sans-serif;
+  font-size: 11px;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  animation: flicker 0.15s infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Error message header */
+.error-message {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #FFFFFF;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  padding: 10px;
+  border: 1px solid #FFFFFF;
+  background: rgba(0, 0, 170, 0.9);
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Windows Media Player Window */
+.player-window {
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  position: absolute;
+  min-width: 700px;
+  min-height: 500px;
+  resize: both;
+  overflow: hidden;
+  transition: all 0.15s ease-out;
+  z-index: 10;
+}
+
+.player-window.maximized {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  box-shadow: none;
+}
+
+.player-window.dragging {
+  opacity: 0.9;
+}
+
+.player-window.resizing {
+  user-select: none;
+}
+
+/* Title Bar */
+.title-bar {
+  background: linear-gradient(to right, #000080, #1084D0);
+  color: #FFFFFF;
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 11px;
+  cursor: move;
+  user-select: none;
+}
+
+.title-bar-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.title-bar-icon {
+  width: 16px;
+  height: 16px;
+  background: #FFFFFF;
+  display: inline-block;
+  font-size: 12px;
+  text-align: center;
+  line-height: 16px;
+  color: #000080;
+}
+
+.title-bar-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.title-bar-btn {
+  width: 16px;
+  height: 14px;
+  background: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-bottom: 1px solid #000000;
+  border-right: 1px solid #000000;
+  font-size: 10px;
+  font-weight: bold;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.title-bar-btn:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-bottom: 1px solid #FFFFFF;
+  border-right: 1px solid #FFFFFF;
+}
+
+/* Menu Bar */
+.menu-bar {
+  background: #C0C0C0;
+  padding: 2px 5px;
+  border-bottom: 1px solid #FFFFFF;
+  font-size: 11px;
+  color: #000000;
+  position: relative;
+}
+
+.menu-item {
+  display: inline-block;
+  padding: 2px 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.menu-item:hover {
+  background: #000080;
+  color: #FFFFFF;
+}
+
+.menu-item.active {
+  background: #000080;
+  color: #FFFFFF;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  min-width: 180px;
+  z-index: 1000;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.menu-item:hover .dropdown-menu,
+.menu-item.active .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 4px 25px 4px 25px;
+  cursor: pointer;
+  color: #000000;
+  white-space: nowrap;
+  position: relative;
+}
+
+.dropdown-item:hover {
+  background: #000080;
+  color: #FFFFFF;
+}
+
+.dropdown-item.disabled {
+  color: #808080;
+  cursor: default;
+}
+
+.dropdown-item.disabled:hover {
+  background: #C0C0C0;
+  color: #808080;
+}
+
+.dropdown-separator {
+  height: 1px;
+  background: #808080;
+  margin: 2px 0;
+  border-top: 1px solid #FFFFFF;
+}
+
+.dropdown-item .shortcut {
+  float: right;
+  margin-left: 30px;
+  color: #000000;
+}
+
+.dropdown-item:hover .shortcut {
+  color: #FFFFFF;
+}
+
+.dropdown-item.disabled .shortcut {
+  color: #808080;
+}
+
+.dropdown-item.checked::before {
+  content: '✓';
+  position: absolute;
+  left: 8px;
+}
+
+/* Main Content Area */
+.player-content {
+  display: flex;
+  background: #C0C0C0;
+}
+
+/* Video Player */
+.video-area {
+  flex: 1;
+  padding: 10px;
+}
+
+.video-container {
+  background: #000000;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #DFDFDF;
+  border-right: 2px solid #DFDFDF;
+  width: 100%;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-container video {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.video-info {
+  margin-top: 10px;
+  padding: 5px;
+  background: #FFFFFF;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #FFFFFF;
+  border-right: 1px solid #FFFFFF;
+  font-size: 10px;
+  color: #000000;
+}
+
+/* Playlist */
+.playlist-area {
+  width: 250px;
+  background: #C0C0C0;
+  border-left: 2px solid #808080;
+  padding: 10px;
+}
+
+.playlist-title {
+  background: #000080;
+  color: #FFFFFF;
+  padding: 3px 5px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 10px;
+}
+
+.playlist {
+  background: #FFFFFF;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  height: 420px;
+  overflow-y: auto;
+  font-size: 10px;
+}
+
+.playlist-item {
+  padding: 4px 8px;
+  cursor: pointer;
+  color: #000000;
+  border-bottom: 1px solid #E0E0E0;
+  user-select: none;
+}
+
+.playlist-item:hover {
+  background: #000080;
+  color: #FFFFFF;
+}
+
+.playlist-item.active {
+  background: #000080;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.playlist-item.hidden-prefix {
+  position: relative;
+}
+
+.playlist-item.hidden-prefix::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 13px;
+  height: 11px;
+  background: #FFFFFF;
+}
+
+.playlist-item.hidden-prefix:hover::before {
+  background: #000080;
+}
+
+/* Controls Bar */
+.controls-bar {
+  background: #C0C0C0;
+  padding: 10px;
+  border-top: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-btn {
+  width: 32px;
+  height: 28px;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.control-btn:hover {
+  background: #DFDFDF;
+}
+
+.control-btn:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+}
+
+.time-display {
+  background: #000000;
+  color: #00FF00;
+  padding: 4px 8px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-bottom: 1px solid #808080;
+  border-right: 1px solid #808080;
+  min-width: 80px;
+  text-align: center;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.volume-slider {
+  width: 80px;
+  height: 4px;
+  background: #FFFFFF;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #FFFFFF;
+  border-right: 1px solid #FFFFFF;
+  cursor: pointer;
+}
+
+/* Status Bar */
+.status-bar {
+  background: #C0C0C0;
+  border-top: 1px solid #FFFFFF;
+  padding: 2px 5px;
+  font-size: 10px;
+  color: #000000;
+  display: flex;
+  gap: 10px;
+  position: relative;
+}
+
+.status-section {
+  border-left: 1px solid #808080;
+  border-top: 1px solid #808080;
+  border-right: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+  padding: 1px 5px;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  background: transparent;
+}
+
+.resize-handle.right {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: e-resize;
+}
+
+.resize-handle.bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  cursor: s-resize;
+}
+
+.resize-handle.corner {
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  cursor: nw-resize;
+  background: linear-gradient(135deg, transparent 0%, transparent 40%, #808080 40%, #808080 45%, transparent 45%, transparent 55%, #808080 55%, #808080 60%, transparent 60%);
+}
+
+/* Custom Cursor */
+.custom-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .custom-cursor {
+  display: block;
+}
+
+/* Scrollbar Windows 95 style */
+.playlist::-webkit-scrollbar {
+  width: 16px;
+}
+
+.playlist::-webkit-scrollbar-track {
+  background: #C0C0C0;
+}
+
+.playlist::-webkit-scrollbar-thumb {
+  background: #DFDFDF;
+  border-top: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
+  border-bottom: 1px solid #808080;
+  border-right: 1px solid #808080;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 20px 10px;
+  }
+  
+  .player-window {
+    min-width: 100%;
+  }
+  
+  .player-content {
+    flex-direction: column;
+  }
+  
+  .playlist-area {
+    width: 100%;
+    border-left: none;
+    border-top: 2px solid #808080;
+  }
+  
+  .playlist {
+    height: 200px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+
+<div class="content">
+  <!-- Error Message Header -->
+  <div class="error-message" id="errorMsg"></div>
+
+  <div class="player-window">
+    <!-- Title Bar -->
+    <div class="title-bar">
+      <div class="title-bar-text">
+        <span class="title-bar-icon">▶</span>
+        Windows Media Player
+      </div>
+      <div class="title-bar-controls">
+        <div class="title-bar-btn" onmousedown="event.stopPropagation();" onclick="minimizeWindow()">_</div>
+        <div class="title-bar-btn" id="maximizeBtn" onmousedown="event.stopPropagation();" onclick="toggleMaximize()">□</div>
+        <div class="title-bar-btn" onmousedown="event.stopPropagation();" onclick="window.location.href='index.html'">×</div>
+      </div>
+    </div>
+
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+      <div class="menu-item">
+        <span>File</span>
+        <div class="dropdown-menu">
+          <div class="dropdown-item" onmousedown="event.preventDefault(); document.getElementById('fileInput').click()">Open...</div>
+          <div class="dropdown-item disabled">Close</div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item disabled">Properties</div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item" onmousedown="event.preventDefault(); window.location.href='index.html'">Exit</div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <span>View</span>
+        <div class="dropdown-menu">
+          <div class="dropdown-item checked">Playlist</div>
+          <div class="dropdown-item">Video Size <span class="shortcut">►</span></div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item" onmousedown="event.preventDefault(); toggleFullscreen()">Full Screen<span class="shortcut">Alt+Enter</span></div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item checked">Status Bar</div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <span>Play</span>
+        <div class="dropdown-menu">
+          <div class="dropdown-item" onmousedown="event.preventDefault(); togglePlay()">Play/Pause<span class="shortcut">Ctrl+P</span></div>
+          <div class="dropdown-item" onmousedown="event.preventDefault(); stopVideo()">Stop<span class="shortcut">Ctrl+S</span></div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item" onmousedown="event.preventDefault(); previousTrack()">Previous<span class="shortcut">Ctrl+B</span></div>
+          <div class="dropdown-item" onmousedown="event.preventDefault(); nextTrack()">Next<span class="shortcut">Ctrl+F</span></div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item" onmousedown="event.preventDefault(); toggleRepeat()">Repeat<span class="shortcut">Ctrl+T</span></div>
+          <div class="dropdown-item disabled">Shuffle</div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <span>Tools</span>
+        <div class="dropdown-menu">
+          <div class="dropdown-item disabled">Options...</div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item disabled">Download Manager...</div>
+          <div class="dropdown-item disabled">Media Library</div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <span>Help</span>
+        <div class="dropdown-menu">
+          <div class="dropdown-item disabled">Help Topics</div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item disabled">About Windows Media Player</div>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="video/*" style="display:none;" onchange="loadLocalVideo(event)">
+
+    <!-- Main Content -->
+    <div class="player-content">
+      <!-- Video Area -->
+      <div class="video-area">
+        <div class="video-container">
+          <video id="videoPlayer" controls>
+            <source src="vivre.mp4" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture vidéo.
+          </video>
+        </div>
+        <div class="video-info">
+          <strong>Now Playing:</strong> <span id="currentTitle">vivre.mp4</span>
+        </div>
+      </div>
+
+      <!-- Playlist Area -->
+      <div class="playlist-area">
+        <div class="playlist-title">▼ Playlist</div>
+        <div class="playlist" id="playlist">
+          <div class="playlist-item active" data-src="vivre.mp4">vivre.mp4</div>
+          <div class="playlist-item" data-src="vivre2.mp4">vivre2.mp4</div>
+          <div class="playlist-item" data-src="vivre3.mp4">vivre3.mp4</div>
+          <div class="playlist-item" data-src="vivre4.mp4">vivre4.mp4</div>
+          <div class="playlist-item" data-src="vivre5.mp4">vivre5.mp4</div>
+          <div class="playlist-item" data-src="vivre6.mp4">vivre6.mp4</div>
+          <div class="playlist-item" data-src="vivre7.mp4">vivre7.mp4</div>
+          <div class="playlist-item" data-src="vivre8.mp4">vivre8.mp4</div>
+          <div class="playlist-item" data-src="vivre9.mp4">vivre9.mp4</div>
+          <div class="playlist-item" data-src="vivre10.mp4">vivre10.mp4</div>
+          <div class="playlist-item" data-src="vivre11.mp4">vivre11.mp4</div>
+          <div class="playlist-item hidden-prefix" data-src="mathis12.mp4">mathis12.mp4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="control-btn" onclick="previousTrack()" title="Previous">⏮</div>
+      <div class="control-btn" onclick="togglePlay()" id="playBtn" title="Play/Pause">▶</div>
+      <div class="control-btn" onclick="stopVideo()" title="Stop">■</div>
+      <div class="control-btn" onclick="nextTrack()" title="Next">⏭</div>
+      <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
+      <div class="volume-control">
+        <span>🔊</span>
+        <div class="volume-slider"></div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-section">Ready</div>
+      <div class="status-section" id="statusInfo">12 files in playlist</div>
+    </div>
+
+    <!-- Resize Handles -->
+    <div class="resize-handle right"></div>
+    <div class="resize-handle bottom"></div>
+    <div class="resize-handle corner"></div>
+  </div>
+</div>
+
+<script>
+// Messages d'erreur bluescreen aléatoires
+const errorMessages = [
+  "A fatal exception 0xM3D1A has occurred at 0028:C00V1VRE in VXD MPLAYER(01)",
+  "*** STOP: 0x000000F1L3 (0xV1VRE000, 0x00000MP4, 0x00000000, 0xC001PLAY)",
+  "An exception 0xV1D30 has occurred at 0028:C0011E36 in VXD WMPLAYER(01) +00010E36",
+  "INACCESSIBLE_MEDIA_FILE - The system cannot locate vivre.sys",
+  "*** FATAL ERROR: Media playback exception at VXD:VIVRE(01) +0x000F1L3"
+];
+
+// Afficher un message aléatoire
+document.getElementById('errorMsg').textContent = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+
+// Charger une vidéo locale
+function loadLocalVideo(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    videoPlayer.src = url;
+    currentTitle.textContent = file.name;
+    videoPlayer.play();
+    playBtn.textContent = '⏸';
+  }
+}
+
+// Fullscreen
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    videoPlayer.requestFullscreen().catch(err => {
+      console.log('Fullscreen error:', err);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// Repeat
+let repeatMode = false;
+function toggleRepeat() {
+  repeatMode = !repeatMode;
+  videoPlayer.loop = repeatMode;
+}
+
+// Curseur personnalisé
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', (e) => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+// Drag and Drop de la fenêtre
+const playerWindow = document.querySelector('.player-window');
+const titleBar = document.querySelector('.title-bar');
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+titleBar.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.title-bar-controls')) return;
+  if (isMaximized) return; // Pas de drag en mode maximisé
+  
+  isDragging = true;
+  playerWindow.classList.add('dragging');
+  
+  const rect = playerWindow.getBoundingClientRect();
+  dragOffsetX = e.clientX - rect.left;
+  dragOffsetY = e.clientY - rect.top;
+  
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    const newX = e.clientX - dragOffsetX;
+    const newY = e.clientY - dragOffsetY;
+    
+    playerWindow.style.left = newX + 'px';
+    playerWindow.style.top = newY + 'px';
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+  playerWindow.classList.remove('dragging');
+});
+
+// Resize de la fenêtre
+const resizeHandles = {
+  right: document.querySelector('.resize-handle.right'),
+  bottom: document.querySelector('.resize-handle.bottom'),
+  corner: document.querySelector('.resize-handle.corner')
+};
+
+let isResizing = false;
+let resizeType = null;
+let startX = 0;
+let startY = 0;
+let startWidth = 0;
+let startHeight = 0;
+
+Object.keys(resizeHandles).forEach(type => {
+  resizeHandles[type].addEventListener('mousedown', (e) => {
+    isResizing = true;
+    resizeType = type;
+    playerWindow.classList.add('resizing');
+    
+    startX = e.clientX;
+    startY = e.clientY;
+    startWidth = playerWindow.offsetWidth;
+    startHeight = playerWindow.offsetHeight;
+    
+    e.preventDefault();
+    e.stopPropagation();
+  });
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (isResizing) {
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+    
+    if (resizeType === 'right' || resizeType === 'corner') {
+      const newWidth = Math.max(700, startWidth + deltaX);
+      playerWindow.style.width = newWidth + 'px';
+    }
+    
+    if (resizeType === 'bottom' || resizeType === 'corner') {
+      const newHeight = Math.max(500, startHeight + deltaY);
+      playerWindow.style.height = newHeight + 'px';
+    }
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  if (isResizing) {
+    isResizing = false;
+    resizeType = null;
+    playerWindow.classList.remove('resizing');
+  }
+});
+
+// Centrer la fenêtre au chargement
+window.addEventListener('load', () => {
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  const playerWidth = playerWindow.offsetWidth;
+  const playerHeight = playerWindow.offsetHeight;
+  
+  const centerX = (windowWidth - playerWidth) / 2;
+  const centerY = (windowHeight - playerHeight) / 2;
+  
+  playerWindow.style.left = Math.max(0, centerX) + 'px';
+  playerWindow.style.top = Math.max(0, centerY) + 'px';
+});
+
+// Maximiser/Restaurer la fenêtre
+let isMaximized = false;
+let savedPosition = { left: 0, top: 0, width: 0, height: 0 };
+
+function toggleMaximize() {
+  const maximizeBtn = document.getElementById('maximizeBtn');
+  
+  if (!isMaximized) {
+    // Sauvegarder la position et taille actuelles
+    savedPosition = {
+      left: playerWindow.style.left,
+      top: playerWindow.style.top,
+      width: playerWindow.offsetWidth,
+      height: playerWindow.offsetHeight
+    };
+    
+    // Maximiser
+    playerWindow.classList.add('maximized');
+    maximizeBtn.textContent = '❐'; // Icône "restaurer"
+    isMaximized = true;
+  } else {
+    // Restaurer
+    playerWindow.classList.remove('maximized');
+    playerWindow.style.left = savedPosition.left;
+    playerWindow.style.top = savedPosition.top;
+    playerWindow.style.width = savedPosition.width + 'px';
+    playerWindow.style.height = savedPosition.height + 'px';
+    maximizeBtn.textContent = '□';
+    isMaximized = false;
+  }
+}
+
+// Minimiser (simulé - juste un effet visuel)
+function minimizeWindow() {
+  playerWindow.style.transform = 'scale(0)';
+  playerWindow.style.opacity = '0';
+  
+  setTimeout(() => {
+    playerWindow.style.transform = 'scale(1)';
+    playerWindow.style.opacity = '1';
+  }, 300);
+}
+
+
+// Éléments
+const videoPlayer = document.getElementById('videoPlayer');
+const playBtn = document.getElementById('playBtn');
+const timeDisplay = document.getElementById('timeDisplay');
+const currentTitle = document.getElementById('currentTitle');
+const playlistItems = document.querySelectorAll('.playlist-item');
+
+let currentIndex = 0;
+
+// Fonction pour formater le temps
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Mise à jour du temps
+videoPlayer.addEventListener('timeupdate', () => {
+  const current = formatTime(videoPlayer.currentTime);
+  const duration = formatTime(videoPlayer.duration || 0);
+  timeDisplay.textContent = `${current} / ${duration}`;
+});
+
+// Lecture/Pause
+function togglePlay() {
+  if (videoPlayer.paused) {
+    videoPlayer.play();
+    playBtn.textContent = '⏸';
+  } else {
+    videoPlayer.pause();
+    playBtn.textContent = '▶';
+  }
+}
+
+// Stop
+function stopVideo() {
+  videoPlayer.pause();
+  videoPlayer.currentTime = 0;
+  playBtn.textContent = '▶';
+}
+
+// Piste précédente
+function previousTrack() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    loadTrack(currentIndex);
+  }
+}
+
+// Piste suivante
+function nextTrack() {
+  if (currentIndex < playlistItems.length - 1) {
+    currentIndex++;
+    loadTrack(currentIndex);
+  }
+}
+
+// Charger une piste
+function loadTrack(index) {
+  currentIndex = index;
+  const item = playlistItems[index];
+  const src = item.getAttribute('data-src');
+  const title = item.textContent;
+  
+  videoPlayer.src = src;
+  currentTitle.textContent = title;
+  
+  // Mettre à jour la playlist active
+  playlistItems.forEach(item => item.classList.remove('active'));
+  item.classList.add('active');
+  
+  // Auto-play
+  videoPlayer.play();
+  playBtn.textContent = '⏸';
+}
+
+// Clic sur playlist
+playlistItems.forEach((item, index) => {
+  item.addEventListener('click', () => {
+    loadTrack(index);
+  });
+});
+
+// Piste suivante automatique
+videoPlayer.addEventListener('ended', () => {
+  nextTrack();
+});
+
+// Gestion du bouton play/pause avec la vidéo
+videoPlayer.addEventListener('play', () => {
+  playBtn.textContent = '⏸';
+});
+
+videoPlayer.addEventListener('pause', () => {
+  playBtn.textContent = '▶';
+});
+</script>
+
+</body>
+</html>

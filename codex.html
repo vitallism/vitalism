@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C0DΞ_01</title>
+<style>
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.96; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+* {
+  cursor: none !important;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Courier New", monospace;
+  background-color: #0000AA;
+  color: #FFFFFF;
+  overflow: hidden;
+  min-height: 100vh;
+  width: 100vw;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.fake-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .fake-cursor {
+  display: block;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 16px;
+  z-index: 100;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+  flex-wrap: wrap;
+  max-width: 500px;
+  justify-content: flex-end;
+}
+
+.controls button,
+.controls input {
+  padding: 6px 15px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  background: #C0C0C0;
+  color: #000000;
+  font-weight: bold;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.controls button:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  box-shadow: inset 1px 1px 0 #000000;
+}
+
+.controls input {
+  width: 200px;
+  border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+
+#sphere-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  perspective: 800px;
+  overflow: hidden;
+}
+
+#sphere {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform-style: preserve-3d;
+  transition: transform 0.1s;
+}
+
+.word {
+  position: absolute;
+  color: #FFFFFF;
+  font-weight: bold;
+  white-space: nowrap;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  text-shadow: 0 0 10px currentColor;
+  transition: all 0.2s;
+}
+
+.word:hover {
+  transform: scale(1.3) !important;
+  text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+}
+
+.word.highlight {
+  color: #FFD700 !important;
+  font-size: 2em !important;
+  text-shadow: 0 0 30px #FFD700, 0 0 60px #FFD700;
+}
+
+.word.philosophy { color: #FF6B6B; }
+.word.concept { color: #4ECDC4; }
+.word.author { color: #95E1D3; }
+.word.technical { color: #F38181; }
+.word.myth { color: #FFD700; }
+.word.vitalism { color: #7FFF00; }
+
+.info-popup {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  padding: 15px 20px;
+  color: #000000;
+  font-size: 13px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 200;
+  max-width: 500px;
+  text-align: center;
+}
+
+.info-popup.active {
+  display: block;
+}
+
+.info-popup .close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  background: #C0C0C0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.info-popup .close-btn:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+}
+
+.status {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  font-size: 11px;
+  background: rgba(192, 192, 192, 0.8);
+  padding: 5px 10px;
+  border: 1px solid #FFFFFF;
+  color: #000000;
+  z-index: 100;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .controls input {
+    width: 150px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="fake-cursor" id="fakeCursor"></div>
+<div class="logo"><span>:faunism</span></div>
+
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="Rechercher..." onkeypress="if(event.key==='Enter') searchWord()">
+  <button onclick="searchWord()">🔍 Search</button>
+  <button onclick="randomWord()">🎲 Random</button>
+  <button onclick="toggleAutoRotate()">⟳ Auto</button>
+  <button onclick="resetView()">↺ Reset</button>
+</div>
+
+<div id="sphere-container">
+  <div id="sphere"></div>
+</div>
+
+<div class="info-popup" id="infoPopup">
+  <div class="close-btn" onclick="closeInfo()">×</div>
+  <div id="infoContent"></div>
+</div>
+
+<div class="status" id="status">Cliquez-glissez ou utilisez les flèches ←↑↓→ pour faire tourner - Espace pour auto-rotation</div>
+
+<script>
+const fakeCursor = document.getElementById('fakeCursor');
+document.addEventListener('mousemove', (e) => {
+  fakeCursor.style.left = e.clientX + 'px';
+  fakeCursor.style.top = e.clientY + 'px';
+});
+
+const words = [
+  {text: "Nietzsche", type: "author", desc: "Philosophe de la volonté de puissance"},
+  {text: "Éthique", type: "philosophy", desc: "Science de la morale et des valeurs"},
+  {text: "Métaphysique", type: "philosophy", desc: "Étude de la nature fondamentale de la réalité"},
+  {text: "Esthétique", type: "philosophy", desc: "Philosophie de l'art et du beau"},
+  {text: "Logos", type: "concept", desc: "Principe de raison et langage universel"},
+  {text: "Noosphère", type: "concept", desc: "Sphère de la pensée collective"},
+  {text: "Gaïa", type: "myth", desc: "Terre vivante, organisme autorégulé"},
+  {text: "Pneuma", type: "concept", desc: "Souffle vital animant toute chose"},
+  {text: "Chronos", type: "myth", desc: "Dimension temporelle du flux"},
+  {text: "Kairos", type: "concept", desc: "Moment opportun, temps qualitatif"},
+  {text: "Vitalism", type: "vitalism", desc: "Principe fondateur du réseau"},
+  {text: "Flux", type: "vitalism", desc: "Mouvement permanent de l'énergie"},
+  {text: "Anima", type: "vitalism", desc: "Force interne animant la matière"},
+  {text: "Éther", type: "vitalism", desc: "Substrat invisible reliant tout"},
+  {text: "Nexus", type: "vitalism", desc: "Point de convergence des réalités"},
+  {text: "Synapse", type: "vitalism", desc: "Lien énergétique entre entités"},
+  {text: "Übermensch", type: "concept", desc: "Surhomme nietzschéen"},
+  {text: "Amor Fati", type: "concept", desc: "Amour du destin"},
+  {text: "Nihilisme", type: "philosophy", desc: "Négation des valeurs établies"},
+  {text: "Transhumanisme", type: "technical", desc: "Dépassement de l'humain par la technique"},
+  {text: "Cybernétique", type: "technical", desc: "Science des systèmes de contrôle"},
+  {text: "Singularité", type: "technical", desc: "Point de rupture technologique"},
+  {text: "Holisme", type: "philosophy", desc: "Vision du tout indivisible"},
+  {text: "Émergence", type: "concept", desc: "Apparition de propriétés nouvelles"},
+  {text: "Ouroboros", type: "myth", desc: "Serpent se mordant la queue, cycle éternel"},
+  {text: "Prométhée", type: "myth", desc: "Titan du feu et de la connaissance"},
+  {text: "Sisyphe", type: "myth", desc: "Condamné à pousser son rocher"},
+  {text: "Icare", type: "myth", desc: "Symbole de l'hubris et de la chute"},
+  {text: "Foucault", type: "author", desc: "Philosophe du pouvoir et de la biopolitique"},
+  {text: "Deleuze", type: "author", desc: "Philosophe du devenir et de la différence"},
+  {text: "Bergson", type: "author", desc: "Philosophe de l'élan vital"},
+  {text: "Spinoza", type: "author", desc: "Philosophe de l'immanence"},
+  {text: "Heidegger", type: "author", desc: "Philosophe de l'être et du temps"},
+  {text: "YETSCAPE", type: "technical", desc: "Moteur de recherche du réseau"},
+  {text: "Codex", type: "technical", desc: "Archive des concepts"},
+  {text: "Anon", type: "vitalism", desc: "Contributeur anonyme du réseau"},
+  {text: "Bluejeanism", type: "vitalism", desc: "Philosophie de l'écran bleu"},
+  {text: "Calliclès", type: "author", desc: "Penseur vitaliste contemporain"},
+  {text: "Techné", type: "concept", desc: "Art et savoir-faire technique"},
+  {text: "Praxis", type: "concept", desc: "Action transformatrice"},
+  {text: "Dasein", type: "concept", desc: "Être-là, existence humaine"},
+  {text: "Rhizome", type: "concept", desc: "Structure non-hiérarchique"},
+  {text: "Devenir", type: "concept", desc: "Processus de transformation"},
+  {text: "Intensité", type: "concept", desc: "Force et puissance du réel"},
+  {text: "Multiplicité", type: "concept", desc: "Diversité irréductible"},
+  {text: "Immanence", type: "concept", desc: "Ce qui est inhérent, non transcendant"},
+  {text: "Puissance", type: "concept", desc: "Capacité d'agir et d'être affecté"},
+  {text: "Affect", type: "concept", desc: "Force émotionnelle pré-consciente"},
+  {text: "Symptôme", type: "concept", desc: "Signe visible d'un processus caché"},
+  {text: "Simulacre", type: "concept", desc: "Copie sans original"},
+  {text: "Hyperréel", type: "concept", desc: "Plus vrai que le réel"},
+  {text: "Anthropocène", type: "concept", desc: "Ère géologique de l'humain"}
+];
+
+const sphere = document.getElementById('sphere');
+const container = document.getElementById('sphere-container');
+const wordElements = [];
+const radius = 350;
+
+let angleX = 0;
+let angleY = 0;
+let autoRotate = true;
+let isDragging = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
+
+// Distribution sphérique Fibonacci
+function initSphere() {
+  const goldenRatio = (1 + Math.sqrt(5)) / 2;
+  const angleIncrement = Math.PI * 2 * goldenRatio;
+  
+  words.forEach((word, i) => {
+    const t = i / words.length;
+    const inclination = Math.acos(1 - 2 * t);
+    const azimuth = angleIncrement * i;
+    
+    const x = radius * Math.sin(inclination) * Math.cos(azimuth);
+    const y = radius * Math.sin(inclination) * Math.sin(azimuth);
+    const z = radius * Math.cos(inclination);
+    
+    const el = document.createElement('div');
+    el.className = `word ${word.type}`;
+    el.textContent = word.text;
+    el.onclick = () => showInfo(word);
+    
+    sphere.appendChild(el);
+    wordElements.push({
+      element: el,
+      data: word,
+      x: x,
+      y: y,
+      z: z
+    });
+  });
+  
+  updatePositions();
+}
+
+function updatePositions() {
+  const centerX = container.clientWidth / 2;
+  const centerY = container.clientHeight / 2;
+  
+  const cosX = Math.cos(angleX);
+  const sinX = Math.sin(angleX);
+  const cosY = Math.cos(angleY);
+  const sinY = Math.sin(angleY);
+  
+  wordElements.forEach(item => {
+    // Rotation Y
+    let x = item.x * cosY - item.z * sinY;
+    let z = item.z * cosY + item.x * sinY;
+    
+    // Rotation X
+    let y = item.y * cosX - z * sinX;
+    z = z * cosX + item.y * sinX;
+    
+    // Projection perspective
+    const scale = 800 / (800 + z);
+    const posX = centerX + x * scale;
+    const posY = centerY + y * scale;
+    
+    // Mise à jour de l'élément
+    item.element.style.left = posX + 'px';
+    item.element.style.top = posY + 'px';
+    item.element.style.fontSize = (10 + 12 * scale) + 'px';
+    item.element.style.opacity = (0.3 + 0.7 * scale) * (z > -100 ? 1 : 0.3);
+    item.element.style.zIndex = Math.floor(1000 + z);
+    item.element.style.filter = z < 0 ? `blur(${Math.abs(z) / 200}px)` : 'none';
+  });
+}
+
+// Interactions souris
+container.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+  autoRotate = false;
+});
+
+document.addEventListener('mouseup', () => {
+  if(isDragging) {
+    isDragging = false;
+    setTimeout(() => { autoRotate = true; }, 3000);
+  }
+});
+
+document.addEventListener('mousemove', (e) => {
+  if(isDragging) {
+    const deltaX = e.clientX - lastMouseX;
+    const deltaY = e.clientY - lastMouseY;
+    
+    angleY += deltaX * 0.005;
+    angleX -= deltaY * 0.005;
+    
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    
+    updatePositions();
+  }
+});
+
+// Contrôle au clavier (flèches)
+document.addEventListener('keydown', (e) => {
+  const rotateSpeed = 0.05;
+  
+  switch(e.key) {
+    case 'ArrowLeft':
+      angleY -= rotateSpeed;
+      autoRotate = false;
+      updatePositions();
+      updateStatus('← Rotation gauche');
+      break;
+    case 'ArrowRight':
+      angleY += rotateSpeed;
+      autoRotate = false;
+      updatePositions();
+      updateStatus('→ Rotation droite');
+      break;
+    case 'ArrowUp':
+      angleX -= rotateSpeed;
+      autoRotate = false;
+      updatePositions();
+      updateStatus('↑ Rotation haut');
+      break;
+    case 'ArrowDown':
+      angleX += rotateSpeed;
+      autoRotate = false;
+      updatePositions();
+      updateStatus('↓ Rotation bas');
+      break;
+    case ' ':
+      e.preventDefault();
+      toggleAutoRotate();
+      break;
+  }
+});
+
+// Animation
+function animate() {
+  if(autoRotate) {
+    angleY += 0.002;
+    updatePositions();
+  }
+  requestAnimationFrame(animate);
+}
+
+function showInfo(word) {
+  const popup = document.getElementById('infoPopup');
+  const content = document.getElementById('infoContent');
+  
+  content.innerHTML = `<strong style="font-size: 16px;">${word.text}</strong><br><br>${word.desc}<br><br><em>Type: ${word.type}</em>`;
+  popup.classList.add('active');
+  
+  updateStatus(`Sélectionné: ${word.text}`);
+}
+
+function closeInfo() {
+  document.getElementById('infoPopup').classList.remove('active');
+  updateStatus();
+}
+
+function searchWord() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  if(!query) return;
+  
+  wordElements.forEach(w => w.element.classList.remove('highlight'));
+  
+  let found = false;
+  wordElements.forEach(w => {
+    if(w.data.text.toLowerCase().includes(query)) {
+      w.element.classList.add('highlight');
+      found = true;
+      showInfo(w.data);
+    }
+  });
+  
+  if(!found) {
+    updateStatus(`Aucun résultat pour "${query}"`);
+  } else {
+    updateStatus(`Recherche: "${query}"`);
+  }
+}
+
+function randomWord() {
+  const randomIndex = Math.floor(Math.random() * wordElements.length);
+  const word = wordElements[randomIndex];
+  
+  wordElements.forEach(w => w.element.classList.remove('highlight'));
+  word.element.classList.add('highlight');
+  showInfo(word.data);
+  
+  updateStatus(`Exploration aléatoire: ${word.data.text}`);
+}
+
+function resetView() {
+  closeInfo();
+  document.getElementById('searchInput').value = '';
+  wordElements.forEach(w => w.element.classList.remove('highlight'));
+  angleX = 0;
+  angleY = 0;
+  autoRotate = true;
+  updatePositions();
+  updateStatus();
+}
+
+function toggleAutoRotate() {
+  autoRotate = !autoRotate;
+  updateStatus(autoRotate ? 'Rotation automatique activée' : 'Rotation automatique désactivée');
+}
+
+function updateStatus(text) {
+  const status = document.getElementById('status');
+  status.textContent = text || `${words.length} concepts dans la sphère - Cliquez-glissez pour faire tourner`;
+}
+
+initSphere();
+animate();
+</script>
+
+</body>
+</html>

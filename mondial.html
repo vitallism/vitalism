@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M0ND_IX3</title>
+<style>
+body {
+  margin:0;
+  padding:0;
+  background:#000033;
+  font-family:"Courier New", monospace;
+  color:#0FF;
+  overflow:hidden;
+}
+#container{
+  position:relative;
+  width:100vw;
+  height:100vh;
+}
+svg{
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+}
+canvas{
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+}
+.title-bar{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  width:900px;height:30px;background:#000080;color:#0FF;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 10px;box-sizing:border-box;border:2px solid #0FF;
+  font-weight:bold;z-index:1000;
+}
+.title-bar .buttons span{
+  width:20px;height:18px;background:#000080;color:#0FF;
+  border:1px solid #0FF;text-align:center;cursor:pointer;margin-left:4px;
+}
+.title-bar .buttons span:hover{background:#FF0000;color:white;}
+</style>
+</head>
+<body>
+<div class="title-bar">run:vitalism//Global Radar<div class="buttons"><span onclick="closeWindow()">X</span></div></div>
+
+<div id="container">
+  <!-- SVG du planisphère simplifié -->
+  <svg id="mapSVG" viewBox="0 0 1000 500">
+    <rect x="0" y="0" width="1000" height="500" fill="#000033"/>
+    <!-- Continents très simplifiés -->
+    <path d="M50,100 L150,80 L200,150 L100,200 Z" fill="#003366" stroke="#0FF" stroke-width="2"/>
+    <path d="M300,150 L400,120 L450,200 L350,250 Z" fill="#003366" stroke="#0FF" stroke-width="2"/>
+    <path d="M600,80 L700,60 L750,150 L650,180 Z" fill="#003366" stroke="#0FF" stroke-width="2"/>
+    <path d="M200,300 L300,280 L350,350 L250,400 Z" fill="#003366" stroke="#0FF" stroke-width="2"/>
+    <path d="M700,300 L800,280 L850,350 L750,400 Z" fill="#003366" stroke="#0FF" stroke-width="2"/>
+  </svg>
+
+  <!-- Canvas pour les blips et radars -->
+  <canvas id="canvas"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+window.addEventListener('resize',()=>{
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+});
+
+// Radar arcs
+class Radar {
+  constructor(x,y,radius){
+    this.x=x; this.y=y; this.radius=radius;
+    this.angle=0;
+  }
+  draw(){
+    ctx.strokeStyle="#0FF";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.radius,0,this.angle);
+    ctx.stroke();
+    this.angle+=0.02;
+    if(this.angle>2*Math.PI) this.angle=0;
+  }
+}
+
+// Blips aléatoires
+class Blip {
+  constructor(){
+    this.x=Math.random()*W;
+    this.y=Math.random()*H;
+    this.alpha=Math.random();
+    this.size=2+Math.random()*3;
+  }
+  draw(){
+    ctx.fillStyle=`rgba(0,255,255,${this.alpha})`;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fill();
+    this.alpha+=Math.random()*0.02-0.01;
+    if(this.alpha>1) this.alpha=1;
+    if(this.alpha<0) this.alpha=0;
+  }
+}
+
+const radars=[
+  new Radar(W*0.25,H*0.3,50),
+  new Radar(W*0.7,H*0.4,80),
+  new Radar(W*0.5,H*0.7,60)
+];
+
+const blips=[];
+for(let i=0;i<100;i++) blips.push(new Blip());
+
+function animate(){
+  ctx.clearRect(0,0,W,H);
+
+  radars.forEach(r=>r.draw());
+  blips.forEach(b=>b.draw());
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+function closeWindow(){
+  document.querySelector('.title-bar .buttons span').parentElement.parentElement.style.display='none';
+}
+</script>
+</body>
+</html>

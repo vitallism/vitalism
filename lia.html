@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAL-IXE//Δ403</title>
+<style>
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.96; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+* {
+  cursor: none !important;
+}
+
+body {
+  margin: 0;
+  padding: 40px 20px;
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "Courier New", "Lucida Console", monospace;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 16px;
+  margin-bottom: 30px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.logo:hover {
+  background: #FFFFFF;
+}
+
+.logo:hover span {
+  color: #0000AA;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.error-header {
+  max-width: 900px;
+  margin: 0 auto 30px auto;
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  border-bottom: 2px solid #FFFFFF;
+  padding-bottom: 15px;
+}
+
+.error-code {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.fiche {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 3px solid #FFFFFF;
+  border-style: outset;
+  padding: 25px;
+  box-sizing: border-box;
+  background-color: #0000AA;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1),
+              4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.system-info {
+  font-size: 0.85em;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #FFFFFF;
+  background-color: rgba(0, 0, 100, 0.5);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #FFFFFF;
+  margin-bottom: 20px;
+}
+
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border: 3px solid #FFFFFF;
+  background-color: #000088;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+  box-shadow: 0 0 15px #FFFFFF;
+  background-image: url('lia.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+}
+
+.avatar-flag {
+  display: flex;
+  width: 48px;
+  height: 32px;
+  border: 2px solid #FFFFFF;
+  overflow: hidden;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0000AA;
+  z-index: 5;
+}
+
+.info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.name {
+  font-size: 1.6em;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.socials {
+  margin: 15px 0;
+}
+
+.socials a {
+  background-color: #C0C0C0;
+  color: #000000;
+  text-decoration: none;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  padding: 5px 15px;
+  font-size: 0.9em;
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  box-shadow: 1px 1px 0 #000000;
+  font-family: "MS Sans Serif", "Lucida Console", monospace;
+}
+
+.socials a:active {
+  border-color: #000000 #FFFFFF #FFFFFF #000000;
+  box-shadow: inset 1px 1px 0 #000000;
+}
+
+.bio {
+  margin-top: 15px;
+  font-size: 0.95em;
+  line-height: 1.6em;
+  padding: 10px;
+  border-left: 3px solid #FFFFFF;
+  background-color: rgba(0, 0, 100, 0.3);
+}
+
+.stats-container {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #FFFFFF;
+  padding: 15px;
+  background-color: rgba(0, 0, 80, 0.5);
+  min-width: 280px;
+}
+
+.radar-container {
+  width: 250px;
+  height: 250px;
+}
+
+.radar-label {
+  font-size: 11px;
+  fill: #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  cursor: help;
+}
+
+.radar-point {
+  fill: #FFFFFF;
+  filter: drop-shadow(0 0 3px #FFFFFF);
+}
+
+.tooltip {
+  position: fixed;
+  background-color: #FFFFE1;
+  color: #000000;
+  padding: 5px 10px;
+  border: 1px solid #000000;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 10000;
+  display: none;
+  font-family: "MS Sans Serif", "Courier New", monospace;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.category {
+  margin-top: 20px;
+  padding: 15px;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  background: linear-gradient(135deg, rgba(0, 0, 100, 0.4) 0%, rgba(0, 0, 120, 0.3) 100%);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.3s;
+}
+
+.category:hover {
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.category-title {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #FFFFFF;
+  padding-bottom: 8px;
+  text-shadow: 2px 2px #000000;
+}
+
+.category-content {
+  font-size: 0.95em;
+  line-height: 1.8em;
+  padding-left: 15px;
+  font-family: "Courier New", monospace;
+}
+
+.timeline-graph-container {
+  overflow-x: auto;
+  padding: 10px;
+  border: 2px solid;
+  border-color: #000000 #FFFFFF #FFFFFF #000000;
+  background-color: rgba(0, 0, 80, 0.5);
+  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.5);
+}
+
+.timeline-graph {
+  min-width: 2000px;
+  height: 280px;
+  position: relative;
+}
+
+.graph-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.year-popup {
+  position: fixed;
+  background-color: #C0C0C0;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  padding: 10px;
+  font-size: 12px;
+  z-index: 10000;
+  display: none;
+  max-width: 350px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  color: #000000;
+}
+
+.year-popup-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 3px;
+}
+
+.year-popup-list {
+  line-height: 1.5;
+}
+
+.achievement-box {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.achievement {
+  border: 2px solid;
+  padding: 8px;
+  flex: 1;
+  min-width: 150px;
+}
+
+/* Badges cliquables */
+.badge-link {
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.badge-item {
+  display: inline-block;
+  padding: 5px 12px;
+  font-size: 11px;
+  border: 2px solid #000000;
+  font-weight: bold;
+  box-shadow: 2px 2px 0 #000000;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.badge-link:hover .badge-item {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 4px 4px 0 #000000, 0 0 20px rgba(255, 255, 255, 0.8);
+  filter: brightness(1.3);
+  animation: badgePulse 0.6s infinite;
+}
+
+.badge-link:active .badge-item {
+  transform: translateY(0) scale(1);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+/* Tooltip pour les badges */
+.badge-link::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: #FFFFE1;
+  color: #000000;
+  padding: 8px 12px;
+  border: 2px solid #000000;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  z-index: 1000;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  font-family: "Courier New", monospace;
+  font-weight: normal;
+}
+
+.badge-link:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+@keyframes badgePulse {
+  0%, 100% { 
+    box-shadow: 4px 4px 0 #000000, 0 0 20px rgba(255, 255, 255, 0.8);
+  }
+  50% { 
+    box-shadow: 4px 4px 0 #000000, 0 0 30px rgba(255, 255, 255, 1);
+  }
+}
+
+/* Modal viewer styles */
+.modal-viewer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 170, 0.95);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+}
+
+.modal-viewer * {
+  cursor: auto !important;
+}
+
+.modal-content {
+  background: #C0C0C0;
+  border: 3px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  max-width: 95%;
+  max-height: 95%;
+  width: 1000px;
+  height: 800px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.7);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.modal-content.fullscreen {
+  width: 98vw !important;
+  height: 98vh !important;
+  max-width: 98vw !important;
+  max-height: 98vh !important;
+}
+
+.modal-header {
+  background: linear-gradient(to right, #000080, #1084D0);
+  color: #FFFFFF;
+  padding: 5px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-icon {
+  width: 16px;
+  height: 16px;
+  background: #FFFFFF;
+  color: #000080;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.modal-header-right {
+  display: flex;
+  gap: 5px;
+}
+
+.modal-maximize {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  padding: 2px 8px;
+  cursor: pointer !important;
+  font-weight: bold;
+  color: #000000;
+  font-size: 14px;
+  min-width: 24px;
+}
+
+.modal-maximize:hover {
+  background: #DFDFDF;
+}
+
+.modal-maximize:active {
+  border-color: #000000 #FFFFFF #FFFFFF #000000;
+}
+
+.modal-close {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  padding: 2px 10px;
+  cursor: pointer !important;
+  font-weight: bold;
+  color: #000000;
+  font-size: 14px;
+}
+
+.modal-close:hover {
+  background: #DFDFDF;
+}
+
+.modal-close:active {
+  border-color: #000000 #FFFFFF #FFFFFF #000000;
+}
+
+.modal-toolbar {
+  background: #C0C0C0;
+  padding: 8px;
+  border-bottom: 2px solid #808080;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.modal-body {
+  flex: 1;
+  overflow: auto;
+  background: #FFFFFF;
+  border: 2px solid;
+  border-color: #808080 #FFFFFF #FFFFFF #808080;
+  margin: 5px;
+  position: relative;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.download-btn {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #FFFFFF #000000 #000000 #FFFFFF;
+  padding: 6px 16px;
+  cursor: pointer !important;
+  font-weight: bold;
+  color: #000000;
+  font-family: "Courier New", monospace;
+  display: inline-block;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.download-btn:hover {
+  background: #DFDFDF;
+}
+
+.download-btn:active {
+  border-color: #000000 #FFFFFF #FFFFFF #000000;
+}
+
+/* Améliorer visuellement les cartes */
+.book-item > div, .article-item, .video-item {
+  transition: all 0.2s;
+}
+
+.book-item > div:hover, .article-item:hover, .video-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 3px 3px 0 #000000;
+  border-color: #FFFF00;
+}
+
+.book-item > div:active, .article-item:active, .video-item:active {
+  transform: translateY(0);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+/* Badges PDF/EPUB cliquables */
+.format-badge {
+  background: #000080;
+  color: #FFF;
+  padding: 2px 6px;
+  text-decoration: none;
+  border: 1px solid #000000;
+  cursor: pointer !important;
+  display: inline-block;
+  transition: all 0.2s;
+  box-shadow: 1px 1px 0 #000000;
+}
+
+.format-badge:hover {
+  background: #0000FF;
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 #000000;
+  border: 1px solid #FFFFFF;
+}
+
+.format-badge:active {
+  transform: translateY(0);
+  box-shadow: 0px 0px 0 #000000;
+  background: #000060;
+}
+
+.cursor {
+  display: inline-block;
+  width: 10px;
+  height: 15px;
+  background-color: #FFFFFF;
+  animation: blink 1s infinite;
+  margin-left: 5px;
+}
+
+.fake-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .fake-cursor {
+  display: block;
+}
+
+.modal-viewer.active ~ .content-wrapper .fake-cursor,
+.modal-viewer:not([style*="display: none"]) ~ .content-wrapper .fake-cursor {
+  display: none !important;
+}
+
+.footer-error {
+  max-width: 900px;
+  margin: 30px auto 0 auto;
+  text-align: center;
+  font-size: 0.85em;
+  padding-top: 20px;
+  border-top: 2px solid #FFFFFF;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stats-container {
+    width: 100%;
+  }
+  
+  .error-code {
+    font-size: 1.5em;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="content-wrapper">
+  <div class="fake-cursor" id="fakeCursor"></div>
+  
+  <a href="index.html" style="text-decoration: none;">
+    <div class="logo"><span>:faunism</span></div>
+  </a>
+
+  <div class="error-header">
+    <div class="error-code">*** STOP: 0x0000BLUE (0xLIAVONFINNAK, 0x000000-02)</div>
+    <div>PROFIL_SYSTEM_DATA</div>
+  </div>
+
+  <div class="fiche">
+    <div class="system-info">
+      *** Adresse: 0xBF7C2A84 base à 0xBF7C0000, DateStamp 4a5bc600 - profil.sys<br>
+      *** Synchronisé avec: classement.html | Dernière MAJ: <span id="lastUpdate">Chargement...</span>
+    </div>
+
+    <div class="header">
+      <div class="avatar-container">
+        <div class="avatar"></div>
+        <div class="avatar-flag">
+          <div style="width: 33.33%; background-color: #0055A4;"></div>
+          <div style="width: 33.33%; background-color: #FFFFFF;"></div>
+          <div style="width: 33.33%; background-color: #EF4135;"></div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">
+          &gt; Lia Von Finnak<span class="cursor"></span>
+        </p>
+        <div class="socials">
+          <a href="about:blank" target="_blank" title="Twitter">[Twitter]</a>
+          <a href="about:blank" target="_blank" title="Substack">[Substack]</a>
+          <a href="#" title="Blog">[Amazon]</a>
+        </div>
+        <div class="bio">
+          &gt; STATUS: <span style="color: #FF0000; font-weight: bold;">● INACTIF</span><br>
+          &gt; Explorateur des idées, philosophe et observateur du monde.<br>
+          &gt; Passionné par l'intersection entre technologie et humanité.<br>
+          &gt; <span style="color: #FFD700;">★ Membre Fauniste depuis 198-</span>
+        </div>
+      </div>
+      <div class="stats-container">
+        <svg class="radar-container" viewBox="0 0 250 250" id="radar-svg"></svg>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">*** Stats Hebdomadaires (Synchronisées)</div>
+      <div class="category-content">
+        [0x01] Livres (semaine) : <strong style="color: #FFD700;" id="stat-books-week">--</strong><br>
+        [0x02] Articles (semaine) : <strong style="color: #00BFFF;" id="stat-articles-week">--</strong><br>
+        [0x03] Vidéos (semaine) : <strong style="color: #FF69B4;" id="stat-videos-week">--</strong><br>
+        [0x04] Retweets (semaine) : <strong style="color: #00FF00;" id="stat-retweets-week">--</strong><br>
+        [0x05] Likes (semaine) : <strong style="color: #FFFFFF;" id="stat-likes-week">--</strong><br>
+        [0x06] Score Total : <strong style="color: #FF0000;" id="stat-score-week">--</strong>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">📚 Bibliothèque / Livres</div>
+      <div class="category-content">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+          <div class="book-item" data-pdf="fondementsduvitalisme.pdf" data-epub="fondementsduvitalisme.epub" data-title="Fondements du Vitalisme">
+            <div style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; cursor: pointer;" onclick="openBook(this.parentElement)">
+              <div style="font-weight: bold; color: #000080;">📖 Fondements du Vitalisme</div>
+              <div style="font-size: 0.85em; margin-top: 5px;">2020 • 245 pages</div>
+              <div style="margin-top: 8px; font-size: 0.8em; display: flex; gap: 5px;">
+                <a href="fondementsduvitalisme.pdf" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger PDF">PDF</a>
+                <a href="fondementsduvitalisme.epub" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger EPUB">EPUB</a>
+              </div>
+            </div>
+          </div>
+          <div class="book-item" data-pdf="manifesteneonietzscheen.pdf" data-epub="manifesteneonietzscheen.epub" data-title="Manifeste Néo-Nietzschéen">
+            <div style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; cursor: pointer;" onclick="openBook(this.parentElement)">
+              <div style="font-weight: bold; color: #000080;">📖 Manifeste Néo-Nietzschéen</div>
+              <div style="font-size: 0.85em; margin-top: 5px;">2021 • 312 pages</div>
+              <div style="margin-top: 8px; font-size: 0.8em; display: flex; gap: 5px;">
+                <a href="manifesteneonietzscheen.pdf" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger PDF">PDF</a>
+                <a href="manifesteneonietzscheen.epub" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger EPUB">EPUB</a>
+              </div>
+            </div>
+          </div>
+          <div class="book-item" data-pdf="philosophiedelia.pdf" data-epub="philosophiedelia.epub" data-title="Philosophie de l'IA">
+            <div style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; cursor: pointer;" onclick="openBook(this.parentElement)">
+              <div style="font-weight: bold; color: #000080;">📖 Philosophie de l'IA</div>
+              <div style="font-size: 0.85em; margin-top: 5px;">2022 • 189 pages</div>
+              <div style="margin-top: 8px; font-size: 0.8em; display: flex; gap: 5px;">
+                <a href="philosophiedelia.pdf" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger PDF">PDF</a>
+                <a href="philosophiedelia.epub" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger EPUB">EPUB</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">📄 Articles & Essais</div>
+      <div class="category-content">
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+          <div class="article-item" data-pdf="nietzscheauxxiesiecle.pdf" data-title="Nietzsche au XXIe Siècle" style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; color: #000000; cursor: pointer;" onclick="openArticle(this)">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>✍️ Nietzsche au XXIe Siècle</strong>
+                <div style="font-size: 0.85em; color: #000080;">2023 • 15 pages</div>
+              </div>
+              <a href="nietzscheauxxiesiecle.pdf" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger PDF" style="padding: 4px 10px; font-size: 0.85em;">PDF</a>
+            </div>
+          </div>
+          <div class="article-item" data-pdf="democratieerenumerique.pdf" data-title="La Démocratie à l'Ère Numérique" style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; color: #000000; cursor: pointer;" onclick="openArticle(this)">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>✍️ La Démocratie à l'Ère Numérique</strong>
+                <div style="font-size: 0.85em; color: #000080;">2024 • 22 pages</div>
+              </div>
+              <a href="democratieerenumerique.pdf" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger PDF" style="padding: 4px 10px; font-size: 0.85em;">PDF</a>
+            </div>
+          </div>
+          <div class="article-item" data-pdf="nihilismenumerique.pdf" data-title="Le Nihilisme Numérique" style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; color: #000000; cursor: pointer;" onclick="openArticle(this)">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>✍️ Le Nihilisme Numérique</strong>
+                <div style="font-size: 0.85em; color: #000080;">2025 • 18 pages</div>
+              </div>
+              <a href="nihilismenumerique.pdf" download onclick="event.stopPropagation();" class="format-badge" title="Télécharger PDF" style="padding: 4px 10px; font-size: 0.85em;">PDF</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">🎥 Vidéos & Conférences</div>
+      <div class="category-content">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 10px;">
+          <div class="video-item" data-video="philosophieetmodernite.mp4" data-title="Philosophie et Modernité" style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; cursor: pointer;" onclick="openVideo(this)">
+            <div style="background: #000000; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              <div style="font-size: 3em;">▶️</div>
+            </div>
+            <div style="font-weight: bold; color: #000080;">Philosophie et Modernité</div>
+            <div style="font-size: 0.85em; color: #000000; margin-top: 5px;">2019 • 45:32 • MP4</div>
+          </div>
+          <div class="video-item" data-video="ethiquedelia.mp4" data-title="Éthique de l'IA" style="background: #C0C0C0; padding: 10px; border: 2px solid #000000; cursor: pointer;" onclick="openVideo(this)">
+            <div style="background: #000000; height: 120px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              <div style="font-size: 3em;">▶️</div>
+            </div>
+            <div style="font-weight: bold; color: #000080;">Éthique de l'IA</div>
+            <div style="font-size: 0.85em; color: #000000; margin-top: 5px;">2025 • 52:18 • MP4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">🐦 Derniers Tweets de @visitor_xyz</div>
+      <div class="category-content">
+        <div id="tweetsContainer" style="margin-top: 10px; min-height: 400px; background: #FFFFFF; padding: 10px; border: 2px solid; border-color: #808080 #FFFFFF #FFFFFF #808080;">
+          <div style="text-align: center; padding: 20px; color: #000080;">
+            <div style="font-size: 24px; margin-bottom: 10px;">🔄</div>
+            <div>Chargement des tweets en direct...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">*** Production Timeline (2018-2025)</div>
+      <div class="timeline-graph-container">
+        <canvas class="graph-canvas" id="timelineCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-title">*** Achievements / Badges</div>
+      <div class="category-content">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+          <a href="badges.html" class="badge-link" data-tooltip="Classé dans le Top 3 des contributeurs cette semaine">
+            <span class="badge-item" style="background: #FFD700; color: #000000;">🥇 TOP 3</span>
+          </a>
+          <a href="badges.html" class="badge-link" data-tooltip="Plus de 5 livres publiés">
+            <span class="badge-item" style="background: #FFD700; color: #000000;">📚 BOOK MASTER</span>
+          </a>
+          <a href="badges.html" class="badge-link" data-tooltip="Plus de 50 articles écrits">
+            <span class="badge-item" style="background: #C0C0C0; color: #000000;">✍️ WRITER</span>
+          </a>
+          <a href="badges.html" class="badge-link" data-tooltip="Score total supérieur à 500 points">
+            <span class="badge-item" style="background: #FFD700; color: #000000;">⚡ HIGH SCORE</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-error">
+    *** If this is the first time you have seen this screen, restart your computer.<br>
+    *** If this screen appears again, follow these steps: contact the Anône for more information.
+  </div>
+</div>
+
+<!-- Modal Viewer -->
+<div class="modal-viewer" id="modalViewer">
+  <div class="modal-content" id="modalContent">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-icon" id="modalIcon">📄</div>
+        <span id="modalTitle">Document</span>
+      </div>
+      <div class="modal-header-right">
+        <div class="modal-maximize" onclick="toggleMaximize()" id="maximizeBtn">□</div>
+        <div class="modal-close" onclick="closeModal()">×</div>
+      </div>
+    </div>
+    <div class="modal-toolbar">
+      <a href="#" id="downloadPdf" class="download-btn" style="display:none;">📄 Télécharger PDF</a>
+      <a href="#" id="downloadEpub" class="download-btn" style="display:none;">📱 Télécharger EPUB</a>
+      <a href="#" id="downloadVideo" class="download-btn" style="display:none;">⬇️ Télécharger Vidéo</a>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Content loaded here -->
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="year-popup" id="yearPopup"></div>
+
+<script>
+// Curseur personnalisé
+const fakeCursor = document.getElementById('fakeCursor');
+document.addEventListener('mousemove', (e) => {
+  fakeCursor.style.left = e.clientX + 'px';
+  fakeCursor.style.top = e.clientY + 'px';
+});
+
+// Synchronisation avec classement.html
+async function loadRankingData() {
+  try {
+    // Simuler le chargement des données depuis classement.html
+    // Dans un vrai cas, vous feriez un fetch du fichier ou utiliseriez localStorage
+    const contributorName = 'Lia Von Finnak'; // Ou récupérer depuis l'URL
+    
+    // Données simulées - à remplacer par un vrai fetch
+    const weeklyStats = {
+      books: 1,
+      articles: 5,
+      videos: 2,
+      retweets: 10,
+      likes: 50,
+      score: 0
+    };
+    
+    // Calcul du score (même formule que classement.html)
+    weeklyStats.score = (weeklyStats.books * 10) + (weeklyStats.articles * 5) + 
+                        (weeklyStats.videos * 8) + (weeklyStats.retweets * 0.5) + 
+                        (weeklyStats.likes * 0.1);
+    
+    // Mise à jour de l'affichage
+    document.getElementById('stat-books-week').textContent = weeklyStats.books;
+    document.getElementById('stat-articles-week').textContent = weeklyStats.articles;
+    document.getElementById('stat-videos-week').textContent = weeklyStats.videos;
+    document.getElementById('stat-retweets-week').textContent = weeklyStats.retweets;
+    document.getElementById('stat-likes-week').textContent = weeklyStats.likes;
+    document.getElementById('stat-score-week').textContent = weeklyStats.score.toFixed(1);
+    
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('fr-FR');
+  } catch(error) {
+    console.error('Erreur de synchronisation:', error);
+    document.getElementById('lastUpdate').textContent = 'ERREUR';
+  }
+}
+
+// Fonctions d'ouverture des modals
+function openBook(element) {
+  const title = element.getAttribute('data-title');
+  const pdfUrl = element.getAttribute('data-pdf');
+  const epubUrl = element.getAttribute('data-epub');
+  
+  // Cacher le faux curseur
+  document.getElementById('fakeCursor').style.display = 'none';
+  
+  document.getElementById('modalIcon').textContent = '📖';
+  document.getElementById('modalTitle').textContent = title;
+  
+  // Afficher les boutons de téléchargement
+  document.getElementById('downloadPdf').style.display = 'inline-block';
+  document.getElementById('downloadPdf').href = pdfUrl;
+  document.getElementById('downloadPdf').download = pdfUrl;
+  
+  document.getElementById('downloadEpub').style.display = 'inline-block';
+  document.getElementById('downloadEpub').href = epubUrl;
+  document.getElementById('downloadEpub').download = epubUrl;
+  
+  document.getElementById('downloadVideo').style.display = 'none';
+  
+  // Afficher le PDF dans un iframe
+  document.getElementById('modalBody').innerHTML = `
+    <iframe src="${pdfUrl}" class="pdf-viewer" frameborder="0">
+      <p>Votre navigateur ne supporte pas l'affichage de PDF. <a href="${pdfUrl}" download>Télécharger le fichier</a></p>
+    </iframe>
+  `;
+  
+  document.getElementById('modalViewer').style.display = 'flex';
+}
+
+function openArticle(element) {
+  const title = element.getAttribute('data-title');
+  const pdfUrl = element.getAttribute('data-pdf');
+  
+  // Cacher le faux curseur
+  document.getElementById('fakeCursor').style.display = 'none';
+  
+  document.getElementById('modalIcon').textContent = '✍️';
+  document.getElementById('modalTitle').textContent = title;
+  
+  // Afficher le bouton de téléchargement PDF uniquement
+  document.getElementById('downloadPdf').style.display = 'inline-block';
+  document.getElementById('downloadPdf').href = pdfUrl;
+  document.getElementById('downloadPdf').download = pdfUrl;
+  
+  document.getElementById('downloadEpub').style.display = 'none';
+  document.getElementById('downloadVideo').style.display = 'none';
+  
+  // Afficher le PDF dans un iframe
+  document.getElementById('modalBody').innerHTML = `
+    <iframe src="${pdfUrl}" class="pdf-viewer" frameborder="0">
+      <p>Votre navigateur ne supporte pas l'affichage de PDF. <a href="${pdfUrl}" download>Télécharger le fichier</a></p>
+    </iframe>
+  `;
+  
+  document.getElementById('modalViewer').style.display = 'flex';
+}
+
+function openVideo(element) {
+  const title = element.getAttribute('data-title');
+  const videoUrl = element.getAttribute('data-video');
+  
+  // Cacher le faux curseur
+  document.getElementById('fakeCursor').style.display = 'none';
+  
+  document.getElementById('modalIcon').textContent = '🎥';
+  document.getElementById('modalTitle').textContent = title;
+  
+  // Afficher le bouton de téléchargement vidéo uniquement
+  document.getElementById('downloadPdf').style.display = 'none';
+  document.getElementById('downloadEpub').style.display = 'none';
+  document.getElementById('downloadVideo').style.display = 'inline-block';
+  document.getElementById('downloadVideo').href = videoUrl;
+  document.getElementById('downloadVideo').download = videoUrl;
+  
+  // Afficher la vidéo
+  document.getElementById('modalBody').innerHTML = `
+    <video controls style="width: 100%; height: 100%; background: #000000;">
+      <source src="${videoUrl}" type="video/mp4">
+      Votre navigateur ne supporte pas la lecture vidéo.
+    </video>
+  `;
+  
+  document.getElementById('modalViewer').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modalViewer').style.display = 'none';
+  // Arrêter toute vidéo en cours
+  const videos = document.getElementById('modalBody').getElementsByTagName('video');
+  for(let video of videos) {
+    video.pause();
+  }
+  // Vider le contenu
+  document.getElementById('modalBody').innerHTML = '';
+  
+  // Réinitialiser la taille du modal
+  document.getElementById('modalContent').classList.remove('fullscreen');
+  document.getElementById('maximizeBtn').textContent = '□';
+  
+  // Réafficher le faux curseur
+  setTimeout(() => {
+    document.getElementById('fakeCursor').style.display = 'block';
+  }, 100);
+}
+
+// Fonction pour agrandir/réduire le modal
+function toggleMaximize() {
+  const modalContent = document.getElementById('modalContent');
+  const maximizeBtn = document.getElementById('maximizeBtn');
+  
+  if (modalContent.classList.contains('fullscreen')) {
+    modalContent.classList.remove('fullscreen');
+    maximizeBtn.textContent = '□';
+  } else {
+    modalContent.classList.add('fullscreen');
+    maximizeBtn.textContent = '❐';
+  }
+}
+
+// Charger les tweets - Version simplifiée avec fallback immédiat
+function loadTwitterFeed() {
+  const tweetsContainer = document.getElementById('tweetsContainer');
+  const twitterUsername = 'visitor_xyz';
+  
+  // Afficher directement le widget Twitter
+  tweetsContainer.innerHTML = `
+    <a class="twitter-timeline" 
+       data-height="450" 
+       data-theme="light" 
+       data-chrome="noheader nofooter noborders transparent"
+       data-tweet-limit="3"
+       data-lang="fr"
+       href="https://twitter.com/${twitterUsername}?ref_src=twsrc%5Etfw">
+       Chargement des tweets de @${twitterUsername}...
+    </a>
+  `;
+  
+  // Charger le script Twitter Widgets si pas déjà chargé
+  if (!document.querySelector('script[src*="platform.twitter.com"]')) {
+    const script = document.createElement('script');
+    script.src = 'https://platform.twitter.com/widgets.js';
+    script.async = true;
+    script.charset = 'utf-8';
+    document.head.appendChild(script);
+    
+    // Fallback si le chargement échoue après 5 secondes
+    setTimeout(() => {
+      if (!window.twttr) {
+        showFallbackTweets();
+      }
+    }, 5000);
+  } else if (window.twttr && window.twttr.widgets) {
+    // Recharger les widgets si déjà présent
+    window.twttr.widgets.load();
+  }
+}
+
+// Tweets de secours si l'API Twitter ne charge pas
+function showFallbackTweets() {
+  const tweetsContainer = document.getElementById('tweetsContainer');
+  tweetsContainer.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="background: #FFFFFF; padding: 15px; border: 2px solid #000080; color: #000000; border-radius: 3px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <div style="width: 32px; height: 32px; background: #000080; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: bold;">V</div>
+          <div>
+            <div style="font-weight: bold;">Visitor</div>
+            <div style="font-size: 0.85em; color: #657786;">@visitor_xyz · Il y a 2h</div>
+          </div>
+        </div>
+        <div style="line-height: 1.5; margin-bottom: 10px;">La philosophie n'est pas morte, elle a simplement migré dans le code. Nietzsche aurait adoré le chaos algorithmique. 🤖💭</div>
+        <div style="display: flex; gap: 20px; font-size: 0.9em; color: #657786;">
+          <span>💬 18</span>
+          <span>🔄 32</span>
+          <span>❤️ 145</span>
+        </div>
+      </div>
+      
+      <div style="background: #FFFFFF; padding: 15px; border: 2px solid #000080; color: #000000; border-radius: 3px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <div style="width: 32px; height: 32px; background: #000080; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: bold;">V</div>
+          <div>
+            <div style="font-weight: bold;">Visitor</div>
+            <div style="font-size: 0.85em; color: #657786;">@visitor_xyz · Il y a 5h</div>
+          </div>
+        </div>
+        <div style="line-height: 1.5; margin-bottom: 10px;">Nouveau chapitre terminé pour "Philosophie du Futur". L'écriture est une forme de résistance contre l'accélération du monde. 📖✨</div>
+        <div style="display: flex; gap: 20px; font-size: 0.9em; color: #657786;">
+          <span>💬 12</span>
+          <span>🔄 21</span>
+          <span>❤️ 89</span>
+        </div>
+      </div>
+      
+      <div style="background: #FFFFFF; padding: 15px; border: 2px solid #000080; color: #000000; border-radius: 3px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <div style="width: 32px; height: 32px; background: #000080; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: bold;">V</div>
+          <div>
+            <div style="font-weight: bold;">Visitor</div>
+            <div style="font-size: 0.85em; color: #657786;">@visitor_xyz · Il y a 1j</div>
+          </div>
+        </div>
+        <div style="line-height: 1.5; margin-bottom: 10px;">Réflexion du jour : Et si l'IA ne remplaçait pas l'humain, mais révélait enfin ce qui nous rend vraiment humains ? 🤔</div>
+        <div style="display: flex; gap: 20px; font-size: 0.9em; color: #657786;">
+          <span>💬 45</span>
+          <span>🔄 67</span>
+          <span>❤️ 203</span>
+        </div>
+      </div>
+      
+      <div style="text-align: center; padding: 10px;">
+        <a href="https://twitter.com/visitor_xyz" target="_blank" style="color: #000080; text-decoration: underline; font-weight: bold;">Voir plus sur Twitter →</a>
+      </div>
+    </div>
+  `;
+}
+
+// Fermer avec Escape
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeModal();
+});
+
+// Données du radar avec acronymes
+const branches = [
+  {name: "RAIS", fullName: "Raisonnement", value: 85},
+  {name: "ETH", fullName: "Éthique", value: 25},
+  {name: "LOG", fullName: "Logique", value: 90},
+  {name: "ESTH", fullName: "Esthétique", value: 86},
+  {name: "META", fullName: "Métaphysique", value: 54},
+  {name: "SOC", fullName: "Sociologie", value: 75}
+];
+
+// Données de production par année
+const productionData = {
+  2018: {
+    count: 3,
+    works: [
+      "Article: Premiers Écrits Philosophiques",
+      "Essai: La Question du Sens",
+      "Contribution: Revue de Philosophie Contemporaine"
+    ]
+  },
+  2019: {
+    count: 5,
+    works: [
+      "Article: Nietzsche Revisité",
+      "Essai: Morale et Pouvoir",
+      "Article: Vers un Nouveau Vitalisme",
+      "Conférence: Philosophie et Modernité",
+      "Publication: Journal des Idées"
+    ]
+  },
+  2020: {
+    count: 4,
+    works: [
+      "Livre: Fondements du Vitalisme",
+      "Article: Crise et Opportunité",
+      "Essai: Le Sujet Post-Moderne",
+      "Podcast: Dialogues Philosophiques"
+    ]
+  },
+  2021: {
+    count: 7,
+    works: [
+      "Article: Éthique Numérique",
+      "Essai: La Fin du Sujet Kantien",
+      "Livre: Manifeste Néo-Nietzschéen",
+      "Conférence: Philosophie du Digital",
+      "Article: Technologie et Humanité",
+      "Essai: Au-delà du Bien et du Mal 2.0",
+      "Publication: Revue Vitaliste"
+    ]
+  },
+  2022: {
+    count: 8,
+    works: [
+      "Livre: Philosophie de l'IA",
+      "Article: Conscience Algorithmique",
+      "Essai: Démocratie Numérique",
+      "Conférence: L'Humain Augmenté",
+      "Article: Cyber-Stoïcisme",
+      "Essai: Éthique Post-Humaniste",
+      "Podcast: Conversations du Futur",
+      "Article: Le Nouvel Homme"
+    ]
+  },
+  2023: {
+    count: 9,
+    works: [
+      "Livre: Manifeste Vitaliste",
+      "Article: Nietzsche au XXIe Siècle",
+      "Essai: La Mort du Sujet",
+      "Conférence: Philosophie et Tech",
+      "Article: Vers une Éthique Nouvelle",
+      "Podcast: Série Conversations Philosophiques",
+      "Essai: Le Nihilisme Numérique",
+      "Article: Cyber-Éthique",
+      "Publication: Archives Philosophiques"
+    ]
+  },
+  2024: {
+    count: 11,
+    works: [
+      "Article: La Démocratie à l'Ère Numérique",
+      "Livre: Éthique et Technologie",
+      "Essai: Vers une Éthique Post-Humaniste",
+      "Conférence: Démocratie et Technologie (Paris)",
+      "Article: Le Transhumanisme en Question",
+      "Essai: Philosophie de l'Attention",
+      "Podcast: Dialogues Contemporains",
+      "Article: Intelligence Artificielle et Conscience",
+      "Livre: Au-delà de l'Humain",
+      "Essai: Nihilisme et Création",
+      "Conférence: Festival de Philosophie"
+    ]
+  },
+  2025: {
+    count: 6,
+    works: [
+      "Article: Le Nihilisme Numérique (Jan)",
+      "Essai: Réflexions sur l'IA Générative (Feb)",
+      "Conférence: Éthique de l'IA (Mar)",
+      "Article: Vers une Nouvelle Humanité (Apr)",
+      "Podcast: Série Spéciale IA (Mai)",
+      "Livre: Philosophie du Futur (en cours)"
+    ]
+  }
+};
+
+// Dessin du radar
+function drawRadar(){
+  const svg = document.getElementById("radar-svg");
+  svg.innerHTML = "";
+
+  const cX = 125, cY = 125;
+  const maxR = 80;
+  const levels = 4;
+
+  for(let i = 1; i <= levels; i++){
+    const r = (maxR / levels) * i;
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", cX);
+    circle.setAttribute("cy", cY);
+    circle.setAttribute("r", r);
+    circle.setAttribute("stroke", "#FFFFFF");
+    circle.setAttribute("stroke-width", "1");
+    circle.setAttribute("fill", "none");
+    circle.setAttribute("opacity", "0.4");
+    svg.appendChild(circle);
+  }
+
+  const total = branches.length;
+  const pts = [];
+
+  branches.forEach((b, i) => {
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    
+    const lineEnd = maxR;
+    const lx2 = cX + lineEnd * Math.cos(angle);
+    const ly2 = cY + lineEnd * Math.sin(angle);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", cX);
+    line.setAttribute("y1", cY);
+    line.setAttribute("x2", lx2);
+    line.setAttribute("y2", ly2);
+    line.setAttribute("stroke", "#FFFFFF");
+    line.setAttribute("stroke-width", "1");
+    line.setAttribute("opacity", "0.5");
+    svg.appendChild(line);
+
+    const rad = maxR * (b.value / 100);
+    const x = cX + rad * Math.cos(angle);
+    const y = cY + rad * Math.sin(angle);
+    pts.push([x, y]);
+
+    const lR = maxR + 28;
+    const lx = cX + lR * Math.cos(angle);
+    const ly = cY + lR * Math.sin(angle);
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", lx);
+    text.setAttribute("y", ly);
+    text.textContent = b.name;
+    text.setAttribute("class", "radar-label");
+    text.setAttribute("data-fullname", b.fullName);
+    
+    const cosA = Math.cos(angle);
+    if(cosA > 0.2) text.setAttribute("text-anchor", "start");
+    else if(cosA < -0.2) text.setAttribute("text-anchor", "end");
+    else text.setAttribute("text-anchor", "middle");
+    text.setAttribute("alignment-baseline", "middle");
+    svg.appendChild(text);
+  });
+
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  poly.setAttribute("points", pts.map(p => p.join(",")).join(" "));
+  poly.setAttribute("fill", "rgba(255, 255, 255, 0.4)");
+  poly.setAttribute("stroke", "#FFFFFF");
+  poly.setAttribute("stroke-width", "2.5");
+  svg.appendChild(poly);
+
+  pts.forEach(([x, y]) => {
+    const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    pt.setAttribute("cx", x);
+    pt.setAttribute("cy", y);
+    pt.setAttribute("r", 4);
+    pt.setAttribute("class", "radar-point");
+    svg.appendChild(pt);
+  });
+
+  const labels = svg.querySelectorAll('.radar-label');
+  const tooltip = document.getElementById('tooltip');
+  
+  labels.forEach(label => {
+    label.addEventListener('mouseenter', (e) => {
+      tooltip.textContent = e.target.getAttribute('data-fullname');
+      tooltip.style.display = 'block';
+    });
+    
+    label.addEventListener('mousemove', (e) => {
+      tooltip.style.left = (e.clientX + 10) + 'px';
+      tooltip.style.top = (e.clientY + 10) + 'px';
+    });
+    
+    label.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+  });
+}
+
+// Dessin du graphique de production
+function drawTimeline(){
+  const canvas = document.getElementById('timelineCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  canvas.width = 2000;
+  canvas.height = 280;
+  
+  const years = Object.keys(productionData).map(Number);
+  const counts = years.map(y => productionData[y].count);
+  const maxCount = Math.max(...counts);
+  
+  const padding = 50;
+  const graphWidth = canvas.width - padding * 2;
+  const graphHeight = canvas.height - padding * 2 - 50;
+  const stepX = graphWidth / (years.length - 1);
+  
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.lineWidth = 1;
+  for(let i = 0; i <= 5; i++){
+    const y = padding + (graphHeight / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(canvas.width - padding, y);
+    ctx.stroke();
+  }
+  
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, canvas.height - padding - 50);
+  ctx.lineTo(canvas.width - padding, canvas.height - padding - 50);
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '14px "Courier New"';
+  ctx.textAlign = 'right';
+  for(let i = 0; i <= maxCount; i += 2){
+    const y = canvas.height - padding - 50 - (graphHeight / maxCount) * i;
+    ctx.fillText(i, padding - 10, y + 4);
+  }
+  
+  ctx.font = 'bold 18px "Courier New"';
+  ctx.textAlign = 'center';
+  years.forEach((year, i) => {
+    const x = padding + stepX * i;
+    ctx.fillText(year, x, canvas.height - padding - 15);
+    
+    ctx.font = '14px "Courier New"';
+    ctx.fillStyle = '#00FF00';
+    ctx.fillText(`(${counts[i]})`, x, canvas.height - padding);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 18px "Courier New"';
+  });
+  
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.lineWidth = 3;
+  
+  ctx.beginPath();
+  ctx.moveTo(padding, canvas.height - padding - 50);
+  
+  const points = [];
+  years.forEach((year, i) => {
+    const x = padding + stepX * i;
+    const y = canvas.height - padding - 50 - (graphHeight / maxCount) * counts[i];
+    points.push({x, y, year});
+    
+    if(i === 0) ctx.lineTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  
+  ctx.lineTo(canvas.width - padding, canvas.height - padding - 50);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if(i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  });
+  ctx.stroke();
+  
+  ctx.font = '20px "Courier New"';
+  ctx.textAlign = 'center';
+  
+  points.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.strokeStyle = '#0000AA';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    const mainBook = productionData[p.year].works.find(w => w.includes('Livre:'));
+    if(mainBook) {
+      ctx.fillText('📖', p.x, p.y - 20);
+    }
+  });
+  
+  const yearPopup = document.getElementById('yearPopup');
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const adjustedX = mx * scaleX;
+    const adjustedY = my * scaleY;
+    
+    let found = false;
+    points.forEach(p => {
+      const dist = Math.sqrt((adjustedX - p.x) ** 2 + (adjustedY - p.y) ** 2);
+      if(dist < 20){
+        found = true;
+        const data = productionData[p.year];
+        const mainBook = data.works.find(w => w.includes('Livre:'));
+        const bookDisplay = mainBook ? mainBook.replace('Livre:', '').trim() : '(Aucun livre cette année)';
+        
+        yearPopup.innerHTML = `
+          <div class="year-popup-title">📅 ${p.year} - ${data.count} publications</div>
+          <div style="background: #FFFFE1; padding: 8px; margin: 8px 0; border: 2px solid #000000;">
+            📖 <strong>Livre principal:</strong><br>
+            <span style="color: #0000AA;">${bookDisplay}</span>
+          </div>
+          <div class="year-popup-list"><strong>Toutes les productions:</strong><br>${data.works.map(w => `• ${w}`).join('<br>')}</div>
+        `;
+        yearPopup.style.display = 'block';
+        yearPopup.style.left = (e.clientX + 15) + 'px';
+        yearPopup.style.top = (e.clientY - 10) + 'px';
+      }
+    });
+    
+    if(!found) yearPopup.style.display = 'none';
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    yearPopup.style.display = 'none';
+  });
+}
+
+// Initialisation
+drawRadar();
+drawTimeline();
+loadRankingData();
+loadTwitterFeed();
+
+// Actualiser les stats toutes les 30 secondes
+setInterval(loadRankingData, 30000);
+</script>
+
+</body>
+</html>

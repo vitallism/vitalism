@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V!Ξ_4*</title>
+<style>
+@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
+@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
+@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
+
+* { cursor: none !important; box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0000AA;
+  font-family: "Courier New", monospace;
+  color: #FFFFFF;
+  animation: flicker 0.15s infinite;
+}
+
+body::before {
+  content: '';
+  position:fixed;
+  top:0; left:0; width:100%; height:2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events:none; z-index:1000;
+}
+
+body::after {
+  content:'';
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  pointer-events:none; z-index:999;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.logo {
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: 15px;
+  width: fit-content;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.boot-info {
+  font-size: 12px;
+  color: #AAAAAA;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.boot-line {
+  margin: 3px 0;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+}
+
+.canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-left: 180px;
+  margin-top: -100px;
+}
+
+canvas {
+  background: #000000;
+  border: 2px solid #FFFFFF;
+  box-shadow: 4px 4px 0 #000080;
+  image-rendering: pixelated;
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+}
+
+.controls {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.control-group {
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  padding: 10px;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.control-group label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 11px;
+  color: #000000;
+  font-weight: bold;
+}
+
+.control-group input[type="range"],
+.control-group input[type="number"] {
+  width: 100%;
+  padding: 4px;
+  background: #FFFFFF;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #000000;
+}
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn {
+  padding: 6px 12px;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  font-weight: bold;
+  color: #000000;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #DFDFDF;
+}
+
+.btn:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+}
+
+.btn:disabled {
+  color: #808080;
+  cursor: not-allowed;
+}
+
+.info-display {
+  font-size: 11px;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.info-display span {
+  color: #00FF00;
+  font-weight: bold;
+}
+
+.status-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 4px 10px;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #808080;
+  border-right: 2px solid #808080;
+  font-size: 11px;
+  color: #000000;
+  font-weight: bold;
+  box-shadow: 1px 1px 0 #000000;
+  z-index: 1001;
+}
+
+.custom-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .custom-cursor {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .main-area {
+    flex-direction: column;
+  }
+  .controls {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+
+<div class="container">
+  <div class="logo"><span>:faunism</span></div>
+
+  <div class="boot-info">
+    <div class="boot-line">CONWAY.LIFE.SYSTEM v1.0</div>
+    <div class="boot-line">Cellular automaton engine initialized</div>
+    <div class="boot-line" style="margin-top:8px; color:#00FF00;">SYSTEM_READY</div>
+  </div>
+
+  <div class="main-area">
+    <div class="canvas-container">
+      <canvas id="lifeCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <div class="btn-group">
+          <button class="btn" id="startBtn">START</button>
+          <button class="btn" id="stopBtn" disabled>STOP</button>
+          <button class="btn" id="stepBtn">STEP</button>
+        </div>
+        <div class="btn-group" style="margin-top:6px;">
+          <button class="btn" id="clearBtn">CLEAR</button>
+          <button class="btn" id="randomBtn">RANDOM</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>SPEED: <span id="speedLabel">150</span>ms</label>
+        <input type="range" id="speedRange" min="20" max="600" step="10" value="150">
+        
+        <label>CELL_SIZE: <span id="cellLabel">8</span>px</label>
+        <input type="range" id="cellSize" min="4" max="20" step="1" value="8">
+        
+        <label>DENSITY: <span id="densityLabel">25</span>%</label>
+        <input type="range" id="density" min="1" max="100" step="1" value="25">
+      </div>
+
+      <div class="control-group">
+        <div class="info-display">
+          GEN: <span id="gen">0</span><br>
+          CELLS: <span id="alive">0</span><br>
+          STATUS: <span id="status">IDLE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar" id="statusBar">IDLE</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+const canvas = document.getElementById('lifeCanvas');
+const ctx = canvas.getContext('2d');
+
+let cellSizeInput = document.getElementById('cellSize');
+let cellLabel = document.getElementById('cellLabel');
+let speedRange = document.getElementById('speedRange');
+let speedLabel = document.getElementById('speedLabel');
+let densityInput = document.getElementById('density');
+let densityLabel = document.getElementById('densityLabel');
+
+let startBtn = document.getElementById('startBtn');
+let stopBtn = document.getElementById('stopBtn');
+let stepBtn = document.getElementById('stepBtn');
+let clearBtn = document.getElementById('clearBtn');
+let randomBtn = document.getElementById('randomBtn');
+
+let statusSpan = document.getElementById('status');
+let statusBar = document.getElementById('statusBar');
+let genSpan = document.getElementById('gen');
+let aliveSpan = document.getElementById('alive');
+
+let running = false;
+let intervalId = null;
+let generation = 0;
+
+let cellSize = parseInt(cellSizeInput.value, 10);
+let cols = Math.floor(canvas.width / cellSize);
+let rows = Math.floor(canvas.height / cellSize);
+
+let grid = createEmptyGrid();
+let buffer = createEmptyGrid();
+
+function createEmptyGrid() {
+  const a = new Array(rows);
+  for (let y = 0; y < rows; y++) {
+    a[y] = new Uint8Array(cols);
+  }
+  return a;
+}
+
+function resizeGrid() {
+  cellSize = parseInt(cellSizeInput.value, 10) || 8;
+  cellLabel.textContent = cellSize;
+  cols = Math.floor(canvas.width / cellSize);
+  rows = Math.floor(canvas.height / cellSize);
+  grid = createEmptyGrid();
+  buffer = createEmptyGrid();
+  generation = 0;
+  genSpan.textContent = generation;
+  draw();
+}
+
+function draw() {
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  let alive = 0;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x]) {
+        alive++;
+        const brightness = Math.random() * 0.1 + 0.9;
+        ctx.fillStyle = `rgba(0, 255, 204, ${brightness})`;
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize - 1, cellSize - 1);
+      }
+    }
+  }
+  aliveSpan.textContent = alive;
+}
+
+function step() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      let n = countNeighbors(x, y);
+      if (grid[y][x]) {
+        buffer[y][x] = (n === 2 || n === 3) ? 1 : 0;
+      } else {
+        buffer[y][x] = (n === 3) ? 1 : 0;
+      }
+    }
+  }
+  
+  const tmp = grid;
+  grid = buffer;
+  buffer = tmp;
+  generation++;
+  genSpan.textContent = generation;
+  draw();
+}
+
+function countNeighbors(x, y) {
+  let n = 0;
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      let nx = (x + dx + cols) % cols;
+      let ny = (y + dy + rows) % rows;
+      if (grid[ny][nx]) n++;
+    }
+  }
+  return n;
+}
+
+function start() {
+  if (running) return;
+  running = true;
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+  statusSpan.textContent = "RUNNING";
+  statusBar.textContent = "RUNNING";
+  loopStart();
+}
+
+function stop() {
+  running = false;
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+  statusSpan.textContent = "IDLE";
+  statusBar.textContent = "IDLE";
+  clearInterval(intervalId);
+}
+
+function loopStart() {
+  const ms = parseInt(speedRange.value, 10);
+  clearInterval(intervalId);
+  intervalId = setInterval(() => { step(); }, ms);
+}
+
+function singleStep() {
+  if (running) return;
+  step();
+}
+
+function clearGrid() {
+  grid = createEmptyGrid();
+  buffer = createEmptyGrid();
+  generation = 0;
+  genSpan.textContent = generation;
+  draw();
+}
+
+function randomize() {
+  const density = parseInt(densityInput.value, 10) || 25;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      grid[y][x] = (Math.random() < density / 100) ? 1 : 0;
+    }
+  }
+  generation = 0;
+  genSpan.textContent = generation;
+  draw();
+}
+
+startBtn.addEventListener('click', start);
+stopBtn.addEventListener('click', stop);
+stepBtn.addEventListener('click', singleStep);
+clearBtn.addEventListener('click', clearGrid);
+randomBtn.addEventListener('click', randomize);
+
+speedRange.addEventListener('input', () => {
+  speedLabel.textContent = speedRange.value;
+  if (running) loopStart();
+});
+
+cellSizeInput.addEventListener('input', () => {
+  resizeGrid();
+});
+
+densityInput.addEventListener('input', () => {
+  densityLabel.textContent = densityInput.value;
+});
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const cx = e.clientX - rect.left;
+  const cy = e.clientY - rect.top;
+  const gx = Math.floor((cx / rect.width) * cols);
+  const gy = Math.floor((cy / rect.height) * rows);
+  if (gx >= 0 && gx < cols && gy >= 0 && gy < rows) {
+    grid[gy][gx] = grid[gy][gx] ? 0 : 1;
+    draw();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (running) stop(); else start();
+  } else if (e.key.toLowerCase() === 'r') {
+    randomize();
+  } else if (e.key.toLowerCase() === 'c') {
+    clearGrid();
+  }
+});
+
+draw();
+</script>
+</body>
+</html>

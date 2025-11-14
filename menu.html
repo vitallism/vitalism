@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEN∑_404</title>
+<style>
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.96; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "Courier New", "Lucida Console", monospace;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #0000AA;
+  z-index: 10;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logo:hover {
+  background: #FFFFFF;
+}
+
+.logo:hover span {
+  color: #0000AA;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.error-code {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+  opacity: 0.7;
+  font-family: "Courier New", monospace;
+  border: 1px solid #FFFFFF;
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 100, 0.5);
+}
+
+img {
+  max-width: 50%;
+  max-height: 50vh;
+  transition: transform 0.5s ease;
+  margin-bottom: 30px;
+  border: 3px solid #FFFFFF;
+  border-style: outset;
+  display: none;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+  z-index: 1;
+}
+
+.buttons button {
+  background: #C0C0C0;
+  border-top: 3px solid #FFFFFF;
+  border-left: 3px solid #FFFFFF;
+  border-bottom: 3px solid #000000;
+  border-right: 3px solid #000000;
+  padding: 12px 30px;
+  font-family: "MS Sans Serif", "Lucida Console", monospace;
+  font-size: 1.1em;
+  color: #000000;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 2px 2px 0 #808080;
+  transition: all 0.1s;
+}
+
+.buttons button:hover {
+  background: #DFDFDF;
+}
+
+.buttons button:active {
+  border-top: 3px solid #000000;
+  border-left: 3px solid #000000;
+  border-bottom: 3px solid #FFFFFF;
+  border-right: 3px solid #FFFFFF;
+  background: #C0C0C0;
+  box-shadow: inset 1px 1px 2px #000000;
+  transform: translate(1px, 1px);
+}
+
+.popup {
+  position: fixed;
+  width: 320px;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  font-family: "MS Sans Serif", "Lucida Console", monospace;
+  z-index: 100;
+  cursor: default;
+  display: none;
+}
+
+.popup.glitching {
+  animation: glitch 0.3s;
+}
+
+.popupTitle {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 2px solid #000000;
+  cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popupTitle:active {
+  cursor: grabbing;
+}
+
+.closeBtn {
+  background: #C0C0C0;
+  border: 1px solid #000000;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  color: #000000;
+}
+
+.closeBtn:active {
+  background: #808080;
+}
+
+.popupMessage {
+  padding: 20px 15px;
+  color: black;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.popupButtons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  border-top: 1px solid #808080;
+}
+
+.popupButtons button {
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  padding: 6px 20px;
+  font-family: "MS Sans Serif", "Lucida Console", monospace;
+  cursor: pointer;
+  color: #000000;
+  font-weight: bold;
+  min-width: 80px;
+  box-shadow: 1px 1px 0 #808080;
+}
+
+.popupButtons button:hover {
+  background: #DFDFDF;
+}
+
+.popupButtons button:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  background: #C0C0C0;
+  box-shadow: inset 1px 1px 2px #000000;
+}
+
+.fake-cursor {
+  position: fixed;
+  width: 12px;
+  height: 18px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .fake-cursor {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    font-size: 18px;
+  }
+  
+  img {
+    max-width: 80%;
+  }
+  
+  .buttons {
+    flex-direction: column;
+  }
+  
+  .popup {
+    width: 90%;
+    max-width: 320px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="fake-cursor" id="fakeCursor"></div>
+
+<a href="index.html" style="text-decoration:none;">
+  <div class="logo"><span>:faunism</span></div>
+</a>
+
+<div class="error-code">0xDEADBEEF</div>
+
+<img id="mainImage" src="sydney.png" alt="Image" onerror="this.style.display='none'">
+
+<div class="buttons">
+  <button id="leftButton">Bluepill</button>
+  <button id="rightButton">Redpill</button>
+</div>
+
+<!-- Pop-up gauche -->
+<div id="popupLeft" class="popup">
+  <div class="popupTitle">
+    <span>⚠ Attention</span>
+    <div class="closeBtn" onclick="document.getElementById('popupLeft').style.display='none'">×</div>
+  </div>
+  <div class="popupMessage">Voulez-vous vraiment abandonner et fermer l'onglet ?</div>
+  <div class="popupButtons">
+    <button id="popupLeftYes">Oui</button>
+    <button id="popupLeftNo">Non</button>
+  </div>
+</div>
+
+<audio id="clicSound" src="click.mp3"></audio>
+
+<script>
+let stage = 0;
+const image = document.getElementById('mainImage');
+const leftButton = document.getElementById('leftButton');
+const rightButton = document.getElementById('rightButton');
+const popupLeft = document.getElementById('popupLeft');
+const clicSound = document.getElementById('clicSound');
+const fakeCursor = document.getElementById('fakeCursor');
+
+// Curseur personnalisé carré
+document.addEventListener('mousemove', (e) => {
+  fakeCursor.style.left = e.clientX + 'px';
+  fakeCursor.style.top = e.clientY + 'px';
+});
+
+function playClick() {
+  clicSound.currentTime = 0;
+  clicSound.play().catch(() => {});
+}
+
+function updateStage() {
+  const scaleMap = [0.05, 0.4, 1, 1];
+  const textMap = ["Redpill ?", "REDPILL ???", "Tellement de retour", "Repertoire"];
+  const index = Math.min(stage - 1, scaleMap.length - 1);
+  image.style.transform = `scale(${scaleMap[index]})`;
+  rightButton.textContent = textMap[index];
+}
+
+// Bouton Gauche
+leftButton.onclick = function() {
+  playClick();
+  if(stage > 1){
+    stage--;
+    updateStage();
+  } else {
+    popupLeft.style.display = "block";
+    popupLeft.style.top = "50%";
+    popupLeft.style.left = "50%";
+    popupLeft.style.transform = "translate(-50%, -50%)";
+  }
+}
+
+// Bouton Droite
+rightButton.onclick = function() {
+  playClick();
+  stage++;
+  if(stage === 1) image.style.display = "block";
+  if(stage === 4){
+    showAllPopups();
+    return;
+  }
+  if(stage >= 4){
+    window.location.href = "repertoire.html";
+    return;
+  }
+  updateStage();
+}
+
+// Pop-up gauche
+document.getElementById('popupLeftYes').onclick = function() {
+  playClick();
+  window.close();
+  setTimeout(() => {
+    window.location.href = "about:blank";
+  }, 100);
+}
+
+document.getElementById('popupLeftNo').onclick = function() {
+  playClick();
+  popupLeft.style.display = "none";
+}
+
+// Pop-ups multiples avec les nouvelles pages
+const popupMessages = [
+  { text: "Voulez-vous accéder au répertoire ?", action: "repertoire.html", icon: "📁" },
+  { text: "Voulez-vous voir le classement ?", action: "classement.html", icon: "🥇" },
+  { text: "Avez-vous besoin d'un verre ?", action: "cocktail.html", icon: "🍹" },
+  { text: "Voulez-vous traverser la frontière ?", action: "frontiere.html", icon: "🚧" },
+  { text: "Voulez-vous vous lancer dans la vie ?", action: "vie.html", icon: "🤸" },
+  { text: "Quelles sont les nouvelles du monde ?", action: "mondial.html", icon: "🌍" },
+  { text: "Tu veux un tuyau ?", action: "tuyau.html", icon: "🔧" },
+  { text: "Voulez-vous rejoindre le chat ?", action: "chat.html", icon: "💬" },
+  { text: "Voulez-vous consulter le codex ?", action: "codex.html", icon: "📖" },
+  { text: "Voulez-vous ouvrir l'index ?", action: "index.html", icon: "📚" },
+  { text: "Voulez-vous surfer sur Yetscape ?", action: "yetscape.html", icon: "🌐" },
+  { text: "Voulez-vous lire les archives ?", action: null, icon: "📦" },
+  { text: "Voulez-vous écrire à l'Anône ?", action: "anone.html", icon: "✉️" },
+  { text: "Voulez-vous voir les statistiques système ?", action: null, icon: "📊" },
+  { text: "Erreur 404 : Page introuvable. Continuer ?", action: null, icon: "⚠️" },
+  { text: "Voulez-vous revenir au menu principal ?", action: "alert", icon: "🏠" }
+];
+
+function showAllPopups(){
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  let zIndex = 100;
+
+  popupMessages.forEach((msgObj, idx) => {
+    setTimeout(() => {
+      const popup = document.createElement("div");
+      popup.className = "popup glitching";
+      popup.style.display = "block";
+      popup.style.zIndex = zIndex++;
+
+      const maxLeft = w - 350;
+      const maxTop = h - 200;
+      const left = Math.max(20, Math.floor(Math.random() * maxLeft));
+      const top = Math.max(20, Math.floor(Math.random() * maxTop));
+      popup.style.left = left + "px";
+      popup.style.top = top + "px";
+
+      const title = document.createElement("div");
+      title.className = "popupTitle";
+      const titleText = document.createElement("span");
+      titleText.textContent = msgObj.icon + " " + (msgObj.action === "alert" ? "Erreur" : "Question");
+      title.appendChild(titleText);
+      
+      const closeBtn = document.createElement("div");
+      closeBtn.className = "closeBtn";
+      closeBtn.textContent = "×";
+      closeBtn.onclick = () => {
+        playClick();
+        document.body.removeChild(popup);
+      };
+      title.appendChild(closeBtn);
+
+      const message = document.createElement("div");
+      message.className = "popupMessage";
+      message.textContent = msgObj.text;
+
+      const buttonsDiv = document.createElement("div");
+      buttonsDiv.className = "popupButtons";
+
+      const yesBtn = document.createElement("button");
+      yesBtn.textContent = "Oui";
+      yesBtn.onclick = () => {
+        playClick();
+        document.body.removeChild(popup);
+        
+        if(msgObj.action === "repertoire.html") {
+          window.location.href = "repertoire.html";
+        } else if(msgObj.action === "chat.html") {
+          window.open("https://faunism.forumactif.com/chatbox/", "_blank");
+        } else if(msgObj.action === "codex.html") {
+          window.location.href = "codex.html";
+		} else if(msgObj.action === "anone.html") {
+          window.location.href = "anone.html";
+		} else if(msgObj.action === "classement.html") {
+          window.location.href = "classement.html";
+		} else if(msgObj.action === "cocktail.html") {
+          window.location.href = "cocktail.html";
+		} else if(msgObj.action === "frontiere.html") {
+          window.location.href = "frontiere.html";
+		} else if(msgObj.action === "mondial.html") {
+          window.location.href = "mondial.html";
+		} else if(msgObj.action === "tuyau.html") {
+          window.location.href = "tuyau.html";
+		} else if(msgObj.action === "vie.html") {
+          window.location.href = "vie.html";
+        } else if(msgObj.action === "index.html") {
+          window.location.href = "index.html";
+        } else if(msgObj.action === "yetscape.html") {
+          window.location.href = "yetscape.html";
+        } else if(msgObj.action === "alert") {
+          alert("Ce site ne propose pas de menu principal, c'est con ! ¯\\_(ツ)_/¯");
+        } else if(!msgObj.action) {
+          setTimeout(() => {
+            const errorPopup = createErrorPopup("Fonctionnalité non disponible", "Cette section est en construction.");
+            document.body.appendChild(errorPopup);
+            makeDraggable(errorPopup);
+          }, 100);
+        }
+      };
+
+      const noBtn = document.createElement("button");
+      noBtn.textContent = "Non";
+      noBtn.onclick = () => {
+        playClick();
+        document.body.removeChild(popup);
+      };
+
+      buttonsDiv.appendChild(yesBtn);
+      buttonsDiv.appendChild(noBtn);
+
+      popup.appendChild(title);
+      popup.appendChild(message);
+      popup.appendChild(buttonsDiv);
+
+      document.body.appendChild(popup);
+
+      makeDraggable(popup);
+      
+      popup.onclick = () => {
+        popup.style.zIndex = ++zIndex;
+      };
+    }, idx * 150);
+  });
+}
+
+function createErrorPopup(title, message) {
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.style.display = "block";
+  popup.style.left = "50%";
+  popup.style.top = "50%";
+  popup.style.transform = "translate(-50%, -50%)";
+  popup.style.zIndex = 1000;
+
+  const titleDiv = document.createElement("div");
+  titleDiv.className = "popupTitle";
+  titleDiv.innerHTML = `<span>⚠️ ${title}</span>`;
+  
+  const closeBtn = document.createElement("div");
+  closeBtn.className = "closeBtn";
+  closeBtn.textContent = "×";
+  closeBtn.onclick = () => document.body.removeChild(popup);
+  titleDiv.appendChild(closeBtn);
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "popupMessage";
+  messageDiv.textContent = message;
+
+  const buttonsDiv = document.createElement("div");
+  buttonsDiv.className = "popupButtons";
+  const okBtn = document.createElement("button");
+  okBtn.textContent = "OK";
+  okBtn.onclick = () => {
+    playClick();
+    document.body.removeChild(popup);
+  };
+  buttonsDiv.appendChild(okBtn);
+
+  popup.appendChild(titleDiv);
+  popup.appendChild(messageDiv);
+  popup.appendChild(buttonsDiv);
+
+  return popup;
+}
+
+function makeDraggable(elmnt) {
+  const header = elmnt.querySelector(".popupTitle");
+  let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
+
+  header.onmousedown = dragMouseDown;
+
+  function dragMouseDown(e){
+    e.preventDefault();
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+    header.style.cursor = "grabbing";
+  }
+
+  function elementDrag(e){
+    e.preventDefault();
+    offsetX = mouseX - e.clientX;
+    offsetY = mouseY - e.clientY;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - offsetY) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - offsetX) + "px";
+    elmnt.style.transform = "none";
+  }
+
+  function closeDragElement(){
+    document.onmouseup = null;
+    document.onmousemove = null;
+    header.style.cursor = "grab";
+  }
+}
+
+// Easter egg : Konami code
+let konamiCode = [];
+const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+document.addEventListener('keydown', (e) => {
+  konamiCode.push(e.key);
+  konamiCode = konamiCode.slice(-10);
+  
+  if (konamiCode.join(',') === konamiSequence.join(',')) {
+    const popup = createErrorPopup("Code secret activé !", "Vous avez découvert un easter egg. Bien joué !");
+    document.body.appendChild(popup);
+    makeDraggable(popup);
+    konamiCode = [];
+  }
+});
+</script>
+
+</body>
+</html>

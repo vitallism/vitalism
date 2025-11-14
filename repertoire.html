@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIR_Σ500</title>
+<style>
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.96; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 4px 4px 0 rgba(0, 0, 0, 0.5); }
+}
+
+* {
+  cursor: none !important;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0000AA;
+  color: #FFFFFF;
+  font-family: "Courier New", "Lucida Console", monospace;
+  font-size: 16px;
+  margin: 0;
+  padding: 40px;
+  min-height: 100vh;
+  width: 100vw;
+  animation: flicker 0.15s infinite;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo {
+  border: 2px solid #FFFFFF;
+  display: inline-block;
+  padding: 4px 16px;
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logo:hover {
+  background: #FFFFFF;
+}
+
+.logo:hover span {
+  color: #0000AA;
+}
+
+.logo span {
+  background-color: #FFFFFF;
+  color: #0000AA;
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.header-section {
+  margin-bottom: 30px;
+}
+
+.error-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.system-info {
+  font-size: 14px;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 2px solid #FFFFFF;
+  border-style: inset;
+  background-color: rgba(0, 0, 100, 0.5);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  background: #FFFFFF;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: #000000;
+}
+
+.search-box:focus {
+  outline: 2px dotted #000080;
+  outline-offset: -4px;
+  background: #FFFFCC;
+}
+
+.search-box::placeholder {
+  color: #808080;
+}
+
+.sort-select {
+  padding: 8px 12px;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.btn-random {
+  padding: 8px 16px;
+  background: #C0C0C0;
+  border-top: 2px solid #FFFFFF;
+  border-left: 2px solid #FFFFFF;
+  border-bottom: 2px solid #000000;
+  border-right: 2px solid #000000;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 13px;
+  color: #000000;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.btn-random:hover {
+  background: #DFDFDF;
+}
+
+.btn-random:active {
+  border-top: 2px solid #000000;
+  border-left: 2px solid #000000;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  box-shadow: inset 1px 1px 2px #000000;
+}
+
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.profile-card {
+  background: #C0C0C0;
+  border-top: 3px solid #FFFFFF;
+  border-left: 3px solid #FFFFFF;
+  border-bottom: 3px solid #000000;
+  border-right: 3px solid #000000;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.profile-card:hover {
+  background: #000080;
+  border-top: 3px solid #000000;
+  border-left: 3px solid #000000;
+  border-bottom: 3px solid #FFFFFF;
+  border-right: 3px solid #FFFFFF;
+  animation: glow 1s infinite;
+  transform: translateY(-2px);
+}
+
+.profile-card:hover .profile-name,
+.profile-card:hover .profile-type,
+.profile-card:hover .profile-desc,
+.profile-card:hover .profile-country {
+  color: #FFFFFF;
+}
+
+.profile-card:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.profile-country {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 11px;
+  color: #000080;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 2px 6px;
+  border: 1px solid #000080;
+  cursor: help;
+}
+
+.profile-country:hover::after {
+  content: attr(data-country-name);
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #FFFFE1;
+  color: #000000;
+  padding: 4px 8px;
+  border: 2px solid #000000;
+  white-space: nowrap;
+  font-size: 10px;
+  z-index: 1000;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.profile-rank {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 10px;
+  color: #FFFFFF;
+  font-weight: bold;
+  background: #FF0000;
+  padding: 2px 6px;
+  border: 1px solid #000000;
+}
+
+.profile-icon {
+  width: 80px;
+  height: 80px;
+  margin: 15px auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000000;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.profile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 4px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.profile-type {
+  font-size: 11px;
+  color: #000080;
+  margin-bottom: 6px;
+  text-align: center;
+  font-style: italic;
+}
+
+.profile-desc {
+  font-size: 11px;
+  color: #000000;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.profile-card.empty {
+  background: #808080;
+  border-top: 3px solid #000000;
+  border-left: 3px solid #000000;
+  border-bottom: 3px solid #FFFFFF;
+  border-right: 3px solid #FFFFFF;
+  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.5);
+  opacity: 0.5;
+}
+
+.profile-card.empty:hover {
+  animation: none;
+  transform: none;
+}
+
+.profile-card.empty .profile-icon {
+  background: #606060;
+  font-size: 32px;
+}
+
+.fake-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  background-color: #FFFFFF;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+body:hover .fake-cursor {
+  display: block;
+}
+
+.result-count {
+  font-size: 13px;
+  color: #AAAAAA;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+  
+  .profiles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+  }
+  
+  .error-header {
+    font-size: 16px;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box, .btn-random {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="fake-cursor" id="fakeCursor"></div>
+
+<div class="content">
+  <a href="index.html" style="text-decoration:none;">
+    <div class="logo"><span>:faunism</span></div>
+  </a>
+  
+  <div class="header-section">
+    <div class="error-header">*** DIRECTORY ACCESS: ANON_PROFILES</div>
+    <div class="system-info">
+      System: DIR_Σ500 | Status: ACTIVE | Entries: <span id="entryCount">23</span> | Access Level: PUBLIC
+    </div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchBox" class="search-box" placeholder="Rechercher un anone...">
+    <select class="sort-select" id="sortBy" onchange="sortProfiles()">
+      <option value="name">Trier: Nom</option>
+      <option value="rank">Trier: Classement</option>
+      <option value="country">Trier: Pays</option>
+      <option value="type">Trier: Spécialité</option>
+    </select>
+    <button class="btn-random" onclick="randomProfile()">🎲 RANDOM</button>
+  </div>
+
+  <div class="result-count" id="resultCount"></div>
+
+  <div class="profiles-grid" id="profilesGrid">
+    <!-- Les profils seront générés par JavaScript -->
+  </div>
+</div>
+
+<script>
+const fakeCursor = document.getElementById('fakeCursor');
+document.addEventListener('mousemove', (e) => {
+  fakeCursor.style.left = e.clientX + 'px';
+  fakeCursor.style.top = e.clientY + 'px';
+});
+
+// Mapping des codes pays vers noms complets
+const countryNames = {
+  'GR': 'Grèce',
+  'FR': 'France',
+  'AU': 'Australie',
+  'NO': 'Norvège',
+  'MX': 'Mexique',
+  'TR': 'Turquie',
+  'IE': 'Irlande',
+  'CN': 'Chine',
+  'IS': 'Islande',
+  'CA': 'Canada',
+  'IT': 'Italie',
+  'SE': 'Suède',
+  'RU': 'Russie',
+  'EG': 'Égypte',
+  'RO': 'Roumanie',
+  '--': 'Inconnu'
+};
+
+const profiles = [
+{name: 'Aphoom Zah', type: 'Mythologue', desc: 'Spécialiste des panthéons anciens', avatar: 'aphoom.jpg', url: 'aphoom.html', country: '--', rank: 15},
+{name: 'Callicles', type: 'Philosophe', desc: 'Théoricien de l\'éthique digitale', avatar: 'callicles.jpg', url: 'Callicles.html', country: 'FR', rank: 3},
+{name: 'Caverne', type: 'Penseur nordique', desc: 'Spécialiste de la justice sociale', avatar: 'caverne.jpg', url: 'caverne.html', country: 'FR', rank: 12},
+{name: 'Heydon', type: 'Théologue', desc: 'Constructeur de systèmes complexes', avatar: 'heydon.jpg', url: 'heydon.html', country: 'FR', rank: 6},
+{name: 'Lia von Finnak', type: 'Analyste', desc: 'Observatrice des tendances culturelles', avatar: 'lia.jpg', url: 'lia.html', country: 'FR', rank: 8},
+{name: 'Odin', type: 'Archiviste', desc: 'Gardien des mémoires perdues', avatar: 'odin.jpg', url: 'odin.html', country: 'FR', rank: 18},
+{name: 'Oizys', type: 'Critique', desc: 'Analyste des structures de pouvoir', avatar: 'oizys.jpg', url: '#', country: 'GR', rank: 7},
+{name: 'Picarssiette', type: 'Forgeron', desc: 'Créateur d\'outils et de concepts', avatar: 'picarssiette.jpg', url: 'picarssiette.html', country: 'FR', rank: 11},
+{name: 'Raffaello Bellino', type: 'Collectionneur', desc: 'Archiviste des données', avatar: 'raffaello.jpg', url: 'raffaello.html', country: 'IS', rank: 10},
+{name: 'Sedna', type: 'Gardienne', desc: 'Protectrice des espaces liminaux', avatar: 'sedna.jpg', url: '#', country: 'CA', rank: 5},
+{name: 'Tancrède Bastié', type: 'Cosmologue', desc: 'Expert en création et chaos', avatar: 'tancrede.jpg', url: 'tancrede.html', country: 'FR', rank: 2},
+{name: 'Tuchulcha', type: 'Psychopompe', desc: 'Guide des transitions', avatar: 'tuchulcha.jpg', url: '#', country: 'IT', rank: 16},
+{name: 'Ullr', type: 'Tacticien', desc: 'Stratège des mouvements sociaux', avatar: 'ullr.jpg', url: '#', country: 'SE', rank: 9},
+{name: 'Veles', type: 'Trickster', desc: 'Disrupteur de narratifs', avatar: 'veles.jpg', url: '#', country: 'RU', rank: 4},
+{name: 'Venehon', type: 'Océanographe', desc: 'Explorateur des profondeurs', avatar: 'venehon.jpg', url: 'venehon.html', country: 'FR', rank: 14},
+{name: 'Wepwawet', type: 'Éclaireur', desc: 'Ouvreur de voies inexplorées', avatar: 'wepwawet.jpg', url: '#', country: 'EG', rank: 13},
+{name: 'Xolotl', type: 'Transformateur', desc: 'Alchimiste des identités', avatar: 'xolotl.jpg', url: '#', country: 'MX', rank: 17},
+{name: 'Ymir', type: 'Primordial', desc: 'Origine des structures fondamentales', avatar: 'ymir.jpg', url: '#', country: 'IS', rank: 1},
+{name: 'Zalmoxis', type: 'Mystique', desc: 'Théoricien de l\'immortalité', avatar: 'zalmoxis.jpg', url: '#', country: 'RO', rank: 19},
+
+{name: '???', type: 'RESERVED', desc: 'Slot réservé pour futur anone', avatar: null, url: '#', empty: true, country: '--', rank: 99},
+{name: '???', type: 'RESERVED', desc: 'Slot réservé pour futur anone', avatar: null, url: '#', empty: true, country: '--', rank: 99},
+{name: '???', type: 'RESERVED', desc: 'Slot réservé pour futur anone', avatar: null, url: '#', empty: true, country: '--', rank: 99},
+{name: '???', type: 'RESERVED', desc: 'Slot réservé pour futur anone', avatar: null, url: '#', empty: true, country: '--', rank: 99}
+
+];
+
+let currentProfiles = [...profiles];
+
+function renderProfiles(profilesToRender = currentProfiles) {
+  const grid = document.getElementById('profilesGrid');
+  const resultCount = document.getElementById('resultCount');
+  
+  grid.innerHTML = '';
+  
+  profilesToRender.forEach(profile => {
+    const card = document.createElement('div');
+    card.className = 'profile-card' + (profile.empty ? ' empty' : '');
+    
+    if (!profile.empty) {
+      card.onclick = () => window.location.href = profile.url;
+    } else {
+      let clickCount = 0;
+      card.onclick = () => {
+        clickCount++;
+        if (clickCount === 3) {
+          alert('*** ERREUR: SLOT RÉSERVÉ POUR FUTUR ANON ***');
+          clickCount = 0;
+        }
+        setTimeout(() => { clickCount = 0; }, 1000);
+      };
+    }
+    
+    const rankBadge = !profile.empty && profile.rank < 99 ? `<div class="profile-rank">#${profile.rank}</div>` : '';
+    
+    const countryName = countryNames[profile.country] || profile.country;
+    
+    let avatarContent = '❓';
+    if (!profile.empty && profile.avatar) {
+      avatarContent = `<img src="${profile.avatar}" alt="${profile.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='❓'; this.parentElement.style.fontSize='32px';">`;
+    }
+    
+    card.innerHTML = `
+      ${rankBadge}
+      <div class="profile-country" data-country-name="${countryName}">${profile.country}</div>
+      <div class="profile-icon">${avatarContent}</div>
+      <div class="profile-name">${profile.name}</div>
+      <div class="profile-type">${profile.type}</div>
+      <div class="profile-desc">${profile.desc}</div>
+    `;
+    
+    grid.appendChild(card);
+  });
+  
+  const activeCount = profilesToRender.filter(p => !p.empty).length;
+  resultCount.textContent = `${activeCount} profils actifs trouvés`;
+}
+
+function sortProfiles() {
+  const sortBy = document.getElementById('sortBy').value;
+  
+  currentProfiles = [...profiles];
+  
+  switch(sortBy) {
+    case 'name':
+      currentProfiles.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case 'rank':
+      currentProfiles.sort((a, b) => a.rank - b.rank);
+      break;
+    case 'country':
+      currentProfiles.sort((a, b) => a.country.localeCompare(b.country));
+      break;
+    case 'type':
+      currentProfiles.sort((a, b) => a.type.localeCompare(b.type));
+      break;
+  }
+  
+  renderProfiles();
+}
+
+function searchProfiles() {
+  const query = document.getElementById('searchBox').value.toLowerCase();
+  
+  if (!query) {
+    renderProfiles(currentProfiles);
+    return;
+  }
+  
+  const filtered = currentProfiles.filter(profile => 
+    profile.name.toLowerCase().includes(query) ||
+    profile.type.toLowerCase().includes(query) ||
+    profile.desc.toLowerCase().includes(query) ||
+    profile.country.toLowerCase().includes(query)
+  );
+  
+  renderProfiles(filtered);
+}
+
+function randomProfile() {
+  const activeProfiles = profiles.filter(p => !p.empty && p.url !== '#');
+  if (activeProfiles.length > 0) {
+    const random = activeProfiles[Math.floor(Math.random() * activeProfiles.length)];
+    window.location.href = random.url;
+  } else {
+    alert('*** ERREUR: AUCUN PROFIL ACTIF DISPONIBLE ***');
+  }
+}
+
+document.getElementById('searchBox').addEventListener('input', searchProfiles);
+
+document.getElementById('searchBox').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    searchProfiles();
+  }
+});
+
+renderProfiles();
+</script>
+
+</body>
+</html
