@@ -1,799 +1,9 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>//IN_DΞX_0F</title>
-<style>
-@keyframes blink { 0%,49%{opacity:1;}50%,100%{opacity:0;} }
-@keyframes flicker { 0%,100%{opacity:1;}50%{opacity:0.96;} }
-@keyframes scanline { 0%{transform:translateY(-100%);}100%{transform:translateY(100vh);} }
-@keyframes errorBlink { 0%,50%{opacity:1;} 51%,100%{opacity:0;} }
-
-* { cursor: none !important; box-sizing: border-box; }
-
-body {
-  background-color: #0000AA;
-  color: #FFFFFF;
-  font-family: "Courier New", monospace;
-  font-size:14px;
-  margin:0;
-  padding:40px;
-  min-height:100vh;
-  animation: flicker 0.15s infinite;
-  text-shadow:0 0 2px rgba(255,255,255,0.5);
-  position: relative;
-  overflow: hidden;
-}
-
-body::before {
-  content: '';
-  position:fixed;
-  top:0; left:0; width:100%; height:2px;
-  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
-  animation: scanline 8s linear infinite;
-  pointer-events:none; z-index:1000;
-}
-
-body::after {
-  content:'';
-  position:fixed; top:0; left:0; right:0; bottom:0;
-  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
-  pointer-events:none; z-index:999;
-}
-
-.content { 
-  position: relative; 
-  z-index:1; 
-  max-width:1400px; 
-  margin:0 auto;
-  height:calc(100vh - 80px);
-  display:flex;
-  flex-direction:column;
-}
-
-.logo { 
-  border:2px solid #FFFFFF; 
-  display:inline-block; 
-  padding:4px 16px; 
-  margin-bottom:20px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-
-.logo:hover {
-  background:#FFFFFF;
-}
-
-.logo:hover span {
-  color:#0000AA;
-}
-
-.logo span { 
-  background-color:#FFFFFF; 
-  color:#0000AA; 
-  padding:0 4px; 
-  font-weight:bold;
-  font-size:18px;
-}
-
-.error-messages {
-  margin-bottom:20px;
-}
-
-.error-line {
-  font-size:12px;
-  color:#AAAAAA;
-  margin:5px 0;
-}
-
-.explorer-container {
-  display:flex;
-  gap:20px;
-  flex:1;
-  min-height:0;
-}
-
-.file-list-panel {
-  width:400px;
-  background:#C0C0C0;
-  border-top:2px solid #FFFFFF;
-  border-left:2px solid #FFFFFF;
-  border-bottom:2px solid #808080;
-  border-right:2px solid #808080;
-  box-shadow:4px 4px 0 #000000;
-  display:flex;
-  flex-direction:column;
-}
-
-.panel-title {
-  background:#000080;
-  color:#FFFFFF;
-  padding:8px 12px;
-  font-weight:bold;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  user-select:none;
-}
-
-.panel-buttons {
-  display:flex;
-  gap:5px;
-}
-
-.title-btn {
-  width:16px;
-  height:16px;
-  border-top:2px solid #FFFFFF;
-  border-left:2px solid #FFFFFF;
-  border-bottom:2px solid #000000;
-  border-right:2px solid #000000;
-  background:#C0C0C0;
-  font-size:10px;
-  font-weight:bold;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  color:#000000;
-}
-
-.title-btn:active {
-  border-top:2px solid #000000;
-  border-left:2px solid #000000;
-  border-bottom:2px solid #FFFFFF;
-  border-right:2px solid #FFFFFF;
-}
-
-.file-list {
-  flex:1;
-  overflow-y:auto;
-  background:#FFFFFF;
-  margin:8px;
-  border-top:2px solid #808080;
-  border-left:2px solid #808080;
-  border-bottom:2px solid #FFFFFF;
-  border-right:2px solid #FFFFFF;
-  padding:4px;
-}
-
-.file-item {
-  padding:6px 8px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:#000000;
-  user-select:none;
-  border:1px solid transparent;
-  margin:2px;
-}
-
-.file-item:hover {
-  background:#0000AA;
-  color:#FFFFFF;
-}
-
-.file-item.selected {
-  background:#000080;
-  color:#FFFFFF;
-  border:1px dotted #FFFFFF;
-}
-
-.sort-btn {
-  padding:2px 6px;
-  background:#C0C0C0;
-  border-top:2px solid #FFFFFF;
-  border-left:2px solid #FFFFFF;
-  border-bottom:2px solid #000000;
-  border-right:2px solid #000000;
-  font-family:'Courier New', monospace;
-  font-size:11px;
-  cursor:pointer;
-  color:#000000;
-}
-
-.sort-btn:hover {
-  background:#DFDFDF;
-}
-
-.sort-btn.active {
-  border-top:2px solid #000000;
-  border-left:2px solid #000000;
-  border-bottom:2px solid #FFFFFF;
-  border-right:2px solid #FFFFFF;
-  background:#808080;
-  color:#FFFFFF;
-}
-
-.file-icon {
-  font-size:16px;
-  width:20px;
-  text-align:center;
-}
-
-.file-name {
-  flex:1;
-  font-weight:bold;
-  font-size:13px;
-}
-
-.file-size {
-  font-size:11px;
-  opacity:0.7;
-}
-
-.preview-panel {
-  flex:1;
-  background:#C0C0C0;
-  border-top:2px solid #FFFFFF;
-  border-left:2px solid #FFFFFF;
-  border-bottom:2px solid #808080;
-  border-right:2px solid #808080;
-  box-shadow:4px 4px 0 #000000;
-  display:flex;
-  flex-direction:column;
-}
-
-.preview-content {
-  flex:1;
-  overflow:auto;
-  background:#FFFFFF;
-  margin:8px;
-  border-top:2px solid #808080;
-  border-left:2px solid #808080;
-  border-bottom:2px solid #FFFFFF;
-  border-right:2px solid #FFFFFF;
-  padding:0;
-  display:block;
-  position:relative;
-}
-
-.preview-placeholder {
-  color:#808080;
-  font-size:16px;
-  text-align:center;
-  padding:20px;
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%);
-}
-
-.preview-iframe {
-  width:100%;
-  min-height:600px;
-  height:100%;
-  border:none;
-}
-
-.preview-image {
-  max-width:100%;
-  height:auto;
-  object-fit:contain;
-  display:block;
-  margin:10px auto;
-}
-
-.preview-video {
-  width:90%;
-  max-height:90%;
-  margin:20px auto;
-  display:block;
-}
-
-.preview-audio {
-  width:90%;
-  margin:20px auto;
-  display:block;
-}
-
-.preview-text {
-  width:100%;
-  height:100%;
-  padding:20px;
-  font-family:"Courier New", monospace;
-  font-size:13px;
-  color:#000000;
-  overflow:auto;
-  white-space:pre-wrap;
-  text-align:left;
-}
-
-.preview-pdf {
-  width:100%;
-  height:100%;
-  border:none;
-}
-
-.status-bar {
-  background:#C0C0C0;
-  border-top:2px solid #FFFFFF;
-  border-left:2px solid #FFFFFF;
-  border-bottom:2px solid #808080;
-  border-right:2px solid #808080;
-  padding:6px 12px;
-  margin-top:20px;
-  display:flex;
-  justify-content:space-between;
-  font-size:12px;
-  color:#000000;
-  box-shadow:2px 2px 0 #000000;
-}
-
-.status-item {
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-.status-section {
-  border-left:2px solid #808080;
-  border-top:2px solid #808080;
-  border-right:2px solid #FFFFFF;
-  border-bottom:2px solid #FFFFFF;
-  padding:2px 8px;
-}
-
-.custom-cursor { 
-  position: fixed; 
-  width:16px; 
-  height:16px; 
-  background-color:#FFFFFF; 
-  pointer-events:none; 
-  z-index:10000; 
-  mix-blend-mode:difference; 
-  display:none; 
-}
-
-body:hover .custom-cursor { display:block; }
-
-::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
-}
-
-::-webkit-scrollbar-track {
-  background: #C0C0C0;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #808080;
-  border-top: 2px solid #FFFFFF;
-  border-left: 2px solid #FFFFFF;
-  border-bottom: 2px solid #000000;
-  border-right: 2px solid #000000;
-}
-
-::-webkit-scrollbar-button {
-  background: #C0C0C0;
-  border-top: 2px solid #FFFFFF;
-  border-left: 2px solid #FFFFFF;
-  border-bottom: 2px solid #000000;
-  border-right: 2px solid #000000;
-}
-
-@media (max-width:968px){
-  .explorer-container {
-    flex-direction:column;
-  }
-  .file-list-panel {
-    width:100%;
-    max-height:300px;
-  }
-}
-</style>
-</head>
-<body>
-<div class="custom-cursor" id="cursor"></div>
-
-<div class="content">
-  <a href="index.html" style="text-decoration:none;">
-    <div class="logo"><span>:faunism</span></div>
-  </a>
-
-  <div class="error-messages">
-    <div class="error-line">UNMOUNTABLE_BOOT_VOLUME</div>
-    <div class="error-line" style="margin-top:10px;">Technical information:</div>
-    <div class="error-line">*** STOP: 0x000000ED (0x80F128D0, 0xC000009C, 0x00000000, 0x00000000)</div>
-  </div>
-
-  <div class="explorer-container">
-    <div class="file-list-panel">
-      <div class="panel-title">
-        <span>📁 VITALISM FILE SYSTEM</span>
-        <div class="panel-buttons">
-          <div class="title-btn">_</div>
-          <div class="title-btn">□</div>
-          <div class="title-btn">X</div>
-        </div>
-      </div>
-      <div style="padding:8px; background:#C0C0C0;">
-        <input type="text" id="searchInput" placeholder="Rechercher..." style="width:100%; padding:4px 8px; border-top:2px solid #808080; border-left:2px solid #808080; border-bottom:2px solid #FFFFFF; border-right:2px solid #FFFFFF; font-family:'Courier New', monospace; font-size:13px; margin-bottom:6px;">
-        <div style="display:flex; gap:4px; flex-wrap:wrap;">
-          <button id="sortName" class="sort-btn active" onclick="sortFiles('name')">Nom</button>
-          <button id="sortType" class="sort-btn" onclick="sortFiles('type')">Type</button>
-          <button id="sortSize" class="sort-btn" onclick="sortFiles('size')">Taille</button>
-        </div>
-      </div>
-      <div class="file-list" id="fileList"></div>
-    </div>
-
-    <div class="preview-panel">
-      <div class="panel-title">
-        <span id="previewTitle">👁️ APERÇU</span>
-        <div class="panel-buttons">
-          <div class="title-btn">_</div>
-          <div class="title-btn">□</div>
-          <div class="title-btn">X</div>
-        </div>
-      </div>
-      <div class="preview-content" id="previewContent">
-        <div class="preview-placeholder">
-          ⚠️ Sélectionnez un fichier pour voir l'aperçu<br><br>
-          <span style="font-size:12px; opacity:0.7;">
-            System status: CORRUPTED<br>
-            File integrity: COMPROMISED<br>
-            Preview engine: LOADED
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="status-bar">
-    <div class="status-item">
-      <span id="fileCount">0 fichiers</span>
-      <div class="status-section" id="selectedFile">Aucune sélection</div>
-    </div>
-    <div class="status-item">
-      <div class="status-section">EXPLORER.EXE</div>
-      <div class="status-section" id="memoryUsage">MEM: 47%</div>
-      <div class="status-section" id="systemTime">--:--</div>
-    </div>
-  </div>
-</div>
-
-<script>
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
-});
-
-const files = [
-  // Pages HTML du répertoire (ordre alphabétique strict)
-{name: 'anone.html', type: 'html', icon: '🌐', size: '18 KB', content: 'anone.html'},
-{name: 'aphoom.html', type: 'html', icon: '🌐', size: '18 KB', content: 'aphoom.html'},
-{name: 'bug.html', type: 'html', icon: '🌐', size: '15 KB', content: 'bug.html'},
-{name: 'Callicles.html', type: 'html', icon: '🌐', size: '19 KB', content: 'Callicles.html'},
-{name: 'caverne.html', type: 'html', icon: '🌐', size: '16 KB', content: 'caverne.html'},
-{name: 'chatbox.html', type: 'html', icon: '💬', size: '12 KB', content: 'https://faunism.forumactif.com/chatbox/'},
-{name: 'classement.html', type: 'html', icon: '🌐', size: '24 KB', content: 'classement.html'},
-{name: 'cocktail.html', type: 'html', icon: '🌐', size: '20 KB', content: 'cocktail.html'},
-{name: 'codex.html', type: 'html', icon: '🌐', size: '22 KB', content: 'codex.html'},
-{name: 'frontiere.html', type: 'html', icon: '🌐', size: '17 KB', content: 'frontiere.html'},
-{name: 'heydon.html', type: 'html', icon: '🌐', size: '14 KB', content: 'heydon.html'},
-{name: 'index.html', type: 'html', icon: '🌐', size: '28 KB', content: 'index.html'},
-{name: 'lia.html', type: 'html', icon: '🌐', size: '27 KB', content: 'lia.html'},
-{name: 'menu.html', type: 'html', icon: '🌐', size: '25 KB', content: 'menu.html'},
-{name: 'mondial.html', type: 'html', icon: '🌐', size: '21 KB', content: 'mondial.html'},
-{name: 'odin.html', type: 'html', icon: '🌐', size: '22 KB', content: 'odin.html'},
-{name: 'picarssiette.html', type: 'html', icon: '🌐', size: '16 KB', content: 'picarssiette.html'},
-{name: 'raffaello.html', type: 'html', icon: '🌐', size: '14 KB', content: 'raffaello.html'},
-{name: 'repertoire.html', type: 'html', icon: '🌐', size: '26 KB', content: 'repertoire.html'},
-{name: 'rouge.html', type: 'html', icon: '🌐', size: '16 KB', content: 'rouge.html'},
-{name: 'tancrede.html', type: 'html', icon: '🌐', size: '19 KB', content: 'tancrede.html'},
-{name: 'tuyau.html', type: 'html', icon: '🌐', size: '18 KB', content: 'tuyau.html'},
-{name: 'Venehon.html', type: 'html', icon: '🌐', size: '12 KB', content: 'Venehon.html'},
-{name: 'vie.html', type: 'html', icon: '🌐', size: '23 KB', content: 'vie.html'},
-{name: 'yetscape.html', type: 'html', icon: '🌐', size: '22 KB', content: 'yetscape.html'},
-
-
-// Images (ordre alphabétique strict)
-{name: 'aphoom.jpg', type: 'image', icon: '🖼️', size: '125 KB', content: 'aphoom.jpg'},
-{name: 'calli.jpg', type: 'image', icon: '🖼️', size: '156 KB', content: 'calli.jpg'},
-{name: 'caverne.jpg', type: 'image', icon: '🖼️', size: '136 KB', content: 'caverne.jpg'},
-{name: 'heydon.jpg', type: 'image', icon: '🖼️', size: '186 KB', content: 'heydon.jpg'},
-{name: 'lia.jpg', type: 'image', icon: '🖼️', size: '147 KB', content: 'lia.jpg'},
-{name: 'odin.jpg', type: 'image', icon: '🖼️', size: '169 KB', content: 'odin.jpg'},
-{name: 'picarssiette.jpg', type: 'image', icon: '🖼️', size: '162 KB', content: 'picarssiette.jpg'},
-{name: 'raffaello.jpg', type: 'image', icon: '🖼️', size: '118 KB', content: 'raffaello.jpg'},
-{name: 'sydney.png', type: 'image', icon: '🖼️', size: '89 KB', content: 'sydney.png'},
-{name: 'tancrede.jpg', type: 'image', icon: '🖼️', size: '158 KB', content: 'tancrede.jpg'},
-{name: 'venehon.jpg', type: 'image', icon: '🖼️', size: '178 KB', content: 'venehon.jpg'},
-
-
-// Audio
-{name: 'click.mp3', type: 'audio', icon: '🔊', size: '24 KB', content: 'click.mp3'},
-{name: 'mentel.mp3', type: 'audio', icon: '🔊', size: '3.8 MB', content: 'mentel.mp3'},
-{name: 'myosotis.mp3', type: 'audio', icon: '🔊', size: '3.5 MB', content: 'myosotis.mp3'},
-{name: 'vivre.mp3', type: 'audio', icon: '🔊', size: '3.9 MB', content: 'vivre.mp3'},
-
-
-// Vidéos de démo
-{name: 'intro.mp4', type: 'video', icon: '🎬', size: '8.5 MB', content: 'https://www.w3schools.com/html/mov_bbb.mp4'},
-{name: 'demo.webm', type: 'video', icon: '🎬', size: '6.1 MB', content: 'https://www.w3schools.com/html/movie.mp4'},
-  
-  
-  // Fichiers texte système
-  {name: 'readme.txt', type: 'text', icon: '📝', size: '2 KB', content: `VITALISM SYSTEM FILES
-=====================
-
-*** CRITICAL SYSTEM NOTICE ***
-
-This directory contains corrupted system files.
-File integrity: COMPROMISED
-Data recovery: IN PROGRESS
-
-Contributors loaded: 20
-Ranking system: ACTIVE
-Memory status: OVERLOAD
-
-Error log:
-- 0x0000007B: File system corruption
-- 0xVITAL1SM: Contributor overflow
-- 0xC0RRUPT: Data integrity failure
-
-System will continue operation despite errors.
-
-run:vitalism//v2.1
-Process: EXPLORER.SYS
-Address: 0xF1L35Y5T`},
-  
-  {name: 'changelog.txt', type: 'text', icon: '📝', size: '4 KB', content: `VITALISM CHANGELOG
-==================
-
-v2.1 - 2025-11-12
-- Added file explorer
-- Fixed ranking system
-- Implemented badges
-- Added trend arrows
-
-v2.0 - 2025-11-10
-- Major BSOD redesign
-- Timeline feature
-- Historical leaderboard
-
-v1.0 - 2025-11-01
-- Initial release
-- Basic ranking system`},
-  
-  {name: 'config.json', type: 'text', icon: '⚙️', size: '1 KB', content: `{
-  "system": "vitalism",
-  "version": "2.1",
-  "status": "corrupted",
-  "contributors": 20,
-  "errors": [
-    "0x0000007B",
-    "0xVITAL1SM",
-    "0xC0RRUPT"
-  ],
-  "features": {
-    "ranking": true,
-    "badges": true,
-    "timeline": true,
-    "explorer": true
-  }
-}`},
-  
-  {name: 'error.log', type: 'text', icon: '⚠️', size: '8 KB', content: `[CRITICAL] 2025-11-12 14:32:01
-File system corruption detected at 0xF11E5Y5T
-
-[ERROR] 2025-11-12 14:32:02
-EXPLORER.EXE: Fatal exception at address 0xEXPL0RER
-
-[WARNING] 2025-11-12 14:32:03
-Memory usage: 89% - CRITICAL LEVEL
-
-[INFO] 2025-11-12 14:32:04
-Attempting recovery...
-
-[ERROR] 2025-11-12 14:32:05
-Recovery failed: Data integrity compromised
-
-[WARNING] 2025-11-12 14:32:06
-Continuing operation in degraded mode
-
-[INFO] 2025-11-12 14:32:07
-Contributors loaded successfully: 20/20
-
-[ERROR] 2025-11-12 14:32:08
-Ranking system overload detected
-
-[CRITICAL] 2025-11-12 14:32:09
-STOP: 0x0000007B (0xVIT4L15M, 0xC0NTRIBUT0R)`},
-  
-  // PDF
-  {name: 'documentation.pdf', type: 'pdf', icon: '📕', size: '256 KB', content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'}
-];
-
-let selectedFile = null;
-let currentSort = 'name';
-
-// Sort files alphabetically by default
-files.sort((a, b) => a.name.localeCompare(b.name));
-
-function sortFiles(sortBy) {
-  currentSort = sortBy;
-  
-  // Update button active states
-  document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-  if(sortBy === 'name') document.getElementById('sortName').classList.add('active');
-  if(sortBy === 'type') document.getElementById('sortType').classList.add('active');
-  if(sortBy === 'size') document.getElementById('sortSize').classList.add('active');
-  
-  switch(sortBy) {
-    case 'name':
-      files.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    case 'type':
-      files.sort((a, b) => {
-        if(a.type === b.type) return a.name.localeCompare(b.name);
-        return a.type.localeCompare(b.type);
-      });
-      break;
-    case 'size':
-      files.sort((a, b) => {
-        const sizeA = parseInt(a.size.replace(/[^0-9]/g, ''));
-        const sizeB = parseInt(b.size.replace(/[^0-9]/g, ''));
-        return sizeB - sizeA;
-      });
-      break;
-  }
-  
-  generateFileList();
-}
-
-function generateFileList() {
-  const fileList = document.getElementById('fileList');
-  fileList.innerHTML = '';
-  
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  
-  const filteredFiles = files.filter(file => 
-    file.name.toLowerCase().includes(searchTerm)
-  );
-  
-  filteredFiles.forEach((file) => {
-    const originalIndex = files.indexOf(file);
-    const fileItem = document.createElement('div');
-    fileItem.className = 'file-item';
-    fileItem.onclick = () => selectFile(originalIndex);
-    fileItem.ondblclick = () => openFile(originalIndex);
-    
-    fileItem.innerHTML = `
-      <span class="file-icon">${file.icon}</span>
-      <span class="file-name">${file.name}</span>
-      <span class="file-size">${file.size}</span>
-    `;
-    
-    fileList.appendChild(fileItem);
-  });
-  
-  document.getElementById('fileCount').textContent = `${filteredFiles.length} fichiers`;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  const searchInput = document.getElementById('searchInput');
-  searchInput.addEventListener('input', function() {
-    generateFileList();
-  });
-});
-
-function selectFile(index) {
-  document.querySelectorAll('.file-item').forEach(item => {
-    item.classList.remove('selected');
-  });
-  
-  const fileItems = document.querySelectorAll('.file-item');
-  if(fileItems[index]) {
-    fileItems[index].classList.add('selected');
-  }
-  
-  selectedFile = files[index];
-  showPreview(selectedFile);
-  
-  document.getElementById('selectedFile').textContent = selectedFile.name;
-  document.getElementById('previewTitle').textContent = `👁️ ${selectedFile.name}`;
-}
-
-// Double-clic pour ouvrir le fichier
-function openFile(index) {
-  const file = files[index];
-  if(file.type === 'html' || file.type === 'image' || file.type === 'audio' || file.type === 'video') {
-    window.open(file.content, '_blank');
-  }
-}
-
-function showPreview(file) {
-  const previewContent = document.getElementById('previewContent');
-  previewContent.innerHTML = '';
-  
-  switch(file.type) {
-    case 'html':
-      const iframe = document.createElement('iframe');
-      iframe.className = 'preview-iframe';
-      iframe.src = file.content;
-      previewContent.appendChild(iframe);
-      break;
-      
-    case 'image':
-      const img = document.createElement('img');
-      img.className = 'preview-image';
-      img.src = file.content;
-      img.alt = file.name;
-      img.onerror = function() {
-        previewContent.innerHTML = '<div class="preview-placeholder">⚠️ Image non disponible</div>';
-      };
-      previewContent.appendChild(img);
-      break;
-      
-    case 'audio':
-      const audio = document.createElement('audio');
-      audio.className = 'preview-audio';
-      audio.controls = true;
-      audio.src = file.content;
-      previewContent.appendChild(audio);
-      break;
-      
-    case 'video':
-      const video = document.createElement('video');
-      video.className = 'preview-video';
-      video.controls = true;
-      video.src = file.content;
-      previewContent.appendChild(video);
-      break;
-      
-    case 'text':
-      const textDiv = document.createElement('div');
-      textDiv.className = 'preview-text';
-      textDiv.textContent = file.content;
-      previewContent.appendChild(textDiv);
-      break;
-      
-    case 'pdf':
-      const pdfFrame = document.createElement('iframe');
-      pdfFrame.className = 'preview-pdf';
-      pdfFrame.src = file.content;
-      previewContent.appendChild(pdfFrame);
-      break;
-      
-    default:
-      previewContent.innerHTML = '<div class="preview-placeholder">⚠️ Type de fichier non supporté</div>';
-  }
-}
-
-function updateTime() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  document.getElementById('systemTime').textContent = `${hours}:${minutes}`;
-}
-
-function updateMemory() {
-  const usage = Math.floor(Math.random() * 30) + 60;
-  document.getElementById('memoryUsage').textContent = `MEM: ${usage}%`;
-}
-
-generateFileList();
-updateTime();
-updateMemory();
-
-setInterval(updateTime, 1000);
-setInterval(updateMemory, 5000);
-</script>
-</body>
-</html>
-=======
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>#0000AA - Bluejeanism</title>
+<title>run:faunism//core</title>
 <style>
 @keyframes blink {
   0%, 49% { opacity: 1; }
@@ -822,6 +32,7 @@ body {
   margin: 0;
   padding: 60px;
   min-height: 100vh;
+  width: 100vw;
   box-sizing: border-box;
   animation: flicker 0.15s infinite;
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
@@ -842,6 +53,24 @@ body::before {
   z-index: 1000;
 }
 
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
 .content {
   position: relative;
   z-index: 1;
@@ -849,22 +78,17 @@ body::before {
 }
 
 .logo {
-  border: 3px solid #FFFFFF;
-  border-style: outset;
+  border: 2px solid #FFFFFF;
   display: inline-block;
-  padding: 6px 20px;
+  padding: 4px 16px;
   margin-bottom: 30px;
-  background-color: #0000AA; /* uniforme avec le body */
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
 }
 
 .logo span {
   background-color: #FFFFFF;
   color: #0000AA;
-  padding: 2px 8px;
+  padding: 0 4px;
   font-weight: bold;
-  font-size: 18px;
-  letter-spacing: 1px;
 }
 
 .error-header {
@@ -885,7 +109,7 @@ p {
   border-style: inset;
   padding: 15px;
   margin: 20px 0;
-  background-color: #0000AA; /* uniforme avec le body */
+  background-color: rgba(0, 0, 100, 0.5);
   box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.5);
 }
 
@@ -945,7 +169,7 @@ body:hover .custom-cursor {
 <div class="custom-cursor" id="cursor"></div>
 
 <div class="content">
-  <div class="logo"><span>bluejeanism</span></div>
+  <div class="logo"><span>:faunism</span></div>
   
   <div class="error-header">
     *** STOP: 0x0000000E (0x00000000, 0x00000002, 0x00000000, 0xC0011E36)
@@ -982,16 +206,93 @@ document.addEventListener('mousemove', (e) => {
   cursor.style.top = e.clientY + 'px';
 });
 
+// Code secret "vivre"
+let secretCode = [];
+const targetCode = ['v', 'i', 'v', 'r', 'e'];
+let canRedirect = true;
+
+function flashScreen(color) {
+  const flash = document.createElement('div');
+  flash.style.position = 'fixed';
+  flash.style.top = '0';
+  flash.style.left = '0';
+  flash.style.width = '100%';
+  flash.style.height = '100%';
+  flash.style.backgroundColor = color;
+  flash.style.opacity = '0.3';
+  flash.style.zIndex = '9999';
+  flash.style.pointerEvents = 'none';
+  document.body.appendChild(flash);
+  
+  setTimeout(() => {
+    flash.style.opacity = '0';
+    flash.style.transition = 'opacity 0.2s';
+    setTimeout(() => flash.remove(), 200);
+  }, 100);
+}
+
+function flashMulticolor() {
+  const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+  let index = 0;
+  
+  const interval = setInterval(() => {
+    flashScreen(colors[index]);
+    index++;
+    if (index >= colors.length) {
+      clearInterval(interval);
+    }
+  }, 150);
+}
+
 // Redirection vers menu.html après clic ou touche pressée
 function goToMenu() {
-  window.location.href = "menu.html";
+  if (canRedirect) {
+    window.location.href = "menu.html";
+  }
 }
 
 // Écouteurs d'événements
-document.addEventListener("keydown", goToMenu);
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  
+  // Vérifier si c'est une des lettres du code secret
+  if (['v', 'i', 'r', 'e'].includes(key)) {
+    // Vérifier si la lettre correspond à la prochaine lettre attendue dans la séquence
+    const expectedIndex = secretCode.length;
+    const expectedKey = targetCode[expectedIndex];
+    
+    if (key === expectedKey) {
+      // Bonne lettre dans la bonne séquence
+      secretCode.push(key);
+      
+      // Flash vert pour toutes les lettres correctes
+      if (secretCode.length < 5) {
+        flashScreen('#00FF00'); // Vert
+      } else {
+        // Dernière lettre 'e' : flash multicolore puis redirection
+        canRedirect = false;
+        flashMulticolor();
+        setTimeout(() => {
+          window.location.href = "vivre.html";
+        }, 1000);
+      }
+    } else {
+      // Mauvaise lettre : réinitialiser la séquence et flash rouge
+      secretCode = [];
+      flashScreen('#FF0000'); // Rouge
+    }
+    
+    // Ne pas rediriger vers menu.html
+    e.preventDefault();
+    return;
+  }
+  
+  // Pour toute autre touche, rediriger vers menu.html
+  goToMenu();
+});
+
 document.addEventListener("click", goToMenu);
 </script>
 
 </body>
 </html>
->>>>>>> a60e2d712a79914f279b68f5055d47401fea246e
