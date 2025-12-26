@@ -1975,12 +1975,12 @@ function initializePage() {
     socialsHTML += '<a href="' + socials.amazon + '" target="_blank" title="Voir sur Amazon">Amazon</a>';
   }
   
-  safeSetHTML('contributorSocials' = socialsHTML;
+  document.getElementById('contributorSocials').innerHTML = socialsHTML;
   
   // Bio
   const startYear = contributorData.startYear || 2025;
   const desc = contributorData.description || 'Contributeur vitaliste';
-  safeSetHTML('contributorBio' = 
+  document.getElementById('contributorBio').innerHTML = 
     '&gt; STATUS: <span style="color: #00FF00; font-weight: bold;">● ACTIF</span><br>' +
     '&gt; ' + desc + '<br>' +
     '&gt; <span style="color: #FFD700;">★ Membre vitaliste depuis ' + startYear + '</span>';
