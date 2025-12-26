@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230000AA%22>:v</text></svg>">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MEN∑_404</title>
@@ -11,17 +12,26 @@
 @keyframes bsod-glitch{0%,95%{opacity:1}96%{opacity:0}97%{opacity:1}98%{opacity:0}99%{opacity:1}}
 @keyframes doorPulse{0%,100%{box-shadow:0 0 5px rgba(255,255,255,0.1)}50%{box-shadow:0 0 15px rgba(255,255,255,0.3)}}
 
+/* Navigation tabs */
+.nav-tabs{position:fixed;top:0;left:0;right:0;display:flex;background:#C0C0C0;border-bottom:2px solid #000;z-index:1002;font-family:"MS Sans Serif",monospace}
+.nav-tab{padding:6px 15px;background:#C0C0C0;border-right:1px solid #808080;border-bottom:2px solid transparent;color:#000;text-decoration:none;font-size:12px;font-weight:bold;cursor:pointer}
+.nav-tab:hover{background:#DFDFDF}
+.nav-tab.primary{background:#000080;color:#FFF;border-bottom:2px solid #FFD700}
+.nav-tab.primary:hover{background:#0000AA}
+.close-all-btn{margin-left:auto;padding:6px 12px;background:#C0C0C0;border:none;border-left:1px solid #808080;color:#FF0000;font-size:14px;font-weight:bold;cursor:pointer;font-family:"MS Sans Serif",monospace}
+.close-all-btn:hover{background:#FF0000;color:#FFF}
+
 html{height:500vh;overflow-x:hidden}
 body{margin:0;padding:0;height:100%;width:100vw;background-color:#0000AA;color:#FFF;font-family:"Courier New",monospace;position:relative;animation:flicker .15s infinite;text-shadow:0 0 2px rgba(255,255,255,.5);transition:background-color 1s ease}
 body::before{content:'';position:fixed;top:0;left:0;width:100%;height:2px;background:linear-gradient(transparent,rgba(255,255,255,.1),transparent);animation:scanline 8s linear infinite;pointer-events:none;z-index:1000}
 body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.15),rgba(0,0,0,.15) 1px,transparent 1px,transparent 2px);pointer-events:none;z-index:999}
 
 .main-content{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity .8s ease}
-.logo{position:absolute;top:20px;left:20px;border:2px solid #FFF;display:inline-block;padding:4px 12px;background:#0000AA;z-index:10;cursor:pointer;transition:all .2s}
+.logo{position:absolute;top:50px;left:20px;border:2px solid #FFF;display:inline-block;padding:4px 12px;background:#0000AA;z-index:10;cursor:pointer;transition:all .2s}
 .logo:hover{background:#FFF}
 .logo:hover span{color:#0000AA}
 .logo span{background:#FFF;color:#0000AA;padding:0 4px;font-weight:bold;font-size:18px}
-.error-code{position:absolute;top:20px;right:20px;font-size:12px;opacity:.7;border:1px solid #FFF;padding:5px 10px;background:rgba(0,0,100,.5);transition:all .8s ease}
+.error-code{position:absolute;top:50px;right:20px;font-size:12px;opacity:.7;border:1px solid #FFF;padding:5px 10px;background:rgba(0,0,100,.5);transition:all .8s ease}
 img{max-width:50%;max-height:50vh;transition:transform .5s;margin-bottom:30px;border:3px outset #FFF;display:none;box-shadow:4px 4px 0 rgba(0,0,0,.5);position:relative;z-index:1}
 .buttons{display:flex;gap:20px;z-index:1}
 .buttons button{background:#C0C0C0;border-top:3px solid #FFF;border-left:3px solid #FFF;border-bottom:3px solid #000;border-right:3px solid #000;padding:12px 30px;font-family:"MS Sans Serif",monospace;font-size:1.1em;color:#000;cursor:pointer;font-weight:bold;box-shadow:2px 2px 0 #808080;transition:all .1s}
@@ -77,10 +87,21 @@ body:hover .fake-cursor{display:block}
 </head>
 <body>
 
+<!-- Navigation tabs -->
+<nav class="nav-tabs">
+  <a href="borne.html" class="nav-tab primary">📁 INDEX</a>
+  <a href="classement.html" class="nav-tab">🏆 CLASSEMENT</a>
+  <a href="evenement.html" class="nav-tab">📅 ÉVÉNEMENT</a>
+  <a href="repertoire.html" class="nav-tab">📂 RÉPERTOIRE</a>
+  <a href="candidature.html" class="nav-tab">📝 CANDIDATURE</a>
+  <a href="yetscape.html" class="nav-tab">🌐 YETSCAPE</a>
+  <button class="close-all-btn" onclick="closeAllPopups()">✕ FERMER TOUT</button>
+</nav>
+
 <div class="fake-cursor" id="fakeCursor"></div>
 <div class="depth-indicator"><div class="depth-fill" id="depthFill" style="height:0%"></div></div>
 
-<div class="main-content" id="mainContent">
+<div class="main-content" id="mainContent" style="padding-top:40px">
 <a href="borne.html" style="text-decoration:none"><div class="logo"><span>:vitalism</span></div></a>
 <div class="error-code" id="errorCode">0xDEADBEEF</div>
 <img id="mainImage" src="sydney.png" alt="Image" onerror="this.style.display='none'">
@@ -565,6 +586,29 @@ document.addEventListener('click', e => {
     document.body.appendChild(popup);
   }
 });
+
+// Fermer toutes les popups d'un coup
+function closeAllPopups() {
+  // Fermer les popups classiques
+  document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
+  // Fermer les video-popup
+  document.querySelectorAll('.video-popup').forEach(p => p.remove());
+  // Fermer les modals
+  document.querySelectorAll('.video-modal').forEach(m => {
+    m.classList.remove('visible');
+    const vid = m.querySelector('video');
+    if(vid) { vid.pause(); vid.currentTime = 0; }
+  });
+  // Fermer l'overlay de surveillance
+  const survOverlay = document.getElementById('surveillanceOverlay');
+  if(survOverlay) {
+    survOverlay.querySelectorAll('video').forEach(v => v.pause());
+    if(survOverlay.menuAudio) { survOverlay.menuAudio.pause(); survOverlay.menuAudio.currentTime = 0; }
+    survOverlay.remove();
+  }
+  // Supprimer les boutons close flottants
+  document.querySelectorAll('div[style*="z-index:3001"]').forEach(b => b.remove());
+}
 </script>
 </body>
 </html>
