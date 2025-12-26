@@ -1942,10 +1942,10 @@ function updateStats() {
 
 function initializePage() {
   // Remplir les infos du contributeur
-  if(document.getElementById('contributorName')) safeSet('contributorName' = contributorData.name;
+  document.getElementById('contributorName').textContent = contributorData.name;
   
   const alias = contributorData.alias;
-  if(document.getElementById('contributorAlias')) safeSet('contributorAlias' = alias ? 'alias "' + alias + '"' : '';
+  document.getElementById('contributorAlias').textContent = alias ? 'alias "' + alias + '"' : '';
   
   // Socials - avec boutons par défaut
   const socials = contributorData.socials || {};
