@@ -1185,21 +1185,23 @@ function calculateScore(year) {
 
 // Livres avec modal et téléchargement
 function updateBooks() {
-  document.getElementById('booksGrid').innerHTML = contributorData.books.map(book => `
-    <div class="book-card" onclick="openBookModal('${book.title.replace(/'/g, "\\'")}', ${book.year}, ${book.pages}, '${book.pdf}', '${book.epub}')">
+  document.getElementById('booksGrid').innerHTML = contributorData.books.map(book => {
+    const coverSrc = book.cover || book.title.toLowerCase().replace(/[^a-z0-9]/g, '') + '.jpg';
+    return `
+    <div class="book-card" onclick="openBookModal('${book.title.replace(/'/g, "\'")}', ${book.year}, ${book.pages}, '${book.pdf || ''}', '${book.epub || ''}')">
       <div class="book-cover">
-        <img src="covers/${book.title.toLowerCase().replace(/[^a-z0-9]/g, '')}.jpg" alt="${book.title}" onerror="this.style.display='none'">
+        <img src="${coverSrc}" alt="${book.title}" onerror="this.style.display='none'">
       </div>
       <div class="book-info-text">
         <div class="book-title">${book.title}</div>
         <div class="book-info">${book.year} • ${book.pages} pages</div>
         <div class="book-formats">
-          <a href="${book.pdf}" class="format-badge" download onclick="event.stopPropagation()">PDF</a>
-          <a href="${book.epub}" class="format-badge" download onclick="event.stopPropagation()">EPUB</a>
+          ${book.pdf ? '<a href="' + book.pdf + '" class="format-badge" download onclick="event.stopPropagation()">PDF</a>' : ''}
+          ${book.epub ? '<a href="' + book.epub + '" class="format-badge" download onclick="event.stopPropagation()">EPUB</a>' : ''}
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function openBookModal(title, year, pages, pdfUrl, epubUrl) {

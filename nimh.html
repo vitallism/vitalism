@@ -937,8 +937,8 @@ body:hover .fake-cursor {
         </div>
       </div>
       <div class="info">
-        <p class="name">&gt; Nimh<span class="cursor"></span></p>
-        <span class="alias">alias "Le Rat"</span>
+        <p class="name">&gt; <span id="contributorName">Chargement...</span><span class="cursor"></span></p>
+        <span class="alias" id="contributorAlias"></span>
         <div class="socials" id="contributorSocials"></div>
         <div class="bio" id="contributorBio">&gt; Chargement...</div>
       </div>
@@ -1189,21 +1189,23 @@ function calculateScore(year) {
 
 // Livres avec modal et téléchargement
 function updateBooks() {
-  document.getElementById('booksGrid').innerHTML = contributorData.books.map(book => `
-    <div class="book-card" onclick="openBookModal('${book.title.replace(/'/g, "\\'")}', ${book.year}, ${book.pages}, '${book.pdf}', '${book.epub}')">
+  document.getElementById('booksGrid').innerHTML = contributorData.books.map(book => {
+    const coverSrc = book.cover || book.title.toLowerCase().replace(/[^a-z0-9]/g, '') + '.jpg';
+    return `
+    <div class="book-card" onclick="openBookModal('${book.title.replace(/'/g, "\'")}', ${book.year}, ${book.pages}, '${book.pdf || ''}', '${book.epub || ''}')">
       <div class="book-cover">
-        <img src="covers/${book.title.toLowerCase().replace(/[^a-z0-9]/g, '')}.jpg" alt="${book.title}" onerror="this.style.display='none'">
+        <img src="${coverSrc}" alt="${book.title}" onerror="this.style.display='none'">
       </div>
       <div class="book-info-text">
         <div class="book-title">${book.title}</div>
         <div class="book-info">${book.year} • ${book.pages} pages</div>
         <div class="book-formats">
-          <a href="${book.pdf}" class="format-badge" download onclick="event.stopPropagation()">PDF</a>
-          <a href="${book.epub}" class="format-badge" download onclick="event.stopPropagation()">EPUB</a>
+          ${book.pdf ? '<a href="' + book.pdf + '" class="format-badge" download onclick="event.stopPropagation()">PDF</a>' : ''}
+          ${book.epub ? '<a href="' + book.epub + '" class="format-badge" download onclick="event.stopPropagation()">EPUB</a>' : ''}
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function openBookModal(title, year, pages, pdfUrl, epubUrl) {
@@ -1943,10 +1945,10 @@ function updateStats() {
 
 function initializePage() {
   // Remplir les infos du contributeur
-  if(document.getElementById('contributorName')) safeSet('contributorName' = contributorData.name;
+  document.getElementById('contributorName').textContent = contributorData.name;
   
   const alias = contributorData.alias;
-  if(document.getElementById('contributorAlias')) safeSet('contributorAlias' = alias ? 'alias "' + alias + '"' : '';
+  document.getElementById('contributorAlias').textContent = alias ? 'alias "' + alias + '"' : '';
   
   // Socials - avec boutons par défaut
   const socials = contributorData.socials || {};
@@ -1976,12 +1978,12 @@ function initializePage() {
     socialsHTML += '<a href="' + socials.amazon + '" target="_blank" title="Voir sur Amazon">Amazon</a>';
   }
   
-  safeSetHTML('contributorSocials' = socialsHTML;
+  document.getElementById('contributorSocials').innerHTML = socialsHTML;
   
   // Bio
   const startYear = contributorData.startYear || 2025;
   const desc = contributorData.description || 'Contributeur vitaliste';
-  safeSetHTML('contributorBio' = 
+  document.getElementById('contributorBio').innerHTML = 
     '&gt; STATUS: <span style="color: #00FF00; font-weight: bold;">● ACTIF</span><br>' +
     '&gt; ' + desc + '<br>' +
     '&gt; <span style="color: #FFD700;">★ Membre vitaliste depuis ' + startYear + '</span>';
