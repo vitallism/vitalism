@@ -42,7 +42,6 @@ body:hover .custom-cursor{display:block}
 </div>
 <p>Current application will be terminated.</p>
 <p class="instruction">*** Press any key to continue<span class="blink-cursor"></span></p>
-<a href="stat.html" style="position:fixed;bottom:5px;right:5px;width:8px;height:8px;opacity:0.1;z-index:100;" title="."></a>
 </div>
 
 <script>
@@ -72,5 +71,6 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('click',()=>{if(canRedirect)location.href='menu.html';});
 </script>
+<a href="stat.html" style="position:fixed;bottom:50px;right:0;width:8px;height:40px;background:rgba(255,255,255,0.15);border-radius:5px 0 0 5px;z-index:9999;transition:all 0.3s;" onmouseover="this.style.width='20px';this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.width='8px';this.style.background='rgba(255,255,255,0.15)'" title="."></a>
 </body>
 </html>

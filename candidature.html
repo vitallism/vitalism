@@ -4,7 +4,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230000AA%22>:v</text></svg>">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>C@NDID@TURE_V1T4L // Formulaire d'admission</title>
+<title>C@NDID@TURE_V1T4L</title>
 <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='16' y='24' font-family='Courier New' font-size='20' font-weight='bold' fill='%230000AA' text-anchor='middle'>:V</text></svg>">
@@ -478,7 +478,7 @@ body::before {
     <p>Clinique DENT'AVENIR</p>
     <p>Exp. 3 ans minimum</p>
     <p class="price">Salaire attractif + primes</p>
-    <p class="tel"><a href="lake.html" style="color:#666;text-decoration:none">Envoyer CV à recrutement@dentavenir.fr</a></p>
+    <p class="tel"><a href="lake.html" style="color:#666;text-decoration:none">Envoyer CV à <span class="__cf_email__" data-cfemail="43312620313637262e262d370327262d372235262d2a316d2531">[email&#160;protected]</span></a></p>
   </div>
   <div class="dental-ad">
     <p class="scientific">"L'émail dentaire est le tissu le plus dur du corps humain, composé à 96% de minéraux."</p>
@@ -501,7 +501,7 @@ body::before {
     <p>Excellente condition</p>
     <p>Idéal collectionneur ou artiste</p>
     <p class="price">Prix: 45€ le lot</p>
-    <p class="tel">Contact: dents.collector@mail.fr</p>
+    <p class="tel">Contact: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b6d2d3d8c2c598d5d9dadad3d5c2d9c4f6dbd7dfda98d0c4">[email&#160;protected]</a></p>
   </div>
   <div class="dental-ad">
     <span class="tooth-icon">😬</span>
@@ -534,7 +534,7 @@ body::before {
 
 <div class="container">
   <div class="header">
-    <h1>*** FORMULAIRE DE CANDIDATURE VITALISTE ***</h1>
+    <h1>*** FORMULAIRE DE CANDIDATURE ***</h1>
     <p>Remplissez ce formulaire pour soumettre votre candidature. Vos données seront exportées en JSON pour traitement.</p>
   </div>
 
@@ -610,39 +610,42 @@ body::before {
         </div>
 
         <!-- Accès Forum & Chat -->
-        <div class="radar-section" style="background:#1a1a3a;border-color:#00ff00;">
+        <div class="radar-section">
           <h3>🔐 ACCÈS FORUM & CHATBOX</h3>
-          <p style="font-size:11px;color:#aaa;margin-bottom:15px;">
-            Après validation de votre candidature, ces identifiants vous permettront d'accéder au forum et à la chatbox Vitalism.
-            <br><strong style="color:#ff6b6b;">⚠️ IMPORTANT : Utilisez un mot de passe UNIQUE. Ne réutilisez PAS un mot de passe existant (banque, email, etc.)</strong>
+          <p style="font-size:11px;color:#aaa;margin-bottom:10px;">
+            Ces identifiants seront actifs après validation de votre candidature.
           </p>
+          
+          <div style="border:1px solid #ff6666;padding:8px;margin-bottom:12px;background:#220000;font-size:11px;">
+            <strong style="color:#ff6666;">⚠️ IMPORTANT :</strong>
+            <span style="color:#ffaaaa;">Mot de passe UNIQUE et IRRÉCUPÉRABLE en cas d'oubli. <strong style="color:#ffff00;">Exportez vos identifiants !</strong></span>
+          </div>
           
           <div class="field-group">
             <div class="field required">
               <label for="loginPseudo">Pseudo de connexion</label>
               <input type="text" id="loginPseudo" name="loginPseudo" placeholder="Votre pseudo pour le chat/forum" pattern="[a-zA-Z0-9_-]+" minlength="3" maxlength="20" required>
-              <span class="hint">3-20 caractères, lettres/chiffres/tirets uniquement</span>
+              <span class="hint">3-20 caractères, lettres/chiffres/tirets</span>
+            </div>
+            <div class="field required">
+              <label for="loginPassword">Mot de passe</label>
+              <input type="text" id="loginPassword" name="loginPassword" placeholder="Minimum 8 caractères" minlength="8" required>
+              <span class="hint">NOTEZ-LE PRÉCIEUSEMENT</span>
             </div>
           </div>
           
           <div class="field-group">
-            <div class="field required">
-              <label for="loginPassword">Mot de passe</label>
-              <input type="text" id="loginPassword" name="loginPassword" placeholder="Votre mot de passe sécurisé" minlength="8" required>
-              <span class="hint">Minimum 8 caractères - NOTEZ-LE PRÉCIEUSEMENT</span>
+            <div class="field" style="display:flex;align-items:flex-end;">
+              <button type="button" class="btn" onclick="generatePassword()" style="width:100%;">🎲 GÉNÉRER MDP</button>
             </div>
             <div class="field" style="display:flex;align-items:flex-end;">
-              <button type="button" class="btn" onclick="generatePassword()" style="background:#00aa00;color:#fff;width:100%;">🎲 GÉNÉRER MOT DE PASSE SÉCURISÉ</button>
+              <button type="button" class="btn" onclick="exportCredentials()" style="width:100%;">📥 EXPORTER (.txt)</button>
             </div>
           </div>
           
-          <div style="background:#000;border:1px solid #00ff00;padding:10px;margin-top:10px;">
-            <div style="font-size:10px;color:#00ff00;margin-bottom:5px;">📋 RÉCAPITULATIF IDENTIFIANTS :</div>
-            <div style="font-family:monospace;color:#fff;">
-              Pseudo : <span id="recapPseudo" style="color:#ffff00;">---</span><br>
-              Mot de passe : <span id="recapPassword" style="color:#ffff00;">---</span>
-            </div>
-            <button type="button" class="btn" onclick="exportCredentials()" style="margin-top:10px;font-size:11px;">📥 EXPORTER MES IDENTIFIANTS (.txt)</button>
+          <div style="background:#000080;border:1px solid #fff;padding:8px;margin-top:10px;font-size:11px;">
+            📋 Pseudo : <span id="recapPseudo" style="color:#ffff00;">---</span> | 
+            Mot de passe : <span id="recapPassword" style="color:#ffff00;">---</span>
           </div>
         </div>
 
@@ -1031,6 +1034,13 @@ function updateRecap() {
   document.getElementById('recapPassword').textContent = password;
 }
 
+// Synchroniser le pseudo principal avec le pseudo de connexion
+document.getElementById('pseudo').addEventListener('input', function() {
+  const mainPseudo = this.value.replace(/[^a-zA-Z0-9_-]/g, ''); // Nettoyer pour respecter le pattern
+  document.getElementById('loginPseudo').value = mainPseudo;
+  updateRecap();
+});
+
 // Écouter les changements
 document.getElementById('loginPseudo').addEventListener('input', updateRecap);
 document.getElementById('loginPassword').addEventListener('input', updateRecap);
@@ -1085,7 +1095,15 @@ const gun = Gun({ peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://gu
 const candidatures = gun.get('vitalism-candidatures-v2');
 
 // Clé de chiffrement admin (dérivée d'une phrase secrète)
-const ADMIN_SECRET = 'vitalism-admin-key-2024-secure';
+const _bwqcGW='dTlWREJ6';
+const _mXbrhg='T1dlb3Y0';
+const _nGlCoW='U0VNc1Zz';
+const _gsUJiB='bHVnV1N3';
+const _karyfx='Z1IxN0dR';
+const _hvPOoy='dUxoZVlQ';
+const _gETtOY='MHU2TQ==';
+const _spcXPmxl=s=>atob(s);
+const ADMIN_SECRET=_spcXPmxl(_bwqcGW+_mXbrhg+_nGlCoW+_gsUJiB+_karyfx+_hvPOoy+_gETtOY);
 
 async function encryptForAdmin(data) {
   const jsonStr = JSON.stringify(data);
@@ -1137,15 +1155,4 @@ RAPPEL DE VOS IDENTIFIANTS :
 ───────────────────────────────────────
 Pseudo : ${data.login.pseudo}
 Mot de passe : ${data.login.password}
-───────────────────────────────────────
-⚠️ Notez-les ! Ils seront actifs après validation.
-═══════════════════════════════════════
-
-Merci de votre intérêt !`;
-  
-  // Effacer le formulaire
-  resetForm();
-}
-</script>
-</body>
-</html>
+────────────────────�

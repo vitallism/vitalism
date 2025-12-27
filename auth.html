@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230000AA%22>:v</text></svg>">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230000AA%22>:v</text></svg>">
-<title>Connexion - Vitalism</title>
+<title>CONN3X10N</title>
 <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
 <style>
 @keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
-
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
   padding: 20px;
@@ -26,7 +23,6 @@ body {
   justify-content: center;
   align-items: center;
 }
-
 body::before {
   content: '';
   position: fixed;
@@ -37,12 +33,7 @@ body::before {
   pointer-events: none;
   z-index: 1000;
 }
-
-.container {
-  width: 100%;
-  max-width: 450px;
-}
-
+.container { width: 100%; max-width: 350px; }
 .logo {
   border: 2px solid #fff;
   display: inline-block;
@@ -53,84 +44,37 @@ body::before {
 }
 .logo span { background: #fff; color: #0000AA; padding: 0 4px; font-weight: bold; }
 .logo:hover { background: #fff; }
-
-.auth-window {
+.window {
   background: #C0C0C0;
   border: 2px solid;
   border-color: #fff #808080 #808080 #fff;
   box-shadow: 4px 4px 0 #000;
 }
-
-.auth-header {
+.window-header {
   background: linear-gradient(90deg, #000080, #1084d0);
   color: #fff;
   padding: 6px 10px;
   font-weight: bold;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  font-size: 13px;
 }
-
-.auth-content {
-  padding: 20px;
-}
-
-.tabs {
-  display: flex;
-  margin-bottom: 15px;
-}
-
-.tab {
-  flex: 1;
-  padding: 8px;
-  background: #C0C0C0;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  text-align: center;
-  cursor: pointer;
-  font-family: "Courier New", monospace;
-  font-weight: bold;
-  color: #000;
-}
-
-.tab.active {
-  background: #fff;
-  border-color: #fff #808080 #808080 #fff;
-  position: relative;
-  top: 2px;
-}
-
-.tab:hover:not(.active) {
-  background: #d4d4d4;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
+.window-content { padding: 15px; }
+.field { margin-bottom: 12px; }
+.field label {
   display: block;
   color: #000;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   font-size: 12px;
 }
-
-.form-group input {
+.field input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px;
   font-family: "Courier New", monospace;
   font-size: 14px;
   border: 2px inset #808080;
   background: #fff;
 }
-
-.form-group input:focus {
-  outline: none;
-  background: #ffffcc;
-}
-
+.field input:focus { outline: none; background: #ffffcc; }
 .btn {
   width: 100%;
   padding: 10px;
@@ -143,130 +87,45 @@ body::before {
   cursor: pointer;
   color: #000;
 }
-
-.btn:hover {
-  background: #d4d4d4;
-}
-
-.btn:active {
-  border-color: #808080 #fff #fff #808080;
-}
-
-.btn-primary {
-  background: #000080;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: #0000AA;
-}
-
+.btn:hover { background: #d4d4d4; }
+.btn:active { border-color: #808080 #fff #fff #808080; }
+.btn-primary { background: #000080; color: #fff; }
+.btn-primary:hover { background: #0000AA; }
 .message {
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 8px;
+  margin-bottom: 12px;
   border: 2px solid;
-  font-size: 12px;
+  font-size: 11px;
+  display: none;
 }
-
-.message.error {
-  background: #ffcccc;
-  border-color: #cc0000;
-  color: #cc0000;
-}
-
-.message.success {
-  background: #ccffcc;
-  border-color: #00cc00;
-  color: #006600;
-}
-
-.message.info {
-  background: #cce5ff;
-  border-color: #0066cc;
-  color: #004499;
-}
-
+.message.error { background: #ffcccc; border-color: #cc0000; color: #cc0000; display: block; }
+.message.success { background: #ccffcc; border-color: #00cc00; color: #006600; display: block; }
+.message.info { background: #cce5ff; border-color: #0066cc; color: #004499; display: block; }
 .info-box {
   background: #ffffcc;
-  border: 2px solid #808080;
-  padding: 10px;
-  margin-top: 15px;
+  border: 1px solid #808080;
+  padding: 8px;
+  margin-top: 12px;
   font-size: 11px;
   color: #000;
 }
-
-.info-box h4 {
-  margin: 0 0 5px 0;
-  color: #000080;
-}
-
-.logged-in {
-  text-align: center;
-  padding: 20px;
-}
-
-.logged-in .username {
-  font-size: 24px;
-  color: #000080;
-  margin: 10px 0;
-}
-
-.logged-in .pub-key {
-  font-size: 9px;
-  color: #808080;
-  word-break: break-all;
-  background: #fff;
-  padding: 5px;
-  border: 1px inset #808080;
-  margin: 10px 0;
-}
-
-.nav-links {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
+.info-box a { color: #000080; }
+.logged-in { text-align: center; padding: 15px; }
+.logged-in .username { font-size: 20px; color: #000080; margin: 10px 0; }
+.nav-links { display: flex; gap: 8px; margin-top: 12px; }
 .nav-links a {
   flex: 1;
-  padding: 10px;
+  padding: 8px;
   background: #000080;
   color: #fff;
   text-decoration: none;
   text-align: center;
   font-weight: bold;
+  font-size: 12px;
   border: 2px solid;
   border-color: #fff #808080 #808080 #fff;
 }
-
-.nav-links a:hover {
-  background: #0000AA;
-}
-
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #000;
-}
-
-.loading::after {
-  content: '';
-  animation: dots 1.5s infinite;
-}
-
-@keyframes dots {
-  0% { content: '.'; }
-  33% { content: '..'; }
-  66% { content: '...'; }
-}
-
-#formLogin, #formRegister {
-  display: none;
-}
-
-#formLogin.active, #formRegister.active {
-  display: block;
-}
+.nav-links a:hover { background: #0000AA; }
 </style>
 </head>
 <body>
@@ -274,68 +133,42 @@ body::before {
 <div class="container">
   <a href="menu.html" class="logo"><span>:vitalism</span></a>
   
-  <div class="auth-window">
-    <div class="auth-header">
-      <span>🔐 Connexion Vitalism</span>
-    </div>
+  <div class="window">
+    <div class="window-header">🔐 Connexion</div>
     
-    <div class="auth-content">
-      <!-- État : Non connecté -->
-      <div id="authForms">
+    <div class="window-content">
+      <div id="loginForm">
         <div id="messageBox"></div>
         
-        <!-- Formulaire Connexion uniquement -->
-        <form id="formLogin" onsubmit="login(event)">
-          <div class="form-group">
-            <label>👤 Pseudo</label>
+        <form onsubmit="login(event)">
+          <div class="field">
+            <label>Pseudo</label>
             <input type="text" id="loginUsername" required autocomplete="username">
           </div>
-          <div class="form-group">
-            <label>🔑 Mot de passe</label>
+          <div class="field">
+            <label>Mot de passe</label>
             <input type="password" id="loginPassword" required autocomplete="current-password">
           </div>
-          <button type="submit" class="btn btn-primary">Se connecter</button>
+          <button type="submit" class="btn btn-primary">Connexion</button>
         </form>
         
-        <div class="info-box" style="background:#ffe6e6;border-color:#cc0000;">
-          <h4>⚠️ Mot de passe</h4>
-          <p><strong>Utilisez un mot de passe UNIQUE pour ce site.</strong><br>
-          Ne réutilisez PAS un mot de passe existant (banque, email, etc.)<br>
-          Votre mot de passe est <strong>irrécupérable</strong> en cas d'oubli.</p>
-        </div>
-        
         <div class="info-box">
-          <h4>📝 Pas encore de compte ?</h4>
-          <p>L'accès au forum et à la chatbox est réservé aux membres validés.<br>
-          <a href="candidature.html" style="color:#000080;font-weight:bold;">→ Remplir une candidature</a></p>
-        </div>
-        
-        <div class="info-box">
-          <h4>🔒 Authentification décentralisée</h4>
-          <p>Votre compte est sécurisé par cryptographie.<br>
-          Aucun serveur ne stocke votre mot de passe.<br>
-          Votre identité = une clé unique impossible à usurper.</p>
+          Pas de compte ? <a href="candidature.html">Remplir une candidature</a>
         </div>
       </div>
       
-      <!-- État : Connecté -->
       <div id="loggedIn" style="display:none;">
         <div class="logged-in">
-          <div style="font-size:48px;">✅</div>
+          <div style="font-size:32px;">✅</div>
           <div class="username" id="displayUsername"></div>
-          <div style="color:#000;font-size:12px;">Connecté avec succès</div>
-          <div class="pub-key">
-            <strong>Clé publique :</strong><br>
-            <span id="displayPubKey"></span>
-          </div>
+          <div style="color:#000;font-size:11px;">Connecté</div>
           
           <div class="nav-links">
-            <a href="chatbox.html">💬 Chatbox</a>
+            <a href="chatbox.html">💬 Chat</a>
             <a href="forum.html">📋 Forum</a>
           </div>
           
-          <button class="btn" style="margin-top:15px;" onclick="exportKey()">📥 Exporter ma clé</button>
-          <button class="btn" style="margin-top:10px;" onclick="logout()">Déconnexion</button>
+          <button class="btn" style="margin-top:12px;font-size:11px;" onclick="logout()">Déconnexion</button>
         </div>
       </div>
     </div>
@@ -343,48 +176,25 @@ body::before {
 </div>
 
 <script>
-// Initialiser Gun avec SEA
-const gun = Gun({
-  peers: [
-    'https://gun-manhattan.herokuapp.com/gun',
-    'https://gun-us.herokuapp.com/gun'
-  ]
-});
-
+const gun = Gun({ peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun'] });
 const user = gun.user().recall({ sessionStorage: true });
 
-// Vérifier si déjà connecté
-gun.on('auth', () => {
-  showLoggedIn();
-});
-
-// Vérifier au chargement
-setTimeout(() => {
-  if (user.is) {
-    showLoggedIn();
-  }
-}, 500);
+gun.on('auth', () => showLoggedIn());
+setTimeout(() => { if (user.is) showLoggedIn(); }, 500);
 
 function showMessage(text, type) {
   const box = document.getElementById('messageBox');
-  box.innerHTML = `<div class="message ${type}">${text}</div>`;
-}
-
-function clearMessage() {
-  document.getElementById('messageBox').innerHTML = '';
+  box.innerHTML = '<div class="message ' + type + '">' + text + '</div>';
 }
 
 function login(e) {
   e.preventDefault();
-  
   const username = document.getElementById('loginUsername').value.trim();
   const password = document.getElementById('loginPassword').value;
-  
   showMessage('Connexion...', 'info');
-  
   user.auth(username, password, (ack) => {
     if (ack.err) {
-      showMessage('Erreur : Pseudo ou mot de passe incorrect', 'error');
+      showMessage('Pseudo ou mot de passe incorrect', 'error');
     } else {
       showLoggedIn();
     }
@@ -392,76 +202,17 @@ function login(e) {
 }
 
 function showLoggedIn() {
-  document.getElementById('authForms').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'none';
   document.getElementById('loggedIn').style.display = 'block';
-  
-  const username = user.is.alias;
-  const pubKey = user.is.pub;
-  
-  document.getElementById('displayUsername').textContent = username;
-  document.getElementById('displayPubKey').textContent = pubKey;
-  
-  // Sauvegarder pour les autres pages
-  localStorage.setItem('vitalism-user', JSON.stringify({
-    username: username,
-    pub: pubKey
-  }));
-}
-
-function exportKey() {
-  if (!user.is) return;
-  
-  const keyData = {
-    username: user.is.alias,
-    pub: user.is.pub,
-    exportDate: new Date().toISOString(),
-    warning: "GARDEZ CE FICHIER EN SÉCURITÉ. Ne le partagez jamais. Cette clé permet d'accéder à votre compte."
-  };
-  
-  const content = `=== VITALISM - CLÉ DE RÉCUPÉRATION ===
-
-Pseudo: ${keyData.username}
-Date d'export: ${keyData.exportDate}
-
-Clé publique:
-${keyData.pub}
-
-⚠️ ATTENTION:
-- Gardez ce fichier en lieu sûr
-- Ne le partagez JAMAIS
-- Cette clé est votre identité sur le réseau
-
-Note: Cette clé publique permet de vérifier votre identité.
-Pour vous reconnecter, vous aurez toujours besoin de votre mot de passe.
-`;
-
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'vitalism-key-' + keyData.username + '.txt';
-  a.click();
-  URL.revokeObjectURL(url);
+  document.getElementById('displayUsername').textContent = user.is.alias;
+  localStorage.setItem('vitalism-user', JSON.stringify({ username: user.is.alias, pub: user.is.pub }));
 }
 
 function logout() {
   user.leave();
   localStorage.removeItem('vitalism-user');
-  
-  document.getElementById('authForms').style.display = 'block';
-  document.getElementById('loggedIn').style.display = 'none';
-  
-  clearMessage();
-  showMessage('Déconnecté avec succès.', 'success');
-}
-
-// Redirection si vient d'une autre page
-const urlParams = new URLSearchParams(window.location.search);
-const redirect = urlParams.get('redirect');
-if (redirect && user.is) {
-  window.location.href = redirect;
+  location.reload();
 }
 </script>
-
 </body>
 </html>

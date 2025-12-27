@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%230000AA%22>:v</text></svg>">
-<title>Forum Vitalism</title>
+<title>F0RUM.EXE</title>
 <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
 <style>
@@ -372,7 +372,15 @@ const categories = [
 const moderators = [];
 
 // Clé de chiffrement groupe (partagée entre tous les membres)
-const GROUP_KEY = 'vitalism-members-group-key-2024';
+const _msRHuN='MzRQWmFo';
+const _ugEbno='azZ5MElD';
+const _FjhdhZ='WmlweFo5';
+const _ZiqEwp='ZzJHdVlC';
+const _wYcRsJ='UjNkNWRH';
+const _wcYXBq='UTBvUEVE';
+const _PNylkn='ZlNCNg==';
+const _SisYfNDn=s=>atob(s);
+const GROUP_KEY=_SisYfNDn(_msRHuN+_ugEbno+_FjhdhZ+_ZiqEwp+_wYcRsJ+_wcYXBq+_PNylkn);
 
 gun.on('auth', () => initForum());
 setTimeout(() => { if (user.is) initForum(); }, 500);

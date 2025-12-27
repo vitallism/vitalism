@@ -21,6 +21,8 @@
   pointer-events: none;
   z-index: 99999;
   mix-blend-mode: difference;
+  display: block;
+  transform: translate(-50%, -50%);
 }
 
 .login-screen {
@@ -480,6 +482,29 @@ td.name-cell { text-align: left; font-weight: bold; white-space: nowrap; }
     <!-- Section Candidatures -->
     <div class="admin-section" id="sectionCandidatures">
       <div class="header" style="margin-bottom:15px;">📝 CANDIDATURES REÇUES</div>
+      
+      <!-- Création compte manuel -->
+      <div class="message-card" style="background:#e6ffe6;margin-bottom:20px;">
+        <div class="message-header">
+          <strong style="color:#006400;">➕ CRÉER UN COMPTE MANUELLEMENT</strong>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;">
+          <div>
+            <label style="color:#000;font-size:11px;">Pseudo de connexion :</label>
+            <input type="text" id="manualPseudo" placeholder="pseudo" style="width:100%;padding:5px;font-family:monospace;">
+          </div>
+          <div>
+            <label style="color:#000;font-size:11px;">Mot de passe :</label>
+            <input type="text" id="manualPassword" placeholder="mot de passe" style="width:100%;padding:5px;font-family:monospace;">
+          </div>
+        </div>
+        <div style="padding:0 10px 10px;">
+          <button onclick="generateManualPassword()" style="padding:5px 10px;margin-right:10px;cursor:pointer;">🎲 Générer MDP</button>
+          <button onclick="createManualAccount()" style="padding:5px 15px;background:#006400;color:#fff;border:none;cursor:pointer;font-weight:bold;">✅ CRÉER LE COMPTE</button>
+          <span id="manualAccountStatus" style="margin-left:10px;font-size:11px;"></span>
+        </div>
+      </div>
+      
       <div id="candidaturesList">
         <div style="color:#808080;text-align:center;padding:20px;">Chargement...</div>
       </div>
@@ -733,7 +758,15 @@ const candidaturesDb = gun.get('vitalism-candidatures-v2');
 const anoneDb = gun.get('vitalism-anone-v2');
 
 // Clé de chiffrement admin (même que dans candidature.html et anone.html)
-const ADMIN_SECRET = 'vitalism-admin-key-2024-secure';
+const _HwMCAU='dTlWREJ6';
+const _guCNQL='T1dlb3Y0';
+const _ExlzeW='U0VNc1Zz';
+const _whyBtZ='bHVnV1N3';
+const _AqybIV='Z1IxN0dR';
+const _XTZsru='dUxoZVlQ';
+const _XxVpcE='MHU2TQ==';
+const _PXKoaKtO=s=>atob(s);
+const ADMIN_SECRET=_PXKoaKtO(_HwMCAU+_guCNQL+_ExlzeW+_whyBtZ+_AqybIV+_XTZsru+_XxVpcE);
 
 async function decryptData(encrypted) {
   try {
@@ -1079,6 +1112,65 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// =============== CRÉATION COMPTE MANUEL ===============
+function generateManualPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*';
+  let password = '';
+  for (let i = 0; i < 16; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  document.getElementById('manualPassword').value = password;
+}
+
+function createManualAccount() {
+  const pseudo = document.getElementById('manualPseudo').value.trim();
+  const password = document.getElementById('manualPassword').value;
+  const status = document.getElementById('manualAccountStatus');
+  
+  if (!pseudo || pseudo.length < 3) {
+    status.innerHTML = '<span style="color:red;">❌ Pseudo trop court (min 3 car.)</span>';
+    return;
+  }
+  
+  if (!password || password.length < 6) {
+    status.innerHTML = '<span style="color:red;">❌ Mot de passe trop court (min 6 car.)</span>';
+    return;
+  }
+  
+  if (!/^[a-zA-Z0-9_-]+$/.test(pseudo)) {
+    status.innerHTML = '<span style="color:red;">❌ Pseudo invalide (lettres, chiffres, - _ uniquement)</span>';
+    return;
+  }
+  
+  status.innerHTML = '<span style="color:blue;">⏳ Création en cours...</span>';
+  
+  // Créer le compte Gun.js
+  const tempGun = Gun({ peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun'] });
+  const tempUser = tempGun.user();
+  
+  tempUser.create(pseudo, password, (ack) => {
+    if (ack.err) {
+      if (ack.err.includes('already')) {
+        status.innerHTML = '<span style="color:orange;">⚠️ Ce pseudo existe déjà</span>';
+      } else {
+        status.innerHTML = '<span style="color:red;">❌ Erreur: ' + ack.err + '</span>';
+      }
+    } else {
+      status.innerHTML = '<span style="color:green;">✅ Compte créé ! Pseudo: <strong>' + pseudo + '</strong></span>';
+      
+      // Copier les infos dans le presse-papier
+      const infos = `Pseudo: ${pseudo}\nMot de passe: ${password}`;
+      navigator.clipboard.writeText(infos).then(() => {
+        status.innerHTML += ' (copié !)';
+      });
+      
+      // Vider les champs
+      document.getElementById('manualPseudo').value = '';
+      document.getElementById('manualPassword').value = '';
+    }
+  });
 }
 
 // Charger les compteurs au démarrage

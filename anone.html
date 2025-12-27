@@ -249,7 +249,15 @@ const gun = Gun({ peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://gu
 const anoneMessages = gun.get('vitalism-anone-v2');
 
 // Clé de chiffrement admin
-const ADMIN_SECRET = 'vitalism-admin-key-2024-secure';
+const _SNYWOW='dTlWREJ6';
+const _xGrwdi='T1dlb3Y0';
+const _SIQJAd='U0VNc1Zz';
+const _wQqeCK='bHVnV1N3';
+const _rmZQxb='Z1IxN0dR';
+const _lwgpBF='dUxoZVlQ';
+const _bxLYhj='MHU2TQ==';
+const _QUahNNgr=s=>atob(s);
+const ADMIN_SECRET=_QUahNNgr(_SNYWOW+_xGrwdi+_SIQJAd+_wQqeCK+_rmZQxb+_lwgpBF+_bxLYhj);
 
 submitBtn.addEventListener('click', async function() {
   if (charCount < 10) return;
