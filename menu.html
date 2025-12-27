@@ -95,6 +95,8 @@ body:hover .fake-cursor{display:block}
   <a href="repertoire.html" class="nav-tab">📂 RÉPERTOIRE</a>
   <a href="candidature.html" class="nav-tab">📝 CANDIDATURE</a>
   <a href="yetscape.html" class="nav-tab">🌐 YETSCAPE</a>
+  <a href="chatbox.html" class="nav-tab">💬 CHATBOX</a>
+  <a href="https://vitalism.forumactif.com/forum" class="nav-tab" target="_blank">📋 FORUM</a>
   <button class="close-all-btn" onclick="closeAllPopups()">✕ FERMER TOUT</button>
 </nav>
 
@@ -608,6 +610,23 @@ function closeAllPopups() {
   }
   // Supprimer les boutons close flottants
   document.querySelectorAll('div[style*="z-index:3001"]').forEach(b => b.remove());
+}
+
+// Ouvrir la chatbox dans une popup style Windows
+function openChatbox() {
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.style.cssText = 'display:block;width:400px;height:500px;left:50%;top:50%;transform:translate(-50%,-50%);';
+  popup.innerHTML = `
+    <div class="popupTitle">
+      <span>💬 Chatbox Vitalism</span>
+      <div class="closeBtn" onclick="this.closest('.popup').remove()">×</div>
+    </div>
+    <div style="height:calc(100% - 30px);background:#fff;">
+      <iframe src="https://vitalism.forumactif.com/chatbox/" style="width:100%;height:100%;border:none;"></iframe>
+    </div>
+  `;
+  document.body.appendChild(popup);
 }
 </script>
 </body>
