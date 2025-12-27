@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+<title>Connexion - Vitalism</title>
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+<style>
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  background: #0000AA;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  animation: flicker 0.15s infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.logo {
+  border: 2px solid #fff;
+  display: inline-block;
+  padding: 4px 16px;
+  margin-bottom: 20px;
+  text-decoration: none;
+  color: #fff;
+}
+.logo span { background: #fff; color: #0000AA; padding: 0 4px; font-weight: bold; }
+.logo:hover { background: #fff; }
+
+.auth-window {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.auth-header {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  padding: 6px 10px;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auth-content {
+  padding: 20px;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  text-align: center;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  color: #000;
+}
+
+.tab.active {
+  background: #fff;
+  border-color: #fff #808080 #808080 #fff;
+  position: relative;
+  top: 2px;
+}
+
+.tab:hover:not(.active) {
+  background: #d4d4d4;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  color: #000;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  border: 2px inset #808080;
+  background: #fff;
+}
+
+.form-group input:focus {
+  outline: none;
+  background: #ffffcc;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #000;
+}
+
+.btn:hover {
+  background: #d4d4d4;
+}
+
+.btn:active {
+  border-color: #808080 #fff #fff #808080;
+}
+
+.btn-primary {
+  background: #000080;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #0000AA;
+}
+
+.message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 2px solid;
+  font-size: 12px;
+}
+
+.message.error {
+  background: #ffcccc;
+  border-color: #cc0000;
+  color: #cc0000;
+}
+
+.message.success {
+  background: #ccffcc;
+  border-color: #00cc00;
+  color: #006600;
+}
+
+.message.info {
+  background: #cce5ff;
+  border-color: #0066cc;
+  color: #004499;
+}
+
+.info-box {
+  background: #ffffcc;
+  border: 2px solid #808080;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 11px;
+  color: #000;
+}
+
+.info-box h4 {
+  margin: 0 0 5px 0;
+  color: #000080;
+}
+
+.logged-in {
+  text-align: center;
+  padding: 20px;
+}
+
+.logged-in .username {
+  font-size: 24px;
+  color: #000080;
+  margin: 10px 0;
+}
+
+.logged-in .pub-key {
+  font-size: 9px;
+  color: #808080;
+  word-break: break-all;
+  background: #fff;
+  padding: 5px;
+  border: 1px inset #808080;
+  margin: 10px 0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.nav-links a {
+  flex: 1;
+  padding: 10px;
+  background: #000080;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+}
+
+.nav-links a:hover {
+  background: #0000AA;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #000;
+}
+
+.loading::after {
+  content: '';
+  animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+}
+
+#formLogin, #formRegister {
+  display: none;
+}
+
+#formLogin.active, #formRegister.active {
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <a href="borne.html" class="logo"><span>:vitalism</span></a>
+  
+  <div class="auth-window">
+    <div class="auth-header">
+      <span>🔐 Authentification Vitalism</span>
+    </div>
+    
+    <div class="auth-content">
+      <!-- État : Non connecté -->
+      <div id="authForms">
+        <div class="tabs">
+          <div class="tab active" onclick="showTab('login')">Connexion</div>
+          <div class="tab" onclick="showTab('register')">Inscription</div>
+        </div>
+        
+        <div id="messageBox"></div>
+        
+        <!-- Formulaire Connexion -->
+        <form id="formLogin" class="active" onsubmit="login(event)">
+          <div class="form-group">
+            <label>👤 Pseudo</label>
+            <input type="text" id="loginUsername" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label>🔑 Mot de passe</label>
+            <input type="password" id="loginPassword" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary">Se connecter</button>
+        </form>
+        
+        <!-- Formulaire Inscription -->
+        <form id="formRegister" onsubmit="register(event)">
+          <div class="form-group">
+            <label>👤 Pseudo (unique, non modifiable)</label>
+            <input type="text" id="registerUsername" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_-]+" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label>🔑 Mot de passe (min 6 caractères)</label>
+            <input type="password" id="registerPassword" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label>🔑 Confirmer mot de passe</label>
+            <input type="password" id="registerPasswordConfirm" required minlength="6" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn btn-primary">S'inscrire</button>
+        </form>
+        
+        <div class="info-box">
+          <h4>🔒 Authentification décentralisée</h4>
+          <p>Votre compte est sécurisé par cryptographie.<br>
+          Aucun serveur ne stocke votre mot de passe.<br>
+          Votre identité = une clé unique impossible à usurper.</p>
+        </div>
+      </div>
+      
+      <!-- État : Connecté -->
+      <div id="loggedIn" style="display:none;">
+        <div class="logged-in">
+          <div style="font-size:48px;">✅</div>
+          <div class="username" id="displayUsername"></div>
+          <div style="color:#000;font-size:12px;">Connecté avec succès</div>
+          <div class="pub-key">
+            <strong>Clé publique :</strong><br>
+            <span id="displayPubKey"></span>
+          </div>
+          
+          <div class="nav-links">
+            <a href="chatbox.html">💬 Chatbox</a>
+            <a href="forum.html">📋 Forum</a>
+          </div>
+          
+          <button class="btn" style="margin-top:15px;" onclick="logout()">Déconnexion</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialiser Gun avec SEA
+const gun = Gun({
+  peers: [
+    'https://gun-manhattan.herokuapp.com/gun',
+    'https://gun-us.herokuapp.com/gun'
+  ]
+});
+
+const user = gun.user().recall({ sessionStorage: true });
+
+// Vérifier si déjà connecté
+gun.on('auth', () => {
+  showLoggedIn();
+});
+
+// Vérifier au chargement
+setTimeout(() => {
+  if (user.is) {
+    showLoggedIn();
+  }
+}, 500);
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('form').forEach(f => f.classList.remove('active'));
+  
+  if (tab === 'login') {
+    document.querySelector('.tab:first-child').classList.add('active');
+    document.getElementById('formLogin').classList.add('active');
+  } else {
+    document.querySelector('.tab:last-child').classList.add('active');
+    document.getElementById('formRegister').classList.add('active');
+  }
+  
+  clearMessage();
+}
+
+function showMessage(text, type) {
+  const box = document.getElementById('messageBox');
+  box.innerHTML = `<div class="message ${type}">${text}</div>`;
+}
+
+function clearMessage() {
+  document.getElementById('messageBox').innerHTML = '';
+}
+
+function register(e) {
+  e.preventDefault();
+  
+  const username = document.getElementById('registerUsername').value.trim();
+  const password = document.getElementById('registerPassword').value;
+  const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+  
+  if (password !== passwordConfirm) {
+    showMessage('Les mots de passe ne correspondent pas.', 'error');
+    return;
+  }
+  
+  if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+    showMessage('Pseudo invalide. Utilisez uniquement lettres, chiffres, - et _', 'error');
+    return;
+  }
+  
+  showMessage('Création du compte...', 'info');
+  
+  user.create(username, password, (ack) => {
+    if (ack.err) {
+      showMessage('Erreur : ' + ack.err, 'error');
+    } else {
+      showMessage('Compte créé ! Connexion...', 'success');
+      // Auto-login après inscription
+      setTimeout(() => {
+        user.auth(username, password, (ack2) => {
+          if (ack2.err) {
+            showMessage('Compte créé. Veuillez vous connecter.', 'success');
+            showTab('login');
+          }
+        });
+      }, 500);
+    }
+  });
+}
+
+function login(e) {
+  e.preventDefault();
+  
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  
+  showMessage('Connexion...', 'info');
+  
+  user.auth(username, password, (ack) => {
+    if (ack.err) {
+      showMessage('Erreur : ' + ack.err, 'error');
+    } else {
+      showLoggedIn();
+    }
+  });
+}
+
+function showLoggedIn() {
+  document.getElementById('authForms').style.display = 'none';
+  document.getElementById('loggedIn').style.display = 'block';
+  
+  const username = user.is.alias;
+  const pubKey = user.is.pub;
+  
+  document.getElementById('displayUsername').textContent = username;
+  document.getElementById('displayPubKey').textContent = pubKey;
+  
+  // Sauvegarder pour les autres pages
+  localStorage.setItem('vitalism-user', JSON.stringify({
+    username: username,
+    pub: pubKey
+  }));
+}
+
+function logout() {
+  user.leave();
+  localStorage.removeItem('vitalism-user');
+  
+  document.getElementById('authForms').style.display = 'block';
+  document.getElementById('loggedIn').style.display = 'none';
+  
+  clearMessage();
+  showMessage('Déconnecté avec succès.', 'success');
+}
+
+// Redirection si vient d'une autre page
+const urlParams = new URLSearchParams(window.location.search);
+const redirect = urlParams.get('redirect');
+if (redirect && user.is) {
+  window.location.href = redirect;
+}
+</script>
+
+</body>
+</html>

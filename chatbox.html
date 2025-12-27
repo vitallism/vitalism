@@ -6,6 +6,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>">
 <title>Chatbox Vitalism</title>
 <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
 <style>
 @keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
 @keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
@@ -33,33 +34,45 @@ body::before {
   z-index: 1000;
 }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
+.container { max-width: 900px; margin: 0 auto; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .logo {
   border: 2px solid #fff;
   display: inline-block;
   padding: 4px 16px;
-  margin-bottom: 20px;
   text-decoration: none;
   color: #fff;
 }
 .logo span { background: #fff; color: #0000AA; padding: 0 4px; font-weight: bold; }
 .logo:hover { background: #fff; }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 0 #000;
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 15px;
+  border: 1px solid #fff;
 }
+.user-info .username { color: #0f0; font-weight: bold; }
+.user-info a { color: #ff0; text-decoration: none; font-size: 12px; }
+.user-info a:hover { text-decoration: underline; }
 
-.subtitle {
-  font-size: 12px;
-  color: #aaa;
-  margin-bottom: 20px;
-}
+h1 { font-size: 24px; margin-bottom: 5px; text-shadow: 2px 2px 0 #000; }
+.subtitle { font-size: 12px; color: #aaa; margin-bottom: 20px; }
+
+.main-layout { display: flex; gap: 20px; }
+.chat-section { flex: 1; }
+.sidebar { width: 200px; }
 
 .chat-window {
   background: #C0C0C0;
@@ -76,16 +89,12 @@ h1 {
   font-size: 13px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
-.chat-status {
-  font-size: 10px;
-  color: #0f0;
-}
+.chat-status { font-size: 10px; color: #0f0; }
 
 .chat-messages {
-  height: 400px;
+  height: 450px;
   overflow-y: auto;
   background: #fff;
   border: 2px inset #808080;
@@ -107,34 +116,13 @@ h1 {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.message .time {
-  color: #808080;
-  font-size: 10px;
-  margin-right: 5px;
-}
+.message .time { color: #808080; font-size: 10px; margin-right: 5px; }
+.message .username { font-weight: bold; margin-right: 5px; }
+.message .verified { color: #0a0; font-size: 10px; }
+.message.self { background: #e8f4ff; }
+.message.system { color: #808080; font-style: italic; text-align: center; font-size: 11px; }
 
-.message .username {
-  font-weight: bold;
-  margin-right: 5px;
-}
-
-.message.self {
-  background: #e8f4ff;
-}
-
-.message.system {
-  color: #808080;
-  font-style: italic;
-  text-align: center;
-  font-size: 11px;
-}
-
-.chat-input-area {
-  padding: 8px;
-  display: flex;
-  gap: 8px;
-}
-
+.chat-input-area { padding: 8px; display: flex; gap: 8px; }
 .chat-input {
   flex: 1;
   padding: 6px 10px;
@@ -152,260 +140,194 @@ h1 {
   font-weight: bold;
   cursor: pointer;
 }
-
 .chat-send:hover { background: #d4d4d4; }
-
-.chat-send:active {
-  border-color: #808080 #fff #fff #808080;
-}
-
-.username-setup {
-  background: #C0C0C0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 4px 4px 0 #000;
-}
-
-.username-setup label {
-  color: #000;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.username-setup input {
-  padding: 6px 10px;
-  font-family: "Courier New", monospace;
-  font-size: 13px;
-  border: 2px inset #808080;
-  width: 200px;
-  margin-right: 10px;
-}
+.chat-send:active { border-color: #808080 #fff #fff #808080; }
 
 .online-users {
   background: #C0C0C0;
   border: 2px solid;
   border-color: #fff #808080 #808080 #fff;
   padding: 10px;
-  margin-top: 20px;
   box-shadow: 4px 4px 0 #000;
+  margin-bottom: 15px;
 }
-
 .online-users h3 {
   color: #000;
   font-size: 12px;
   margin: 0 0 10px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #808080;
 }
-
-.online-list {
-  color: #000;
-  font-size: 11px;
-}
-
+.online-list { color: #000; font-size: 11px; max-height: 200px; overflow-y: auto; }
+.online-item { padding: 3px 0; }
 .online-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   background: #0f0;
   border-radius: 50%;
   margin-right: 5px;
   animation: pulse 2s infinite;
 }
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 .info-box {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid #fff;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
   padding: 10px;
-  margin-top: 20px;
-  font-size: 11px;
+  box-shadow: 4px 4px 0 #000;
 }
+.info-box h4 { margin: 0 0 5px 0; color: #000080; font-size: 11px; }
+.info-box p { color: #000; font-size: 10px; margin: 0; line-height: 1.4; }
 
-.info-box h4 {
-  margin: 0 0 5px 0;
-  color: #ff0;
+.auth-required {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 4px 4px 0 #000;
+}
+.auth-required h2 { color: #000080; margin: 0 0 15px 0; }
+.auth-required p { color: #000; margin-bottom: 20px; }
+.auth-required a {
+  display: inline-block;
+  padding: 10px 30px;
+  background: #000080;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+}
+.auth-required a:hover { background: #0000AA; }
+
+@media (max-width: 768px) {
+  .main-layout { flex-direction: column; }
+  .sidebar { width: 100%; }
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <a href="borne.html" class="logo"><span>:vitalism</span></a>
+  <div class="header">
+    <a href="borne.html" class="logo"><span>:vitalism</span></a>
+    <div class="user-info" id="userInfo" style="display:none;">
+      <span>Connecté : <span class="username" id="currentUser"></span></span>
+      <a href="#" onclick="logout()">Déconnexion</a>
+    </div>
+  </div>
   
   <h1>💬 CHATBOX VITALISM</h1>
-  <p class="subtitle">Communication décentralisée P2P - Aucun serveur central</p>
+  <p class="subtitle">Communication décentralisée P2P avec authentification cryptographique</p>
   
-  <div class="username-setup" id="usernameSetup">
-    <label>⚡ Choisis ton pseudo pour rejoindre le chat :</label>
-    <input type="text" id="usernameInput" placeholder="Ton pseudo..." maxlength="20">
-    <button class="chat-send" onclick="setUsername()">Rejoindre</button>
+  <!-- Non connecté -->
+  <div id="authRequired" class="auth-required">
+    <h2>🔐 Connexion requise</h2>
+    <p>Vous devez être connecté pour accéder à la chatbox.<br>
+    L'authentification garantit que personne ne peut usurper votre identité.</p>
+    <a href="auth.html?redirect=chatbox.html">Se connecter / S'inscrire</a>
   </div>
   
-  <div class="chat-window" id="chatWindow" style="display:none;">
-    <div class="chat-header">
-      <span>📡 Chat Vitalism - Réseau P2P</span>
-      <span class="chat-status" id="chatStatus">● Connecté</span>
+  <!-- Connecté -->
+  <div id="chatArea" style="display:none;">
+    <div class="main-layout">
+      <div class="chat-section">
+        <div class="chat-window">
+          <div class="chat-header">
+            <span>📡 Chat Vitalism - Réseau P2P Sécurisé</span>
+            <span class="chat-status">● Connecté</span>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="message system">Bienvenue dans la chatbox décentralisée sécurisée !</div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" class="chat-input" id="messageInput" placeholder="Écris ton message..." maxlength="500" onkeypress="if(event.key==='Enter')sendMessage()">
+            <button class="chat-send" onclick="sendMessage()">Envoyer</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar">
+        <div class="online-users">
+          <h3>👥 En ligne</h3>
+          <div class="online-list" id="onlineList">Chargement...</div>
+        </div>
+        
+        <div class="info-box">
+          <h4>🔒 Sécurité</h4>
+          <p>✓ Messages signés<br>✓ Identité vérifiable<br>✓ Décentralisé P2P</p>
+        </div>
+      </div>
     </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="message system">Bienvenue dans la chatbox décentralisée !</div>
-    </div>
-    <div class="chat-input-area">
-      <input type="text" class="chat-input" id="messageInput" placeholder="Écris ton message..." maxlength="500" onkeypress="if(event.key==='Enter')sendMessage()">
-      <button class="chat-send" onclick="sendMessage()">Envoyer</button>
-    </div>
-  </div>
-  
-  <div class="online-users" id="onlineUsers" style="display:none;">
-    <h3>👥 Utilisateurs en ligne</h3>
-    <div class="online-list" id="onlineList">
-      <span class="online-dot"></span> Chargement...
-    </div>
-  </div>
-  
-  <div class="info-box">
-    <h4>🔒 Comment ça marche ?</h4>
-    <p>Cette chatbox utilise Gun.js, un protocole décentralisé peer-to-peer.<br>
-    Les messages se synchronisent directement entre les navigateurs des utilisateurs.<br>
-    Aucune donnée n'est stockée sur un serveur central. Aucun tracking.</p>
   </div>
 </div>
 
 <script>
-// Initialiser Gun avec des relais publics
-const gun = Gun({
-  peers: [
-    'https://gun-manhattan.herokuapp.com/gun',
-    'https://gun-us.herokuapp.com/gun'
-  ]
-});
+const gun = Gun({ peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun'] });
+const user = gun.user().recall({ sessionStorage: true });
+const chat = gun.get('vitalism-chat-v2');
+const presence = gun.get('vitalism-presence-v2');
 
-const chat = gun.get('vitalism-chatbox-v1');
-const users = gun.get('vitalism-users-v1');
-
-let myUsername = '';
-let myId = 'user_' + Math.random().toString(36).substr(2, 9);
+let myUsername = '', myPub = '';
 let displayedMessages = new Set();
 
-function setUsername() {
-  const input = document.getElementById('usernameInput');
-  const name = input.value.trim();
+gun.on('auth', () => initChat());
+setTimeout(() => { if (user.is) initChat(); }, 500);
+
+function initChat() {
+  myUsername = user.is.alias;
+  myPub = user.is.pub;
   
-  if (name.length < 2) {
-    alert('Pseudo trop court (min 2 caractères)');
-    return;
-  }
+  document.getElementById('authRequired').style.display = 'none';
+  document.getElementById('chatArea').style.display = 'block';
+  document.getElementById('userInfo').style.display = 'flex';
+  document.getElementById('currentUser').textContent = myUsername;
   
-  myUsername = name;
-  localStorage.setItem('vitalism-username', name);
-  
-  document.getElementById('usernameSetup').style.display = 'none';
-  document.getElementById('chatWindow').style.display = 'block';
-  document.getElementById('onlineUsers').style.display = 'block';
-  
-  // Annoncer sa présence
-  users.get(myId).put({
-    name: myUsername,
-    online: true,
-    lastSeen: Date.now()
-  });
-  
-  // Message système
-  addSystemMessage(myUsername + ' a rejoint le chat');
-  
-  // Envoyer un message de join
-  chat.get('msg_' + Date.now() + '_' + myId).put({
-    type: 'join',
-    username: myUsername,
-    time: Date.now()
-  });
-  
-  // Charger les messages existants
+  updatePresence();
+  setInterval(updatePresence, 30000);
   loadMessages();
-  
-  // Écouter les nouveaux messages
-  listenForMessages();
-  
-  // Mettre à jour la liste des utilisateurs
-  updateOnlineUsers();
-  
-  // Heartbeat pour rester en ligne
-  setInterval(() => {
-    users.get(myId).put({
-      name: myUsername,
-      online: true,
-      lastSeen: Date.now()
-    });
-  }, 30000);
+  updateOnlineList();
+  setInterval(updateOnlineList, 10000);
+  addSystemMessage('Connecté en tant que ' + myUsername);
+}
+
+function updatePresence() {
+  if (!user.is) return;
+  presence.get(myPub).put({ username: myUsername, pub: myPub, online: true, lastSeen: Date.now() });
 }
 
 function sendMessage() {
+  if (!user.is) return;
   const input = document.getElementById('messageInput');
   const text = input.value.trim();
-  
   if (!text) return;
   
-  const msgId = 'msg_' + Date.now() + '_' + myId;
-  
-  chat.get(msgId).put({
-    type: 'message',
-    username: myUsername,
-    text: text,
-    time: Date.now(),
-    userId: myId
+  const msgData = { text, username: myUsername, pub: myPub, time: Date.now() };
+  SEA.sign(msgData, user._.sea).then(signed => {
+    chat.get('msg_' + Date.now() + '_' + myPub.slice(0, 8)).put({ signed, pub: myPub });
   });
-  
   input.value = '';
 }
 
 function loadMessages() {
-  // Charger les messages des dernières 24h
-  const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-  
-  chat.map().once((data, key) => {
-    if (data && data.time && data.time > oneDayAgo) {
-      displayMessage(data, key);
-    }
-  });
-}
-
-function listenForMessages() {
   chat.map().on((data, key) => {
-    if (data && data.time) {
-      displayMessage(data, key);
-    }
+    if (!data || !data.signed || displayedMessages.has(key)) return;
+    displayedMessages.add(key);
+    SEA.verify(data.signed, data.pub).then(verified => {
+      if (verified && Date.now() - verified.time < 24 * 60 * 60 * 1000) displayMessage(verified, data.pub);
+    });
   });
 }
 
-function displayMessage(data, key) {
-  if (displayedMessages.has(key)) return;
-  displayedMessages.add(key);
-  
+function displayMessage(msg, pub) {
   const container = document.getElementById('chatMessages');
   const div = document.createElement('div');
+  const time = new Date(msg.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   
-  const time = new Date(data.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  
-  if (data.type === 'join') {
-    div.className = 'message system';
-    div.textContent = data.username + ' a rejoint le chat';
-  } else if (data.type === 'leave') {
-    div.className = 'message system';
-    div.textContent = data.username + ' a quitté le chat';
-  } else {
-    div.className = 'message' + (data.userId === myId ? ' self' : '');
-    div.innerHTML = `
-      <span class="time">[${time}]</span>
-      <span class="username" style="color:${stringToColor(data.username)}">${escapeHtml(data.username)}:</span>
-      <span class="text">${escapeHtml(data.text)}</span>
-    `;
-  }
-  
+  div.className = 'message' + (pub === myPub ? ' self' : '');
+  div.innerHTML = `<span class="time">[${time}]</span><span class="username" style="color:${stringToColor(msg.username)}">${escapeHtml(msg.username)}</span><span class="verified">✓</span> ${escapeHtml(msg.text)}`;
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
@@ -416,41 +338,32 @@ function addSystemMessage(text) {
   div.className = 'message system';
   div.textContent = text;
   container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
 }
 
-function updateOnlineUsers() {
+function updateOnlineList() {
   const list = document.getElementById('onlineList');
-  const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
-  let html = '';
-  let count = 0;
+  const cutoff = Date.now() - 5 * 60 * 1000;
+  const users = [];
   
-  users.map().once((data, key) => {
-    if (data && data.online && data.lastSeen > fiveMinutesAgo) {
-      count++;
-      html += `<div><span class="online-dot"></span> ${escapeHtml(data.name)}</div>`;
-    }
+  presence.map().once((data) => {
+    if (data && data.online && data.lastSeen > cutoff) users.push({ name: data.username, isSelf: data.pub === myPub });
   });
   
   setTimeout(() => {
-    if (count === 0) {
-      list.innerHTML = '<div><span class="online-dot"></span> ' + myUsername + ' (toi)</div>';
-    } else {
-      list.innerHTML = html;
-    }
-  }, 1000);
-  
-  // Rafraîchir toutes les 30 secondes
-  setTimeout(updateOnlineUsers, 30000);
+    list.innerHTML = users.length ? users.map(u => `<div class="online-item"><span class="online-dot"></span>${escapeHtml(u.name)}${u.isSelf ? ' (vous)' : ''}</div>`).join('') : `<div class="online-item"><span class="online-dot"></span>${myUsername} (vous)</div>`;
+  }, 500);
+}
+
+function logout() {
+  presence.get(myPub).put({ online: false, lastSeen: Date.now() });
+  user.leave();
+  location.href = 'auth.html';
 }
 
 function stringToColor(str) {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const hue = hash % 360;
-  return `hsl(${hue}, 70%, 35%)`;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return `hsl(${hash % 360}, 70%, 35%)`;
 }
 
 function escapeHtml(text) {
@@ -459,23 +372,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Charger le pseudo sauvegardé
-window.onload = function() {
-  const saved = localStorage.getItem('vitalism-username');
-  if (saved) {
-    document.getElementById('usernameInput').value = saved;
-  }
-};
-
-// Signaler le départ
-window.onbeforeunload = function() {
-  users.get(myId).put({
-    name: myUsername,
-    online: false,
-    lastSeen: Date.now()
-  });
-};
+window.onbeforeunload = () => { if (user.is) presence.get(myPub).put({ online: false, lastSeen: Date.now() }); };
 </script>
-
 </body>
 </html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+<title>Forum Vitalism</title>
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+<style>
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:0.97}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  background: #0000AA;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  animation: flicker 0.15s infinite;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.container { max-width: 1000px; margin: 0 auto; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo {
+  border: 2px solid #fff;
+  display: inline-block;
+  padding: 4px 16px;
+  text-decoration: none;
+  color: #fff;
+}
+.logo span { background: #fff; color: #0000AA; padding: 0 4px; font-weight: bold; }
+.logo:hover { background: #fff; }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255,255,255,0.1);
+  padding: 8px 15px;
+  border: 1px solid #fff;
+}
+.user-info .username { color: #0f0; font-weight: bold; }
+.user-info a { color: #ff0; text-decoration: none; font-size: 12px; }
+.user-info a:hover { text-decoration: underline; }
+
+h1 { font-size: 24px; margin-bottom: 5px; text-shadow: 2px 2px 0 #000; }
+.subtitle { font-size: 12px; color: #aaa; margin-bottom: 20px; }
+
+.nav-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+.nav-tab {
+  padding: 8px 15px;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 12px;
+}
+.nav-tab:hover { background: #d4d4d4; }
+.nav-tab.active { background: #000080; color: #fff; }
+
+.window {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: 4px 4px 0 #000;
+  margin-bottom: 20px;
+}
+
+.window-header {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.window-content { padding: 10px; }
+
+/* Catégories */
+.category {
+  background: #fff;
+  border: 2px inset #808080;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.category-title {
+  font-weight: bold;
+  color: #000080;
+  font-size: 14px;
+}
+.category-count {
+  font-size: 11px;
+  color: #808080;
+}
+.category-desc {
+  font-size: 11px;
+  color: #666;
+}
+.category:hover {
+  background: #f0f0ff;
+  cursor: pointer;
+}
+
+/* Topics */
+.topic {
+  background: #fff;
+  border: 2px inset #808080;
+  margin-bottom: 5px;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.topic:hover { background: #f0f0ff; cursor: pointer; }
+.topic-title { font-weight: bold; color: #000; font-size: 13px; }
+.topic-meta { font-size: 10px; color: #808080; }
+.topic-author { color: #000080; }
+.topic-stats { text-align: right; font-size: 10px; color: #808080; }
+
+/* Posts */
+.post {
+  background: #fff;
+  border: 2px inset #808080;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+.post-author { font-weight: bold; color: #000080; }
+.post-date { font-size: 10px; color: #808080; }
+.post-verified { color: #0a0; font-size: 10px; }
+.post-content { color: #000; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+
+/* Formulaires */
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; color: #000; font-weight: bold; margin-bottom: 3px; font-size: 12px; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 6px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  border: 2px inset #808080;
+}
+.form-group textarea { min-height: 100px; resize: vertical; }
+
+.btn {
+  padding: 8px 20px;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn:hover { background: #d4d4d4; }
+.btn:active { border-color: #808080 #fff #fff #808080; }
+.btn-primary { background: #000080; color: #fff; }
+.btn-primary:hover { background: #0000AA; }
+
+.breadcrumb {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 15px;
+}
+.breadcrumb a { color: #ff0; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+.auth-required {
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 4px 4px 0 #000;
+}
+.auth-required h2 { color: #000080; margin: 0 0 15px 0; }
+.auth-required p { color: #000; margin-bottom: 20px; }
+.auth-required a {
+  display: inline-block;
+  padding: 10px 30px;
+  background: #000080;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 20px;
+  color: #808080;
+  font-style: italic;
+}
+
+.mod-badge {
+  background: #ff0;
+  color: #000;
+  font-size: 9px;
+  padding: 1px 4px;
+  margin-left: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <a href="borne.html" class="logo"><span>:vitalism</span></a>
+    <div class="user-info" id="userInfo" style="display:none;">
+      <span>Connecté : <span class="username" id="currentUser"></span></span>
+      <a href="chatbox.html">Chatbox</a>
+      <a href="#" onclick="logout()">Déconnexion</a>
+    </div>
+  </div>
+  
+  <h1>📋 FORUM VITALISM</h1>
+  <p class="subtitle">Forum décentralisé P2P - Authentification cryptographique</p>
+  
+  <!-- Non connecté -->
+  <div id="authRequired" class="auth-required">
+    <h2>🔐 Connexion requise</h2>
+    <p>Vous devez être connecté pour accéder au forum.</p>
+    <a href="auth.html?redirect=forum.html">Se connecter / S'inscrire</a>
+  </div>
+  
+  <!-- Connecté -->
+  <div id="forumArea" style="display:none;">
+    <div class="nav-tabs">
+      <a href="#" class="nav-tab active" onclick="showCategories(); return false;">📁 Catégories</a>
+      <a href="#" class="nav-tab" onclick="showNewTopic(); return false;">✏️ Nouveau sujet</a>
+    </div>
+    
+    <!-- Vue Catégories -->
+    <div id="viewCategories">
+      <div class="window">
+        <div class="window-header">
+          <span>📁 Catégories du forum</span>
+        </div>
+        <div class="window-content" id="categoriesList"></div>
+      </div>
+    </div>
+    
+    <!-- Vue Topics d'une catégorie -->
+    <div id="viewTopics" style="display:none;">
+      <div class="breadcrumb">
+        <a href="#" onclick="showCategories(); return false;">Forum</a> &gt; <span id="currentCategoryName"></span>
+      </div>
+      <div class="window">
+        <div class="window-header">
+          <span id="topicsHeader">Topics</span>
+          <button class="btn" onclick="showNewTopic()" style="padding:2px 10px;font-size:11px;">+ Nouveau</button>
+        </div>
+        <div class="window-content" id="topicsList"></div>
+      </div>
+    </div>
+    
+    <!-- Vue Topic (posts) -->
+    <div id="viewTopic" style="display:none;">
+      <div class="breadcrumb">
+        <a href="#" onclick="showCategories(); return false;">Forum</a> &gt; 
+        <a href="#" onclick="showTopics(currentCategory); return false;" id="breadcrumbCategory"></a> &gt; 
+        <span id="currentTopicTitle"></span>
+      </div>
+      <div class="window">
+        <div class="window-header">
+          <span id="topicHeader">Topic</span>
+        </div>
+        <div class="window-content" id="postsList"></div>
+      </div>
+      
+      <div class="window">
+        <div class="window-header"><span>💬 Répondre</span></div>
+        <div class="window-content">
+          <div class="form-group">
+            <textarea id="replyContent" placeholder="Votre réponse..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="submitReply()">Envoyer la réponse</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Formulaire nouveau topic -->
+    <div id="viewNewTopic" style="display:none;">
+      <div class="breadcrumb">
+        <a href="#" onclick="showCategories(); return false;">Forum</a> &gt; Nouveau sujet
+      </div>
+      <div class="window">
+        <div class="window-header"><span>✏️ Créer un nouveau sujet</span></div>
+        <div class="window-content">
+          <div class="form-group">
+            <label>Catégorie</label>
+            <select id="newTopicCategory"></select>
+          </div>
+          <div class="form-group">
+            <label>Titre du sujet</label>
+            <input type="text" id="newTopicTitle" maxlength="100" placeholder="Titre...">
+          </div>
+          <div class="form-group">
+            <label>Contenu</label>
+            <textarea id="newTopicContent" placeholder="Votre message..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="submitNewTopic()">Créer le sujet</button>
+          <button class="btn" onclick="showCategories()">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const gun = Gun({ peers: ['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun'] });
+const user = gun.user().recall({ sessionStorage: true });
+const forum = gun.get('vitalism-forum-v1');
+
+let myUsername = '', myPub = '';
+let currentCategory = '', currentTopicId = '';
+
+// Catégories prédéfinies
+const categories = [
+  { id: 'general', name: '💬 Discussions générales', desc: 'Discussions libres sur tous les sujets' },
+  { id: 'philosophie', name: '📚 Philosophie', desc: 'Débats philosophiques et métaphysiques' },
+  { id: 'politique', name: '⚔️ Politique', desc: 'Actualité et analyses politiques' },
+  { id: 'culture', name: '🎭 Culture', desc: 'Art, littérature, musique, cinéma' },
+  { id: 'tech', name: '💻 Technologie', desc: 'Tech, crypto, IA, futurisme' },
+  { id: 'vitalism', name: '🔥 Vitalism', desc: 'Discussions sur le projet et la communauté' }
+];
+
+// Modérateurs (clés publiques)
+const moderators = [];
+
+gun.on('auth', () => initForum());
+setTimeout(() => { if (user.is) initForum(); }, 500);
+
+function initForum() {
+  myUsername = user.is.alias;
+  myPub = user.is.pub;
+  
+  document.getElementById('authRequired').style.display = 'none';
+  document.getElementById('forumArea').style.display = 'block';
+  document.getElementById('userInfo').style.display = 'flex';
+  document.getElementById('currentUser').textContent = myUsername;
+  
+  showCategories();
+}
+
+function showCategories() {
+  hideAllViews();
+  document.getElementById('viewCategories').style.display = 'block';
+  
+  const container = document.getElementById('categoriesList');
+  container.innerHTML = categories.map(cat => `
+    <div class="category" onclick="showTopics('${cat.id}')">
+      <div class="category-header">
+        <span class="category-title">${cat.name}</span>
+        <span class="category-count" id="count-${cat.id}">...</span>
+      </div>
+      <div class="category-desc">${cat.desc}</div>
+    </div>
+  `).join('');
+  
+  // Compter les topics par catégorie
+  categories.forEach(cat => {
+    let count = 0;
+    forum.get('topics').get(cat.id).map().once(() => count++);
+    setTimeout(() => {
+      const el = document.getElementById('count-' + cat.id);
+      if (el) el.textContent = count + ' sujet(s)';
+    }, 1000);
+  });
+  
+  // Remplir le select pour nouveau topic
+  document.getElementById('newTopicCategory').innerHTML = categories.map(cat => 
+    `<option value="${cat.id}">${cat.name}</option>`
+  ).join('');
+}
+
+function showTopics(categoryId) {
+  hideAllViews();
+  document.getElementById('viewTopics').style.display = 'block';
+  currentCategory = categoryId;
+  
+  const cat = categories.find(c => c.id === categoryId);
+  document.getElementById('currentCategoryName').textContent = cat ? cat.name : categoryId;
+  document.getElementById('topicsHeader').textContent = cat ? cat.name : 'Topics';
+  
+  const container = document.getElementById('topicsList');
+  container.innerHTML = '<div class="empty-message">Chargement...</div>';
+  
+  const topics = [];
+  forum.get('topics').get(categoryId).map().once((data, key) => {
+    if (data && data.signed) {
+      SEA.verify(data.signed, data.pub).then(verified => {
+        if (verified) {
+          topics.push({ id: key, ...verified, pub: data.pub });
+          renderTopics(topics, container);
+        }
+      });
+    }
+  });
+  
+  setTimeout(() => {
+    if (topics.length === 0) {
+      container.innerHTML = '<div class="empty-message">Aucun sujet dans cette catégorie. Soyez le premier !</div>';
+    }
+  }, 2000);
+}
+
+function renderTopics(topics, container) {
+  topics.sort((a, b) => b.time - a.time);
+  container.innerHTML = topics.map(t => `
+    <div class="topic" onclick="showTopic('${currentCategory}', '${t.id}')">
+      <div>
+        <div class="topic-title">${escapeHtml(t.title)}</div>
+        <div class="topic-meta">
+          par <span class="topic-author">${escapeHtml(t.author)}</span> - 
+          ${new Date(t.time).toLocaleDateString('fr-FR')}
+        </div>
+      </div>
+      <div class="topic-stats">
+        <span id="replies-${t.id}">...</span> réponses
+      </div>
+    </div>
+  `).join('');
+  
+  // Compter les réponses
+  topics.forEach(t => {
+    let count = 0;
+    forum.get('posts').get(t.id).map().once(() => count++);
+    setTimeout(() => {
+      const el = document.getElementById('replies-' + t.id);
+      if (el) el.textContent = count;
+    }, 500);
+  });
+}
+
+function showTopic(categoryId, topicId) {
+  hideAllViews();
+  document.getElementById('viewTopic').style.display = 'block';
+  currentCategory = categoryId;
+  currentTopicId = topicId;
+  
+  const cat = categories.find(c => c.id === categoryId);
+  document.getElementById('breadcrumbCategory').textContent = cat ? cat.name : categoryId;
+  
+  const container = document.getElementById('postsList');
+  container.innerHTML = '<div class="empty-message">Chargement...</div>';
+  
+  // Charger le topic original
+  forum.get('topics').get(categoryId).get(topicId).once((data) => {
+    if (data && data.signed) {
+      SEA.verify(data.signed, data.pub).then(verified => {
+        if (verified) {
+          document.getElementById('currentTopicTitle').textContent = verified.title;
+          document.getElementById('topicHeader').textContent = verified.title;
+          
+          container.innerHTML = `
+            <div class="post">
+              <div class="post-header">
+                <div>
+                  <span class="post-author">${escapeHtml(verified.author)}</span>
+                  <span class="post-verified">✓ vérifié</span>
+                  ${moderators.includes(data.pub) ? '<span class="mod-badge">MOD</span>' : ''}
+                </div>
+                <span class="post-date">${new Date(verified.time).toLocaleString('fr-FR')}</span>
+              </div>
+              <div class="post-content">${escapeHtml(verified.content)}</div>
+            </div>
+          `;
+          
+          loadReplies(topicId, container);
+        }
+      });
+    }
+  });
+}
+
+function loadReplies(topicId, container) {
+  const replies = [];
+  
+  forum.get('posts').get(topicId).map().once((data, key) => {
+    if (data && data.signed) {
+      SEA.verify(data.signed, data.pub).then(verified => {
+        if (verified) {
+          replies.push({ id: key, ...verified, pub: data.pub });
+          renderReplies(replies, container);
+        }
+      });
+    }
+  });
+}
+
+function renderReplies(replies, container) {
+  replies.sort((a, b) => a.time - b.time);
+  
+  const repliesHtml = replies.map(r => `
+    <div class="post">
+      <div class="post-header">
+        <div>
+          <span class="post-author">${escapeHtml(r.author)}</span>
+          <span class="post-verified">✓ vérifié</span>
+          ${moderators.includes(r.pub) ? '<span class="mod-badge">MOD</span>' : ''}
+        </div>
+        <span class="post-date">${new Date(r.time).toLocaleString('fr-FR')}</span>
+      </div>
+      <div class="post-content">${escapeHtml(r.content)}</div>
+    </div>
+  `).join('');
+  
+  // Garder le post original et ajouter les réponses
+  const firstPost = container.querySelector('.post');
+  if (firstPost) {
+    container.innerHTML = firstPost.outerHTML + repliesHtml;
+  }
+}
+
+function showNewTopic() {
+  hideAllViews();
+  document.getElementById('viewNewTopic').style.display = 'block';
+  
+  if (currentCategory) {
+    document.getElementById('newTopicCategory').value = currentCategory;
+  }
+}
+
+function submitNewTopic() {
+  const categoryId = document.getElementById('newTopicCategory').value;
+  const title = document.getElementById('newTopicTitle').value.trim();
+  const content = document.getElementById('newTopicContent').value.trim();
+  
+  if (!title || !content) {
+    alert('Veuillez remplir tous les champs');
+    return;
+  }
+  
+  const topicData = {
+    title,
+    content,
+    author: myUsername,
+    pub: myPub,
+    time: Date.now(),
+    category: categoryId
+  };
+  
+  SEA.sign(topicData, user._.sea).then(signed => {
+    const topicId = 'topic_' + Date.now() + '_' + myPub.slice(0, 8);
+    forum.get('topics').get(categoryId).get(topicId).put({ signed, pub: myPub });
+    
+    document.getElementById('newTopicTitle').value = '';
+    document.getElementById('newTopicContent').value = '';
+    
+    setTimeout(() => showTopic(categoryId, topicId), 500);
+  });
+}
+
+function submitReply() {
+  const content = document.getElementById('replyContent').value.trim();
+  
+  if (!content) {
+    alert('Veuillez écrire une réponse');
+    return;
+  }
+  
+  const replyData = {
+    content,
+    author: myUsername,
+    pub: myPub,
+    time: Date.now(),
+    topicId: currentTopicId
+  };
+  
+  SEA.sign(replyData, user._.sea).then(signed => {
+    const replyId = 'reply_' + Date.now() + '_' + myPub.slice(0, 8);
+    forum.get('posts').get(currentTopicId).get(replyId).put({ signed, pub: myPub });
+    
+    document.getElementById('replyContent').value = '';
+    
+    setTimeout(() => showTopic(currentCategory, currentTopicId), 500);
+  });
+}
+
+function hideAllViews() {
+  document.getElementById('viewCategories').style.display = 'none';
+  document.getElementById('viewTopics').style.display = 'none';
+  document.getElementById('viewTopic').style.display = 'none';
+  document.getElementById('viewNewTopic').style.display = 'none';
+  
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.nav-tab').classList.add('active');
+}
+
+function logout() {
+  user.leave();
+  location.href = 'auth.html';
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
