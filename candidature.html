@@ -478,7 +478,7 @@ body::before {
     <p>Clinique DENT'AVENIR</p>
     <p>Exp. 3 ans minimum</p>
     <p class="price">Salaire attractif + primes</p>
-    <p class="tel"><a href="lake.html" style="color:#666;text-decoration:none">Envoyer CV à <span class="__cf_email__" data-cfemail="43312620313637262e262d370327262d372235262d2a316d2531">[email&#160;protected]</span></a></p>
+    <p class="tel"><a href="lake.html" style="color:#666;text-decoration:none">Envoyer CV à <span class="__cf_email__" data-cfemail="394b5c5a4b4c4d5c545c574d795d5c574d584f5c57504b175f4b">[email&#160;protected]</span></a></p>
   </div>
   <div class="dental-ad">
     <p class="scientific">"L'émail dentaire est le tissu le plus dur du corps humain, composé à 96% de minéraux."</p>
@@ -501,7 +501,7 @@ body::before {
     <p>Excellente condition</p>
     <p>Idéal collectionneur ou artiste</p>
     <p class="price">Prix: 45€ le lot</p>
-    <p class="tel">Contact: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b6d2d3d8c2c598d5d9dadad3d5c2d9c4f6dbd7dfda98d0c4">[email&#160;protected]</a></p>
+    <p class="tel">Contact: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c0a4a5aeb4b3eea3afacaca5a3b4afb280ada1a9aceea6b2">[email&#160;protected]</a></p>
   </div>
   <div class="dental-ad">
     <span class="tooth-icon">😬</span>
@@ -613,19 +613,14 @@ body::before {
         <div class="radar-section">
           <h3>🔐 ACCÈS FORUM & CHATBOX</h3>
           <p style="font-size:11px;color:#aaa;margin-bottom:10px;">
-            Ces identifiants seront actifs après validation de votre candidature.
+            Ces identifiants seront actifs après validation. <strong style="color:#ff6b6b;">⚠️ Mot de passe UNIQUE et IRRÉCUPÉRABLE.</strong>
           </p>
-          
-          <div style="border:1px solid #ff6666;padding:8px;margin-bottom:12px;background:#220000;font-size:11px;">
-            <strong style="color:#ff6666;">⚠️ IMPORTANT :</strong>
-            <span style="color:#ffaaaa;">Mot de passe UNIQUE et IRRÉCUPÉRABLE en cas d'oubli. <strong style="color:#ffff00;">Exportez vos identifiants !</strong></span>
-          </div>
           
           <div class="field-group">
             <div class="field required">
               <label for="loginPseudo">Pseudo de connexion</label>
-              <input type="text" id="loginPseudo" name="loginPseudo" placeholder="Votre pseudo pour le chat/forum" pattern="[a-zA-Z0-9_-]+" minlength="3" maxlength="20" required>
-              <span class="hint">3-20 caractères, lettres/chiffres/tirets</span>
+              <input type="text" id="loginPseudo" name="loginPseudo" placeholder="Identique au pseudo ci-dessus" pattern="[a-zA-Z0-9_-]+" minlength="3" maxlength="20" required readonly style="background:#333;">
+              <span class="hint">Synchronisé avec votre pseudonyme</span>
             </div>
             <div class="field required">
               <label for="loginPassword">Mot de passe</label>
@@ -643,7 +638,7 @@ body::before {
             </div>
           </div>
           
-          <div style="background:#000080;border:1px solid #fff;padding:8px;margin-top:10px;font-size:11px;">
+          <div style="background:#000;border:1px solid #00ff00;padding:8px;margin-top:10px;font-size:11px;">
             📋 Pseudo : <span id="recapPseudo" style="color:#ffff00;">---</span> | 
             Mot de passe : <span id="recapPassword" style="color:#ffff00;">---</span>
           </div>
@@ -791,7 +786,7 @@ body::before {
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const DRAFT_KEY = 'vitalism_candidature_draft';
 
 function updateRadarValue(input) {
@@ -1036,13 +1031,12 @@ function updateRecap() {
 
 // Synchroniser le pseudo principal avec le pseudo de connexion
 document.getElementById('pseudo').addEventListener('input', function() {
-  const mainPseudo = this.value.replace(/[^a-zA-Z0-9_-]/g, ''); // Nettoyer pour respecter le pattern
+  const mainPseudo = this.value.replace(/[^a-zA-Z0-9_-]/g, '');
   document.getElementById('loginPseudo').value = mainPseudo;
   updateRecap();
 });
 
 // Écouter les changements
-document.getElementById('loginPseudo').addEventListener('input', updateRecap);
 document.getElementById('loginPassword').addEventListener('input', updateRecap);
 
 // Exporter les identifiants

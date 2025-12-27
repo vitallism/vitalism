@@ -273,7 +273,14 @@ let myUsername = '', myPub = '';
 let displayedMessages = new Set();
 
 gun.on('auth', () => initChat());
-setTimeout(() => { if (user.is) initChat(); }, 500);
+setTimeout(() => { 
+  if (user.is) {
+    initChat(); 
+  } else {
+    // Pas connecté : rediriger vers auth.html
+    window.location.href = 'auth.html?redirect=chatbox.html';
+  }
+}, 800);
 
 function initChat() {
   myUsername = user.is.alias;

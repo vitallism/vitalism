@@ -383,7 +383,13 @@ const _SisYfNDn=s=>atob(s);
 const GROUP_KEY=_SisYfNDn(_msRHuN+_ugEbno+_FjhdhZ+_ZiqEwp+_wYcRsJ+_wcYXBq+_PNylkn);
 
 gun.on('auth', () => initForum());
-setTimeout(() => { if (user.is) initForum(); }, 500);
+setTimeout(() => { 
+  if (user.is) {
+    initForum(); 
+  } else {
+    window.location.href = 'auth.html?redirect=forum.html';
+  }
+}, 800);
 
 function initForum() {
   myUsername = user.is.alias;

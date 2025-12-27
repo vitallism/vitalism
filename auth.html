@@ -202,9 +202,18 @@ function login(e) {
 }
 
 function showLoggedIn() {
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('loggedIn').style.display = 'block';
-  document.getElementById('displayUsername').textContent = user.is.alias;
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirect = urlParams.get('redirect');
+  
+  if (redirect) {
+    // Redirection immédiate vers la page demandée
+    window.location.href = redirect;
+  } else {
+    // Afficher l'état connecté
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('loggedIn').style.display = 'block';
+    document.getElementById('displayUsername').textContent = user.is.alias;
+  }
   localStorage.setItem('vitalism-user', JSON.stringify({ username: user.is.alias, pub: user.is.pub }));
 }
 
